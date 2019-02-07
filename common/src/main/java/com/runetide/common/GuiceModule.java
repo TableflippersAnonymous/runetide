@@ -29,22 +29,15 @@ import org.redisson.config.Config;
 import java.util.concurrent.TimeUnit;
 
 public class GuiceModule<T extends ServiceConfiguration> extends AbstractModule {
-    private final T configuration;
     private final Service<T> service;
 
-    public GuiceModule(final T configuration, final Service<T> service) {
-        this.configuration = configuration;
+    public GuiceModule(final Service<T> service) {
         this.service = service;
     }
 
     @Override
     protected void configure() {
         bind(TopicManager.class).to(TopicManagerImpl.class);
-    }
-
-    @Provides
-    public ServiceConfiguration getConfiguration() {
-        return configuration;
     }
 
     @Provides

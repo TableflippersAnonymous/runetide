@@ -1,0 +1,20 @@
+package com.runetide.services.internal.region.server.domain;
+
+import java.io.DataInputStream;
+import java.io.IOException;
+
+public class LoadedChunkSection {
+    private byte[] encodedBlocks = new byte[16*16*16*3]; // y/x/z; 3 bytes for: block id (12 bits), block subtype (4 bits), block light (4 bits), natural light (4 bits)
+    private byte[] encodedData;
+
+    public LoadedChunkSection(final DataInputStream dataInputStream) throws IOException {
+        dataInputStream.readFully(encodedBlocks);
+        final int length = dataInputStream.readUnsignedShort();
+        encodedData = new byte[length];
+        dataInputStream.readFully(encodedData);
+    }
+
+    public BlockRef getBlock(final byte x, final byte y, final byte z) {
+        return new BlockRef(this, x, y, z);
+    }
+}

@@ -2,7 +2,6 @@ package com.runetide.common;
 
 import com.hubspot.dropwizard.guice.GuiceBundle;
 import io.dropwizard.Application;
-import io.dropwizard.Configuration;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import org.slf4j.Logger;
@@ -10,7 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
 
-public abstract class Service<T extends Configuration> extends Application<T> {
+public abstract class Service<T extends ServiceConfiguration> extends Application<T> {
     private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     protected GuiceBundle<T> guiceBundle;
@@ -18,10 +17,10 @@ public abstract class Service<T extends Configuration> extends Application<T> {
     @Override
     public void initialize(final Bootstrap<T> bootstrap) {
         super.initialize(bootstrap);
-        guiceBundle = GuiceBundle.<ApiConfiguration>newBuilder()
-                .addModule(new ApiGuiceModule(module))
-                .enableAutoConfig(getClass().getPackage().getName())
-                .setConfigClass(ApiConfiguration.class)
+        guiceBundle = GuiceBundle.<T>newBuilder()
+                .addModule(new GuiceModule<>(this))
+                .enableAutoConfig("com.runetide")
+                .setConfigClass(getConfigurationClass())
                 .build();
         bootstrap.addBundle(guiceBundle);
     }
