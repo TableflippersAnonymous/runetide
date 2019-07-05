@@ -2,11 +2,10 @@ package com.runetide.services.internal.region.common;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.runetide.common.dto.RegionRef;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Column {
-    @JsonProperty("t")
-    private int top;
-    /*@JsonProperty("b")
-    private BiomeType biome;*/
+public class LoadRegionRequest {
+    @JsonProperty
+    private RegionRef region;
 }

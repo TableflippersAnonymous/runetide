@@ -22,7 +22,7 @@ public class ChunkSection {
     private transient Map<String, String>[] decodedData;
 
     public Block blockAt(final int x, final int y, final int z) {
-
+        return null;
     }
 
     public BlockType blockTypeAt(final int x, final int y, final int z) {
@@ -37,7 +37,7 @@ public class ChunkSection {
     }
 
     public int naturalLightAt(final int x, final int y, final int z) {
-
+        return 0;
     }
 
     private void decodeData() throws IOException {

@@ -1,0 +1,57 @@
+package com.runetide.common.dto;
+
+import com.google.common.base.Objects;
+
+public class RegionRef {
+    private final WorldRef worldRef;
+    private final long x;
+    private final long z;
+
+    public RegionRef(final WorldRef worldRef, final long x, final long z) {
+        this.worldRef = worldRef;
+        this.x = x;
+        this.z = z;
+    }
+
+    public WorldRef getWorldRef() {
+        return worldRef;
+    }
+
+    public long getX() {
+        return x;
+    }
+
+    public long getZ() {
+        return z;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        final RegionRef regionRef = (RegionRef) o;
+        return x == regionRef.x &&
+                z == regionRef.z &&
+                Objects.equal(worldRef, regionRef.worldRef);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(worldRef, x, z);
+    }
+
+    @Override
+    public String toString() {
+        return worldRef + ":" + x + ":" + z;
+    }
+
+    public static RegionRef valueOf(final String stringValue) {
+        final String[] parts = stringValue.split(":", 3);
+        if(parts.length != 3)
+            throw new IllegalArgumentException("Invalid RegionRef: " + stringValue);
+        final WorldRef worldRef = WorldRef.valueOf(parts[0]);
+        final long x = Long.valueOf(parts[1]);
+        final long z = Long.valueOf(parts[2]);
+        return new RegionRef(worldRef, x, z);
+    }
+}

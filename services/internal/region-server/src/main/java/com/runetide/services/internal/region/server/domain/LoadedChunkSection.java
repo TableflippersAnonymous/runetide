@@ -14,7 +14,7 @@ public class LoadedChunkSection {
         dataInputStream.readFully(encodedData);
     }
 
-    public BlockRef getBlock(final byte x, final byte y, final byte z) {
+    /*public BlockRef getBlock(final byte x, final byte y, final byte z) {
         return new BlockRef(this, x, y, z);
-    }
+    }*/
 }
