@@ -8,7 +8,9 @@ import com.runetide.services.internal.region.common.ChunkSection;
 import com.runetide.services.internal.region.common.LoadRegionRequest;
 import com.runetide.services.internal.region.common.Region;
 import com.runetide.services.internal.region.common.RegionChunkData;
+import com.runetide.services.internal.region.server.services.RegionManager;
 
+import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -19,20 +21,32 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.net.URI;
 import java.util.List;
 
 @Path("/regions")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class RegionsResource {
+    private final RegionManager regionManager;
+
+    @Inject
+    public RegionsResource(final RegionManager regionManager) {
+        this.regionManager = regionManager;
+    }
+
     @POST
     public Response loadRegion(final LoadRegionRequest loadRegionRequest) {
-
+        final URI uri = regionManager.queueLoad(loadRegionRequest.getRegion());
+        if(uri == null)
+            return Response.noContent().build();
+        return Response.seeOther(uri).build();
     }
 
     @GET
     public List<Region> getRegions() {
-
+        return regionManager.getLoadedRegions().stream()
+                .map();
     }
 
     @Path("{worldId}/{rx}/{rz}")

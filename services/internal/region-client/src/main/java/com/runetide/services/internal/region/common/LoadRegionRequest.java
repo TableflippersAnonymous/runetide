@@ -8,4 +8,19 @@ import com.runetide.common.dto.RegionRef;
 public class LoadRegionRequest {
     @JsonProperty
     private RegionRef region;
+
+    public LoadRegionRequest() {
+    }
+
+    public LoadRegionRequest(final RegionRef region) {
+        this.region = region;
+    }
+
+    public RegionRef getRegion() {
+        return region;
+    }
+
+    public void setRegion(final RegionRef region) {
+        this.region = region;
+    }
 }
