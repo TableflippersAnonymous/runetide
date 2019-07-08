@@ -1,9 +1,10 @@
 package com.runetide.services.internal.region.server.domain;
 
-import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.common.cache.RemovalListener;
+import com.runetide.common.Constants;
 import com.runetide.common.TopicManager;
 import com.runetide.common.dto.DungeonRef;
 import com.runetide.common.dto.InstanceRef;
@@ -23,7 +24,7 @@ public class LoadedRegion {
 
     private final Region region;
     private final RegionData regionData;
-    private Cache<Integer, LoadedChunk> loadedChunks;
+    private LoadingCache<Integer, LoadedChunk> loadedChunks;
 
     public LoadedRegion(final Region region, final RegionData regionData) {
         this.region = region;
@@ -63,5 +64,9 @@ public class LoadedRegion {
 
     private synchronized void compress(final Integer key, final LoadedChunk value) {
         regionData.getCompressedChunks()[key] = compressor.compress(value.encode());
+    }
+
+    public LoadedChunk getChunk(final int cx, final int cz) {
+        return loadedChunks.getUnchecked(cx * Constants.CHUNKS_PER_REGION_Z + cz);
     }
 }

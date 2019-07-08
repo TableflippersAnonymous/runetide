@@ -1,8 +1,10 @@
 package com.runetide.services.internal.region.server.resources;
 
+import com.google.common.collect.ImmutableList;
 import com.runetide.common.dto.RegionRef;
 import com.runetide.common.dto.WorldRef;
 import com.runetide.services.internal.region.common.Block;
+import com.runetide.services.internal.region.common.BulkBlockUpdateEntry;
 import com.runetide.services.internal.region.common.BulkBlockUpdateRequest;
 import com.runetide.services.internal.region.common.Chunk;
 import com.runetide.services.internal.region.common.ChunkSection;
@@ -63,21 +65,27 @@ public class RegionsResource {
     public RegionChunkData bulkUpdate(@PathParam("worldId") final WorldRef worldId, @PathParam("rx") final long rx,
                                       @PathParam("rz") final long rz,
                                       final BulkBlockUpdateRequest bulkBlockUpdateRequest) {
-
+        final RegionRef regionRef = new RegionRef(worldId, rx, rz);
+        regionManager.update(regionRef, bulkBlockUpdateRequest);
+        return regionManager.getRegionData(regionRef);
     }
 
     @Path("{worldId}/{rx}/{rz}")
     @DELETE
     public Response unloadRegion(@PathParam("worldId") final WorldRef worldId, @PathParam("rx") final long rx,
                                  @PathParam("rz") final long rz) {
-
+        final RegionRef regionRef = new RegionRef(worldId, rx, rz);
+        if(regionManager.queueUnload(regionRef))
+            return Response.noContent().build();
+        return Response.status(Response.Status.NOT_FOUND).build();
     }
 
     @Path("{worldId}/{rx}/{rz}/{cx}/{cz}")
     @GET
     public Chunk getChunk(@PathParam("worldId") final WorldRef worldId, @PathParam("rx") final long rx,
                           @PathParam("rz") final long rz, @PathParam("cx") final int cx, @PathParam("cz") final int cz) {
-
+        final RegionRef regionRef = new RegionRef(worldId, rx, rz);
+        return regionManager.getChunk(regionRef, cx, cz);
     }
 
     @Path("{worldId}/{rx}/{rz}/{cx}/{cz}/{sy}")
@@ -85,7 +93,8 @@ public class RegionsResource {
     public ChunkSection getChunkSection(@PathParam("worldId") final WorldRef worldId, @PathParam("rx") final long rx,
                                         @PathParam("rz") final long rz, @PathParam("cx") final int cx,
                                         @PathParam("cz") final int cz, @PathParam("sy") final int sy) {
-
+        final RegionRef regionRef = new RegionRef(worldId, rx, rz);
+        return regionManager.getChunkSection(regionRef, cx, cz, sy);
     }
 
     @Path("{worldId}/{rx}/{rz}/{cx}/{cz}/{sy}/{bx}/{by}/{bz}")
@@ -95,6 +104,10 @@ public class RegionsResource {
                                  @PathParam("cz") final int cz, @PathParam("sy") final int sy,
                                  @PathParam("bx") final int bx, @PathParam("by") final int by,
                                  @PathParam("bz") final int bz, final Block block) {
-
+        final RegionRef regionRef = new RegionRef(worldId, rx, rz);
+        final BulkBlockUpdateRequest bulkBlockUpdateRequest = new BulkBlockUpdateRequest(ImmutableList.of(
+                new BulkBlockUpdateEntry(cx, cz, sy, bx, by, bz, block)));
+        regionManager.update(regionRef, bulkBlockUpdateRequest);
+        return regionManager.getChunkSection(regionRef, cx, cz, sy);
     }
 }

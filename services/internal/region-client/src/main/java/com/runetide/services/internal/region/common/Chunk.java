@@ -9,4 +9,28 @@ public class Chunk {
     private ChunkSection[] chunkSections;
     @JsonProperty("c")
     private Column[][] columns;
+
+    public Chunk() {
+    }
+
+    public Chunk(final ChunkSection[] chunkSections, final Column[][] columns) {
+        this.chunkSections = chunkSections;
+        this.columns = columns;
+    }
+
+    public ChunkSection[] getChunkSections() {
+        return chunkSections;
+    }
+
+    public void setChunkSections(final ChunkSection[] chunkSections) {
+        this.chunkSections = chunkSections;
+    }
+
+    public Column[][] getColumns() {
+        return columns;
+    }
+
+    public void setColumns(final Column[][] columns) {
+        this.columns = columns;
+    }
 }

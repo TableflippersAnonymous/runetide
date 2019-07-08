@@ -9,4 +9,19 @@ import java.util.List;
 public class BulkBlockUpdateRequest {
     @JsonProperty("u")
     private List<BulkBlockUpdateEntry> updates;
+
+    public BulkBlockUpdateRequest() {
+    }
+
+    public BulkBlockUpdateRequest(final List<BulkBlockUpdateEntry> updates) {
+        this.updates = updates;
+    }
+
+    public List<BulkBlockUpdateEntry> getUpdates() {
+        return updates;
+    }
+
+    public void setUpdates(final List<BulkBlockUpdateEntry> updates) {
+        this.updates = updates;
+    }
 }

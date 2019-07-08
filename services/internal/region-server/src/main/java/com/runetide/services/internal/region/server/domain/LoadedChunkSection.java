@@ -1,6 +1,8 @@
 package com.runetide.services.internal.region.server.domain;
 
 import com.runetide.common.Constants;
+import com.runetide.services.internal.region.common.Block;
+import com.runetide.services.internal.region.common.ChunkSection;
 
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -14,6 +16,16 @@ public class LoadedChunkSection {
         final int length = dataInputStream.readUnsignedShort();
         encodedData = new byte[length];
         dataInputStream.readFully(encodedData);
+    }
+
+    public ChunkSection toClient() {
+        return new ChunkSection(
+                blocks, data, light, decodedData
+        );
+    }
+
+    public void setBlock(final int bx, final int by, final int bz, final Block block) {
+
     }
 
     /*public BlockRef getBlock(final byte x, final byte y, final byte z) {

@@ -21,6 +21,17 @@ public class ChunkSection {
     @JsonIgnore
     private transient Map<String, String>[] decodedData;
 
+    public ChunkSection() {
+    }
+
+    public ChunkSection(final byte[] blocks, final byte[] data, final byte[] light,
+                        final Map<String, String>[] decodedData) {
+        this.blocks = blocks;
+        this.data = data;
+        this.light = light;
+        this.decodedData = decodedData;
+    }
+
     public Block blockAt(final int x, final int y, final int z) {
         return null;
     }
