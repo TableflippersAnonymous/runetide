@@ -5,13 +5,20 @@ import com.runetide.services.internal.region.common.BiomeType;
 import com.runetide.services.internal.region.common.Chunk;
 import com.runetide.services.internal.region.common.ChunkSection;
 import com.runetide.services.internal.region.common.Column;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
 
 public class LoadedChunk {
+    private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
     private LoadedChunkSection[] loadedChunkSections = new LoadedChunkSection[Constants.CHUNK_SECTIONS_PER_CHUNK];
     private byte[] columns = new byte[Constants.COLUMNS_PER_CHUNK*3]; // x/z; 3 bytes for: top (12 bits), biome (12 bits)
 
@@ -45,5 +52,17 @@ public class LoadedChunk {
 
     public LoadedChunkSection getSection(final int sy) {
         return loadedChunkSections[sy];
+    }
+
+    public byte[] encode() {
+        final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        try (final DataOutputStream dataOutputStream = new DataOutputStream(byteArrayOutputStream)) {
+            for(final LoadedChunkSection loadedChunkSection : loadedChunkSections)
+                loadedChunkSection.encode(dataOutputStream);
+            dataOutputStream.write(columns);
+        } catch (final IOException e) {
+            LOG.error("IO Exception encoding Chunk", e);
+        }
+        return byteArrayOutputStream.toByteArray();
     }
 }

@@ -5,6 +5,7 @@ import com.runetide.services.internal.region.common.Block;
 import com.runetide.services.internal.region.common.ChunkSection;
 
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 
 public class LoadedChunkSection {
@@ -19,13 +20,21 @@ public class LoadedChunkSection {
     }
 
     public ChunkSection toClient() {
-        return new ChunkSection(
-                blocks, data, light, decodedData
-        );
+        final byte[] blocks;
+        final byte[] data;
+        final byte[] light;
+
+        return new ChunkSection(blocks, data, light);
     }
 
     public void setBlock(final int bx, final int by, final int bz, final Block block) {
 
+    }
+
+    public void encode(final DataOutputStream dataOutputStream) throws IOException {
+        dataOutputStream.write(encodedBlocks);
+        dataOutputStream.writeShort(encodedData.length);
+        dataOutputStream.write(encodedData);
     }
 
     /*public BlockRef getBlock(final byte x, final byte y, final byte z) {

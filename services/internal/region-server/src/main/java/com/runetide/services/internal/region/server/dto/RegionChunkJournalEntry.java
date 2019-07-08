@@ -7,45 +7,45 @@ import com.runetide.services.internal.region.common.Block;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class RegionChunkJournalEntry {
     @JsonProperty
-    private short x;
+    private int x;
     @JsonProperty
-    private short y;
+    private int y;
     @JsonProperty
-    private short z;
+    private int z;
     @JsonProperty("b")
     private Block block;
 
     public RegionChunkJournalEntry() {
     }
 
-    public RegionChunkJournalEntry(final short x, final short y, final short z, final Block block) {
+    public RegionChunkJournalEntry(final int x, final int y, final int z, final Block block) {
         this.x = x;
         this.y = y;
         this.z = z;
         this.block = block;
     }
 
-    public short getX() {
+    public int getX() {
         return x;
     }
 
-    public void setX(final short x) {
+    public void setX(final int x) {
         this.x = x;
     }
 
-    public short getY() {
+    public int getY() {
         return y;
     }
 
-    public void setY(final short y) {
+    public void setY(final int y) {
         this.y = y;
     }
 
-    public short getZ() {
+    public int getZ() {
         return z;
     }
 
-    public void setZ(final short z) {
+    public void setZ(final int z) {
         this.z = z;
     }
 
