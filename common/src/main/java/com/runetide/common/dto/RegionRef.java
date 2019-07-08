@@ -2,6 +2,10 @@ package com.runetide.common.dto;
 
 import com.google.common.base.Objects;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+
 public class RegionRef {
     private final WorldRef worldRef;
     private final long x;
@@ -52,6 +56,19 @@ public class RegionRef {
         final WorldRef worldRef = WorldRef.valueOf(parts[0]);
         final long x = Long.valueOf(parts[1]);
         final long z = Long.valueOf(parts[2]);
+        return new RegionRef(worldRef, x, z);
+    }
+
+    public void encode(final DataOutputStream dataOutputStream) throws IOException {
+        worldRef.encode(dataOutputStream);
+        dataOutputStream.writeLong(x);
+        dataOutputStream.writeLong(z);
+    }
+
+    public static RegionRef decode(final DataInputStream dataInputStream) throws IOException {
+        final WorldRef worldRef = WorldRef.decode(dataInputStream);
+        final long x = dataInputStream.readLong();
+        final long z = dataInputStream.readLong();
         return new RegionRef(worldRef, x, z);
     }
 }

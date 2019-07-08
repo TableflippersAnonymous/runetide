@@ -24,6 +24,10 @@ public class RegionManager {
         return loadedRegions.values();
     }
 
+    public LoadedRegion getLoadedRegion(final RegionRef regionRef) {
+        return loadedRegions.get(regionRef);
+    }
+
     private void load(final RegionRef region) {
         final LoadedRegion loadedRegion = regionLoader.load(region);
         loadedRegions.put(region, loadedRegion);

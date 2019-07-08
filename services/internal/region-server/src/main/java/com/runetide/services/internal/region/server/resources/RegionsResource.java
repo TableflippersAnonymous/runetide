@@ -1,5 +1,6 @@
 package com.runetide.services.internal.region.server.resources;
 
+import com.runetide.common.dto.RegionRef;
 import com.runetide.common.dto.WorldRef;
 import com.runetide.services.internal.region.common.Block;
 import com.runetide.services.internal.region.common.BulkBlockUpdateRequest;
@@ -8,6 +9,7 @@ import com.runetide.services.internal.region.common.ChunkSection;
 import com.runetide.services.internal.region.common.LoadRegionRequest;
 import com.runetide.services.internal.region.common.Region;
 import com.runetide.services.internal.region.common.RegionChunkData;
+import com.runetide.services.internal.region.server.domain.LoadedRegion;
 import com.runetide.services.internal.region.server.services.RegionManager;
 
 import javax.inject.Inject;
@@ -23,6 +25,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Path("/regions")
 @Produces(MediaType.APPLICATION_JSON)
@@ -45,15 +48,14 @@ public class RegionsResource {
 
     @GET
     public List<Region> getRegions() {
-        return regionManager.getLoadedRegions().stream()
-                .map();
+        return regionManager.getLoadedRegions().stream().map(LoadedRegion::toClientRegion).collect(Collectors.toList());
     }
 
     @Path("{worldId}/{rx}/{rz}")
     @GET
     public Region getRegion(@PathParam("worldId") final WorldRef worldId, @PathParam("rx") final long rx,
                             @PathParam("rz") final long rz) {
-
+        return regionManager.getLoadedRegion(new RegionRef(worldId, rx, rz)).toClientRegion();
     }
 
     @Path("{worldId}/{rx}/{rz}")

@@ -2,6 +2,9 @@ package com.runetide.common.dto;
 
 import com.google.common.base.Objects;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.UUID;
 
 public abstract class UUIDRef<T extends UUIDRef> implements Comparable<T> {
@@ -36,5 +39,16 @@ public abstract class UUIDRef<T extends UUIDRef> implements Comparable<T> {
     @Override
     public int compareTo(final T o) {
         return uuidRef.compareTo(o.getUuidRef());
+    }
+
+    public void encode(final DataOutputStream dataOutputStream) throws IOException {
+        dataOutputStream.writeLong(uuidRef.getLeastSignificantBits());
+        dataOutputStream.writeLong(uuidRef.getMostSignificantBits());
+    }
+
+    protected static UUID decodeInternal(final DataInputStream dataInputStream) throws IOException {
+        final long lo = dataInputStream.readLong();
+        final long hi = dataInputStream.readLong();
+        return new UUID(hi, lo);
     }
 }

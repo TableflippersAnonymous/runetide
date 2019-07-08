@@ -1,10 +1,16 @@
 package com.runetide.common.dto;
 
+import java.io.DataInputStream;
+import java.io.IOException;
 import java.util.UUID;
 
 public class InstanceRef extends UUIDRef<InstanceRef> {
-    protected InstanceRef(final UUID uuidRef) {
+    public InstanceRef(final UUID uuidRef) {
         super(uuidRef);
+    }
+
+    public static InstanceRef decode(final DataInputStream dataInputStream) throws IOException {
+        return new InstanceRef(decodeInternal(dataInputStream));
     }
 
     public static InstanceRef valueOf(final String stringValue) {

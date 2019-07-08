@@ -3,6 +3,8 @@ package com.runetide.services.internal.region.server.dto;
 import com.datastax.driver.mapping.annotations.Column;
 import com.datastax.driver.mapping.annotations.PartitionKey;
 import com.datastax.driver.mapping.annotations.Table;
+import com.runetide.common.dto.RegionRef;
+import com.runetide.common.dto.WorldRef;
 
 import java.util.List;
 import java.util.UUID;
@@ -116,5 +118,9 @@ public class Region {
 
     public void setDungeonIds(final List<UUID> dungeonIds) {
         this.dungeonIds = dungeonIds;
+    }
+
+    public RegionRef toRef() {
+        return new RegionRef(new WorldRef(worldId), x, z);
     }
 }

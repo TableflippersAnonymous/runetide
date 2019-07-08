@@ -1,10 +1,16 @@
 package com.runetide.common.dto;
 
+import java.io.DataInputStream;
+import java.io.IOException;
 import java.util.UUID;
 
 public class SettlementRef extends UUIDRef<SettlementRef> {
-    protected SettlementRef(final UUID uuidRef) {
+    public SettlementRef(final UUID uuidRef) {
         super(uuidRef);
+    }
+
+    public static SettlementRef decode(final DataInputStream dataInputStream) throws IOException {
+        return new SettlementRef(decodeInternal(dataInputStream));
     }
 
     public static SettlementRef valueOf(final String stringValue) {
