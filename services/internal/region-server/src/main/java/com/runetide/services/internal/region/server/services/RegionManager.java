@@ -1,6 +1,7 @@
 package com.runetide.services.internal.region.server.services;
 
 import com.runetide.common.Constants;
+import com.runetide.common.ServiceRegistry;
 import com.runetide.common.TopicManager;
 import com.runetide.common.dto.RegionRef;
 import com.runetide.services.internal.region.common.BulkBlockUpdateEntry;
@@ -14,11 +15,15 @@ import com.runetide.services.internal.region.server.domain.LoadedRegion;
 import com.runetide.services.internal.region.server.dto.BlockUpdateMessage;
 import com.runetide.services.internal.region.server.dto.RegionChunkJournalEntry;
 import com.runetide.services.internal.region.server.dto.RegionLoadMessage;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.state.ConnectionState;
+import org.apache.curator.framework.state.ConnectionStateListener;
 
 import javax.inject.Singleton;
 import java.net.URI;
 import java.util.Collection;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 
 @Singleton
@@ -26,7 +31,28 @@ public class RegionManager {
     private final ExecutorService executorService;
     private final RegionLoader regionLoader;
     private final TopicManager topicManager;
-    private final Map<RegionRef, LoadedRegion> loadedRegions;
+    private final CuratorFramework curatorFramework;
+    private final ServiceRegistry serviceRegistry;
+    private final Map<RegionRef, LoadedRegion> loadedRegions = new ConcurrentHashMap<>();
+
+
+    public RegionManager(final ExecutorService executorService, final RegionLoader regionLoader,
+                         final TopicManager topicManager, final CuratorFramework curatorFramework,
+                         final ServiceRegistry serviceRegistry) throws InterruptedException {
+        this.executorService = executorService;
+        this.regionLoader = regionLoader;
+        this.topicManager = topicManager;
+        this.curatorFramework = curatorFramework;
+        this.serviceRegistry = serviceRegistry;
+        curatorFramework.getConnectionStateListenable().addListener(new ConnectionStateListener() {
+            @Override
+            public void stateChanged(final CuratorFramework curatorFramework, final ConnectionState connectionState) {
+                if(connectionState == ConnectionState.SUSPENDED)
+            }
+        });
+        curatorFramework.blockUntilConnected();
+        isConnected = true;
+    }
 
     public URI queueLoad(final RegionRef region) {
         executorService.submit(()->load(region));
@@ -43,11 +69,13 @@ public class RegionManager {
     private void load(final RegionRef region) {
         final LoadedRegion loadedRegion = regionLoader.load(region);
         loadedRegions.put(region, loadedRegion);
+        serviceRegistry.register("region:" + region);
         topicManager.publish("region:" + region + ":load", new RegionLoadMessage(region));
     }
 
     private void unload(final RegionRef regionRef) {
-
+        serviceRegistry.unregister("region:" + regionRef);
+        regionLoader.save(getLoadedRegion(regionRef));
     }
 
     public Collection<LoadedRegion> getLoadedRegions() {
