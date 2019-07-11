@@ -5,6 +5,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.cache.RemovalListener;
 import com.runetide.common.Constants;
+import com.runetide.common.dto.ChunkDataRef;
 import com.runetide.common.dto.DungeonRef;
 import com.runetide.common.dto.InstanceRef;
 import com.runetide.common.dto.SettlementRef;
@@ -59,6 +60,10 @@ public class LoadedRegion {
                 region.getSettlementIds().stream().map(SettlementRef::new).collect(Collectors.toList()),
                 region.getDungeonIds().stream().map(DungeonRef::new).collect(Collectors.toList())
         );
+    }
+
+    public ChunkDataRef getChunkDataRef() {
+        return regionData.toRef();
     }
 
     private synchronized LoadedChunk decompress(final Integer key) throws IOException {

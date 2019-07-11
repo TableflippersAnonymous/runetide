@@ -32,6 +32,7 @@ public class RegionManager {
     private final RegionLoader regionLoader;
     private final TopicManager topicManager;
     private final CuratorFramework curatorFramework;
+    private final Journaler journaler;
     private final ServiceRegistry serviceRegistry;
     private final Map<RegionRef, LoadedRegion> loadedRegions = new ConcurrentHashMap<>();
 
@@ -103,7 +104,7 @@ public class RegionManager {
         for(final BulkBlockUpdateEntry bulkBlockUpdateEntry : bulkBlockUpdateRequest.getUpdates()) {
             final LoadedChunk chunk = loadedRegion.getChunk(bulkBlockUpdateEntry.getCx(), bulkBlockUpdateEntry.getCz());
             final LoadedChunkSection chunkSection = chunk.getSection(bulkBlockUpdateEntry.getSy());
-            journal(regionRef, new RegionChunkJournalEntry(
+            journaler.journal(loadedRegion.getChunkDataRef(), new RegionChunkJournalEntry(
                     bulkBlockUpdateEntry.getCx() * Constants.BLOCKS_PER_CHUNK_SECTION_X + bulkBlockUpdateEntry.getBx(),
                     bulkBlockUpdateEntry.getSy() * Constants.BLOCKS_PER_CHUNK_SECTION_Y + bulkBlockUpdateEntry.getBy(),
                     bulkBlockUpdateEntry.getCz() * Constants.BLOCKS_PER_CHUNK_SECTION_Z + bulkBlockUpdateEntry.getBz(),
@@ -118,9 +119,5 @@ public class RegionManager {
                     bulkBlockUpdateEntry.getBlock()
             ));
         }
-    }
-
-    private void journal(final RegionRef regionRef, final RegionChunkJournalEntry regionChunkJournalEntry) {
-        //FIXME
     }
 }

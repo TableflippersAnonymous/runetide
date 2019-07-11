@@ -5,17 +5,32 @@ import com.runetide.common.dto.RegionRef;
 import com.runetide.common.services.blobstore.BlobStore;
 import com.runetide.common.util.Compressor;
 import com.runetide.services.internal.region.server.dao.DAORegion;
+import com.runetide.services.internal.region.server.domain.LoadedChunk;
+import com.runetide.services.internal.region.server.domain.LoadedChunkSection;
 import com.runetide.services.internal.region.server.domain.LoadedRegion;
 import com.runetide.services.internal.region.server.dto.Region;
+import com.runetide.services.internal.region.server.dto.RegionChunkJournalEntry;
 import com.runetide.services.internal.region.server.dto.RegionData;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.DataInputStream;
 import java.io.IOException;
 
+@Singleton
 public class RegionLoader {
     private final Compressor compressor;
     private final BlobStore blobStore;
     private final DAORegion daoRegion;
+    private final Journaler journaler;
+
+    @Inject
+    public RegionLoader(final Compressor compressor, final BlobStore blobStore, final DAORegion daoRegion, final Journaler journaler) {
+        this.compressor = compressor;
+        this.blobStore = blobStore;
+        this.daoRegion = daoRegion;
+        this.journaler = journaler;
+    }
 
     public LoadedRegion load(final RegionRef regionRef) throws IOException {
         final Region region = daoRegion.getRegion(regionRef);
@@ -23,13 +38,24 @@ public class RegionLoader {
             /* FIXME: Call the WorldGenerator service */
             return null;
         }
-        LoadedRegion loadedRegion;
+        RegionData regionData;
+
         try(final DataInputStream dataInputStream = new DataInputStream(blobStore.get(
                 Constants.REGION_BLOBSTORE_NAMESPACE, region.getChunkDataId().toString()))) {
-            final RegionData regionData = RegionData.decode(dataInputStream);
-            loadedRegion = new LoadedRegion(compressor, region, regionData);
+            regionData = RegionData.decode(dataInputStream);
         }
-        /* FIXME: Apply journal */
+        final LoadedRegion loadedRegion = new LoadedRegion(compressor, region, regionData);
+        for(final RegionChunkJournalEntry entry : journaler.replay(regionData.toRef())) {
+            final LoadedChunk chunk = loadedRegion.getChunk(entry.getX() / Constants.BLOCKS_PER_CHUNK_SECTION_X,
+                    entry.getZ() / Constants.BLOCKS_PER_CHUNK_SECTION_Z);
+            final LoadedChunkSection chunkSection = chunk.getSection(entry.getY() / Constants.BLOCKS_PER_CHUNK_SECTION_Y);
+            chunkSection.setBlock(
+                    entry.getX() % Constants.BLOCKS_PER_CHUNK_SECTION_X,
+                    entry.getY() % Constants.BLOCKS_PER_CHUNK_SECTION_Y,
+                    entry.getZ() % Constants.BLOCKS_PER_CHUNK_SECTION_Z,
+                    entry.getBlock()
+            );
+        }
         return loadedRegion;
     }
 }
