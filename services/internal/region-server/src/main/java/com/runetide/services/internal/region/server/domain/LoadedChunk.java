@@ -20,7 +20,7 @@ public class LoadedChunk {
     private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private LoadedChunkSection[] loadedChunkSections = new LoadedChunkSection[Constants.CHUNK_SECTIONS_PER_CHUNK];
-    private byte[] columns = new byte[Constants.COLUMNS_PER_CHUNK*3]; // x/z; 3 bytes for: top (12 bits), biome (12 bits)
+    private byte[] columns = new byte[Constants.COLUMNS_PER_CHUNK * Constants.BYTES_PER_COLUMN]; // x/z; 3 bytes for: top (12 bits), biome (12 bits)
 
     public LoadedChunk(final byte[] encoded) throws IOException {
         decode(encoded);

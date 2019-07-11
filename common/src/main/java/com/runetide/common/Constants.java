@@ -15,4 +15,10 @@ public class Constants {
     public static final int COLUMNS_PER_CHUNK_X = BLOCKS_PER_CHUNK_SECTION_X;
     public static final int COLUMNS_PER_CHUNK_Z = BLOCKS_PER_CHUNK_SECTION_Z;
     public static final int COLUMNS_PER_CHUNK = COLUMNS_PER_CHUNK_X * COLUMNS_PER_CHUNK_Z;
+
+    public static final int BYTES_PER_BLOCK_ID = 2;
+    public static final int BYTES_PER_LIGHT = 1;
+    public static final int BYTES_PER_COLUMN = 3;
+    public static final int S3_UPLOAD_PART_SIZE = 5 * 1024 * 1024;
+    public static final String REGION_BLOBSTORE_NAMESPACE = "region";
 }
