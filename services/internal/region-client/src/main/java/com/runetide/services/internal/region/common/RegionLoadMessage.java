@@ -1,4 +1,4 @@
-package com.runetide.services.internal.region.server.dto;
+package com.runetide.services.internal.region.common;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.runetide.common.TopicMessage;

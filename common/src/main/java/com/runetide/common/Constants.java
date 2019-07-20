@@ -15,6 +15,7 @@ public class Constants {
     public static final int COLUMNS_PER_CHUNK_X = BLOCKS_PER_CHUNK_SECTION_X;
     public static final int COLUMNS_PER_CHUNK_Z = BLOCKS_PER_CHUNK_SECTION_Z;
     public static final int COLUMNS_PER_CHUNK = COLUMNS_PER_CHUNK_X * COLUMNS_PER_CHUNK_Z;
+    public static final int BLOCKS_PER_CHUNK_Y = BLOCKS_PER_CHUNK_SECTION_Y * CHUNK_SECTIONS_PER_CHUNK;
 
     public static final int BYTES_PER_BLOCK_ID = 2;
     public static final int BYTES_PER_LIGHT = 1;

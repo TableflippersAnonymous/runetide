@@ -1,9 +1,8 @@
-package com.runetide.services.internal.region.server.dto;
+package com.runetide.services.internal.region.common;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.runetide.common.TopicMessage;
 import com.runetide.common.dto.WorldRef;
-import com.runetide.services.internal.region.common.Block;
 
 public class BlockUpdateMessage extends TopicMessage {
     @JsonProperty("w")

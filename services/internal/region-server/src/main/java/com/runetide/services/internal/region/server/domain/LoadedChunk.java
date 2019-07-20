@@ -2,6 +2,7 @@ package com.runetide.services.internal.region.server.domain;
 
 import com.runetide.common.Constants;
 import com.runetide.services.internal.region.common.BiomeType;
+import com.runetide.services.internal.region.common.Block;
 import com.runetide.services.internal.region.common.Chunk;
 import com.runetide.services.internal.region.common.ChunkSection;
 import com.runetide.services.internal.region.common.Column;
@@ -15,6 +16,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
+import java.util.stream.IntStream;
 
 public class LoadedChunk {
     private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -64,5 +66,34 @@ public class LoadedChunk {
             LOG.error("IO Exception encoding Chunk", e);
         }
         return byteArrayOutputStream.toByteArray();
+    }
+
+    public int getTop(final int x, final int z) {
+        final int base = (x * Constants.COLUMNS_PER_CHUNK_Z + z) * Constants.BYTES_PER_COLUMN;
+        return (((int) columns[base]) << 4) | (columns[base + 1] >> 4);
+    }
+
+    private void setTop(final int x, final int z, final int y) {
+        final int base = (x * Constants.COLUMNS_PER_CHUNK_Z + z) * Constants.BYTES_PER_COLUMN;
+        columns[base] = (byte)(y >> 4);
+        columns[base + 1] = (byte)(((y & 0xf) << 4) | (columns[base + 1] & 0xf));
+    }
+
+    public Block getBlock(final int x, final int y, final int z) {
+        final LoadedChunkSection chunkSection = getSection(y / Constants.BLOCKS_PER_CHUNK_SECTION_Y);
+        return chunkSection.getBlock()
+    }
+
+    public void setBlock(final int x, final int y, final int z, final Block block) {
+        final LoadedChunkSection chunkSection = getSection(y / Constants.BLOCKS_PER_CHUNK_SECTION_Y);
+        chunkSection.setBlock(x, y % Constants.BLOCKS_PER_CHUNK_SECTION_Y, z, block);
+        if(block.getType().isTransparent() && getTop(x, z) == y)
+            setTop(x, z, IntStream.range(0, Constants.BLOCKS_PER_CHUNK_Y)
+                    .map(h -> Constants.BLOCKS_PER_CHUNK_Y - h - 1)
+                    .filter(h -> !getBlock(x, h, z).getType().isTransparent())
+                    .findFirst()
+                    .orElse(0));
+        else if(!block.getType().isTransparent() && getTop(x, z) < y)
+            setTop(x, z, y);
     }
 }

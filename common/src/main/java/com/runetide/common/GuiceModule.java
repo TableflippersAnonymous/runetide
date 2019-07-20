@@ -19,13 +19,22 @@ import com.datastax.driver.mapping.MappingManager;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
+import com.google.inject.name.Named;
+import com.runetide.common.services.servicediscovery.ServiceData;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.BoundedExponentialBackoffRetry;
+import org.apache.curator.x.discovery.ServiceDiscovery;
+import org.apache.curator.x.discovery.ServiceDiscoveryBuilder;
+import org.apache.curator.x.discovery.ServiceInstance;
+import org.apache.curator.x.discovery.ServiceProvider;
+import org.apache.curator.x.discovery.ServiceType;
+import org.apache.curator.x.discovery.details.JsonInstanceSerializer;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
 
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 public class GuiceModule<T extends ServiceConfiguration> extends AbstractModule {
@@ -62,9 +71,51 @@ public class GuiceModule<T extends ServiceConfiguration> extends AbstractModule 
 
     @Provides @Singleton
     public CuratorFramework getCurator(final ServiceConfiguration configuration) {
-        final CuratorFramework curatorFramework = CuratorFrameworkFactory.newClient(configuration.getZookeeperConnectionString(), new BoundedExponentialBackoffRetry(50, 1000, 29));
+        final CuratorFramework curatorFramework = CuratorFrameworkFactory.newClient(configuration.getZookeeperConnectionString(),
+                new BoundedExponentialBackoffRetry(50, 1000, 29));
         curatorFramework.start();
         return curatorFramework;
+    }
+
+    @Provides @Singleton
+    public ServiceInstance<ServiceData> getServiceInstance() throws Exception {
+        return ServiceInstance.<ServiceData>builder()
+                .serviceType(ServiceType.DYNAMIC)
+                .payload(new ServiceData(0))
+                .name(service.getName())
+                .id(UUID.randomUUID().toString())
+                .build();
+    }
+
+    @Provides @Singleton
+    public ServiceDiscovery<ServiceData> getServiceDiscovery(final CuratorFramework curatorFramework,
+                                                             final ServiceInstance<ServiceData> instance) throws Exception {
+        final ServiceDiscovery<ServiceData> serviceDiscovery = ServiceDiscoveryBuilder.builder(ServiceData.class)
+                .basePath("/discovery")
+                .client(curatorFramework)
+                .thisInstance(instance)
+                .serializer(new JsonInstanceSerializer<>(ServiceData.class))
+                .watchInstances(true)
+                .build();
+        serviceDiscovery.start();
+        return serviceDiscovery;
+    }
+
+    @Provides @Singleton
+    @Named("region")
+    public ServiceProvider<ServiceData> getRegionServiceProvider(final ServiceDiscovery<ServiceData> serviceDiscovery) throws Exception {
+
+    }
+
+    @Provides @Singleton
+    @Named("region")
+    public ServiceProvider<ServiceData> getRegionServiceProvider(final ServiceDiscovery<ServiceData> serviceDiscovery) throws Exception {
+        final ServiceProvider<ServiceData> serviceProvider = serviceDiscovery.serviceProviderBuilder()
+                .providerStrategy(instanceProvider -> instanceProvider.getInstances().stream()
+                        .min((o1, o2) -> o2.getPayload().getLoad() - o1.getPayload().getLoad()).get())
+                .serviceName("region")
+                .build();
+        serviceProvider.start();
     }
 
     @Provides @Singleton

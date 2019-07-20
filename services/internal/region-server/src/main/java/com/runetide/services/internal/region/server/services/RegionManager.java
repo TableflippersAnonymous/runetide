@@ -12,9 +12,9 @@ import com.runetide.services.internal.region.common.RegionChunkData;
 import com.runetide.services.internal.region.server.domain.LoadedChunk;
 import com.runetide.services.internal.region.server.domain.LoadedChunkSection;
 import com.runetide.services.internal.region.server.domain.LoadedRegion;
-import com.runetide.services.internal.region.server.dto.BlockUpdateMessage;
+import com.runetide.services.internal.region.common.BlockUpdateMessage;
 import com.runetide.services.internal.region.server.dto.RegionChunkJournalEntry;
-import com.runetide.services.internal.region.server.dto.RegionLoadMessage;
+import com.runetide.services.internal.region.common.RegionLoadMessage;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.framework.state.ConnectionStateListener;
@@ -103,14 +103,14 @@ public class RegionManager {
         final LoadedRegion loadedRegion = getLoadedRegion(regionRef);
         for(final BulkBlockUpdateEntry bulkBlockUpdateEntry : bulkBlockUpdateRequest.getUpdates()) {
             final LoadedChunk chunk = loadedRegion.getChunk(bulkBlockUpdateEntry.getCx(), bulkBlockUpdateEntry.getCz());
-            final LoadedChunkSection chunkSection = chunk.getSection(bulkBlockUpdateEntry.getSy());
             journaler.journal(loadedRegion.getChunkDataRef(), new RegionChunkJournalEntry(
                     bulkBlockUpdateEntry.getCx() * Constants.BLOCKS_PER_CHUNK_SECTION_X + bulkBlockUpdateEntry.getBx(),
                     bulkBlockUpdateEntry.getSy() * Constants.BLOCKS_PER_CHUNK_SECTION_Y + bulkBlockUpdateEntry.getBy(),
                     bulkBlockUpdateEntry.getCz() * Constants.BLOCKS_PER_CHUNK_SECTION_Z + bulkBlockUpdateEntry.getBz(),
                     bulkBlockUpdateEntry.getBlock()
             ));
-            chunkSection.setBlock(bulkBlockUpdateEntry.getBx(), bulkBlockUpdateEntry.getBy(),
+            chunk.setBlock(bulkBlockUpdateEntry.getBx(),
+                    bulkBlockUpdateEntry.getSy() * Constants.BLOCKS_PER_CHUNK_SECTION_Y + bulkBlockUpdateEntry.getBy(),
                     bulkBlockUpdateEntry.getBz(), bulkBlockUpdateEntry.getBlock());
             topicManager.publish("region:" + regionRef + ":blockupdate", new BlockUpdateMessage(
                     regionRef.getWorldRef(), regionRef.getX(), regionRef.getZ(),

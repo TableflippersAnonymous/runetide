@@ -6,7 +6,6 @@ import com.runetide.common.services.blobstore.BlobStore;
 import com.runetide.common.util.Compressor;
 import com.runetide.services.internal.region.server.dao.DAORegion;
 import com.runetide.services.internal.region.server.domain.LoadedChunk;
-import com.runetide.services.internal.region.server.domain.LoadedChunkSection;
 import com.runetide.services.internal.region.server.domain.LoadedRegion;
 import com.runetide.services.internal.region.server.dto.Region;
 import com.runetide.services.internal.region.server.dto.RegionChunkJournalEntry;
@@ -48,10 +47,9 @@ public class RegionLoader {
         for(final RegionChunkJournalEntry entry : journaler.replay(regionData.toRef())) {
             final LoadedChunk chunk = loadedRegion.getChunk(entry.getX() / Constants.BLOCKS_PER_CHUNK_SECTION_X,
                     entry.getZ() / Constants.BLOCKS_PER_CHUNK_SECTION_Z);
-            final LoadedChunkSection chunkSection = chunk.getSection(entry.getY() / Constants.BLOCKS_PER_CHUNK_SECTION_Y);
-            chunkSection.setBlock(
+            chunk.setBlock(
                     entry.getX() % Constants.BLOCKS_PER_CHUNK_SECTION_X,
-                    entry.getY() % Constants.BLOCKS_PER_CHUNK_SECTION_Y,
+                    entry.getY(),
                     entry.getZ() % Constants.BLOCKS_PER_CHUNK_SECTION_Z,
                     entry.getBlock()
             );
