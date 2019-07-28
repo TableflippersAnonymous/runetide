@@ -1,0 +1,6 @@
+package com.runetide.common.domain;
+
+public enum DamageType {
+    NORMAL, PIERCING, SLASHING, BLUDGEONING, FIRE, COLD, NECROTIC, RADIANT, LIGHTNING, SONIC, NATURE, PSYCHIC, POISON,
+    ACID, ARCANE, DARK
+}

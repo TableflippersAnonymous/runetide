@@ -1,7 +1,7 @@
 package com.runetide.services.internal.region.server.domain;
 
 import com.runetide.common.Constants;
-import com.runetide.services.internal.region.common.BiomeType;
+import com.runetide.common.domain.BiomeType;
 import com.runetide.services.internal.region.common.Block;
 import com.runetide.services.internal.region.common.Chunk;
 import com.runetide.services.internal.region.common.ChunkSection;

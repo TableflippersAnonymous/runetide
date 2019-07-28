@@ -1,4 +1,4 @@
-package com.runetide.services.internal.region.common;
+package com.runetide.common.domain;
 
 public enum BiomeType {
     TUNDRA, TAIGA, MONTANE_GRASSLANDS, MONTANE_SHRUBLANDS, CONIFEROUS_FORESTS, MIXED_FORESTS,

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.runetide.common.Constants;
+import com.runetide.common.domain.BlockType;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
