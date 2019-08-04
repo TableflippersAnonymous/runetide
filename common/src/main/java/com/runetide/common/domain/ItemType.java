@@ -234,11 +234,29 @@ public enum ItemType {
     PLATINUM_INGOT(221, 5, null, null, null),
     ZINC_INGOT(222, 5, null, null, null),
     URANIUM_INGOT(223, 5, null, null, null),
+
+    WOODEN_PICKAXE(224, 1, null, EquipmentType.MAIN_HAND, DamageType.PIERCING),
+    STONE_PICKAXE(225, 2, null, EquipmentType.MAIN_HAND, DamageType.PIERCING),
+    IRON_PICKAXE(226, 2, null, EquipmentType.MAIN_HAND, DamageType.PIERCING),
+    QUARTZ_PICKAXE(227, 3, null, EquipmentType.MAIN_HAND, DamageType.PIERCING),
+    JADE_PICKAXE(228, 3, null, EquipmentType.MAIN_HAND, DamageType.PIERCING),
+    DIAMOND_PICKAXE(229, 4, null, EquipmentType.MAIN_HAND, DamageType.PIERCING),
+    TUNGSTEN_PICKAXE(230, 5, null, EquipmentType.MAIN_HAND, DamageType.PIERCING),
+
     ;
     public static final ItemType[] NONE = new ItemType[] {};
     public static final ItemType[] ANY = null;
-    public static final ItemType[] WOODEN_PICKAXES = new ItemType[]{WOODEN_PICKAXE, STONE_PICKAXE};
-    public static final ItemType[] STONE_PICKAXES = new ItemType[] {/* FIXME */};
+    public static final ItemType[] WOODEN_PICKAXES = new ItemType[] { WOODEN_PICKAXE, STONE_PICKAXE, IRON_PICKAXE,
+            QUARTZ_PICKAXE, JADE_PICKAXE, DIAMOND_PICKAXE, TUNGSTEN_PICKAXE };
+    public static final ItemType[] STONE_PICKAXES = new ItemType[] { STONE_PICKAXE, IRON_PICKAXE, QUARTZ_PICKAXE,
+            JADE_PICKAXE, DIAMOND_PICKAXE, TUNGSTEN_PICKAXE };
+    public static final ItemType[] IRON_PICKAXES = new ItemType[] { IRON_PICKAXE, QUARTZ_PICKAXE, JADE_PICKAXE,
+            DIAMOND_PICKAXE, TUNGSTEN_PICKAXE };
+    public static final ItemType[] QUARTZ_PICKAXES = new ItemType[] { QUARTZ_PICKAXE, JADE_PICKAXE, DIAMOND_PICKAXE,
+            TUNGSTEN_PICKAXE };
+    public static final ItemType[] JADE_PICKAXES = new ItemType[] { JADE_PICKAXE, DIAMOND_PICKAXE, TUNGSTEN_PICKAXE };
+    public static final ItemType[] DIAMOND_PICKAXES = new ItemType[] { DIAMOND_PICKAXE, TUNGSTEN_PICKAXE };
+    public static final ItemType[] TUNGSTEN_PICKAXES = new ItemType[] { TUNGSTEN_PICKAXE };
 
     private final int id;
     private final int weight;
