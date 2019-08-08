@@ -37,7 +37,7 @@ public enum ItemType {
     GRAVEL(31, 5, BlockType.GRAVEL, null, null),
     SAND(32, 5, BlockType.SAND, null, null),
     CLAY(33, 5, null, null, null),
-    LOG(92, 5, BlockType.LOG, null, null),
+    OAK_LOG(92, 5, BlockType.OAK_LOG, null, null),
 
     ANTHITE(34, 5, BlockType.ANTHITE, null, null),
     BARITE(35, 5, BlockType.BARITE, null, null),
