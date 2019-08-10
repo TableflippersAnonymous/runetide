@@ -3,22 +3,22 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>services</artifactId>
+        <artifactId>internal-services</artifactId>
         <groupId>com.runetide</groupId>
         <version>0.0.1-DEVELOPMENT-SNAPSHOT</version>
     </parent>
 
-    <artifactId>internal-services</artifactId>
+    <artifactId>region-server</artifactId>
     <version>${runetide.version}</version>
-    <packaging>pom</packaging>
+    <packaging>jar</packaging>
 
-    <name>runetide-internal-services</name>
-
-    <modules>
-        <module>region-client</module>
-        <module>region-server</module>
-    </modules>
+    <name>runetide-region-server</name>
 
     <dependencies>
+        <dependency>
+            <groupId>com.runetide</groupId>
+            <artifactId>region-client</artifactId>
+            <version>${runetide.version}</version>
+        </dependency>
     </dependencies>
 </project>
