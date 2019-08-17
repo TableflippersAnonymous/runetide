@@ -403,7 +403,6 @@ public enum BlockType {
     FLOODLIGHT(),
     ARCANE_LIGHT(),
 
-
     // Storage
     WOODEN_CHEST(186, 100, 0, false, null, null),
     STONE_CHEST(187, 100, 0, false, null, null),
@@ -419,56 +418,106 @@ public enum BlockType {
     SAPPHIRE_TANK(197, 100, 0, false, null, null),
     TITANIUM_TANK(198, 100, 0, false, null, null),
     TUNGSTEN_TANK(199, 100, 0, false, null, null),
-    LEAD_BATTERY(),
-    NICKEL_BATTERY(),
-    FLUX_BATTERY(),
-    SUPER_CAPACITOR(),
+
+    // Logistics
+    ITEM_PIPE(203, 100, 0, false, null, null),
+    LIQUID_PIPE(204, 100, 0, false, null, null),
+    VACUUM_PIPE(205, 100, 0, false, null, null),
+
+    // Machines
+    CRAFTING_TABLE(209, 100, 0, false, null, null),
+
+    // Heat
+    HEAT_PIPE(),
+    COMBUSTION_FURNACE(),
+    ELECTRIC_FURNACE(),
+    OVEN(207, 100, 0, false, null, null),
+    REFINERY(219, 100, 0, false, null, null),
+
+    // Steam
+    BOILER(),
+    HEAT_EXCHANGER(),
+    STEAM_ENGINE(),
+
+    // Etheric
     LESSER_ETHERIC_BATTERY(),
     GREATER_ETHERIC_BATTERY(),
     IMMENSE_ETHERIC_BATTERY(),
-
-    // Logistics
-    COMBUSTION_ENGINE(200, 100, 0, false, null, null),
-    ELECTRIC_ENGINE(201, 100, 0, false, null, null),
-    ETHERIC_ENGINE(202, 100, 0, false, null, null),
-    STEAM_ENGINE(),
-    ITEM_PIPE(203, 100, 0, false, null, null),
-    LIQUID_PIPE(204, 100, 0, false, null, null),
-    PNEUMATIC_PIPE(),
-    VACUUM_PIPE(205, 100, 0, false, null, null),
     ETHER_PIPE(206, 100, 0, false, null, null),
-    HEAT_PIPE(),
-    COAL_GENERATOR(216, 100, 0, false, null, null),
-    THERMOELECTRIC_GENERATOR(),
-    PNEUMATIC_GENERATOR(217, 100, 0, false, null, null),
-    SOLAR_PANEL(218, 100, 0, false, null, null),
-    PUMP(224, 100, 0, false, null, null),
-    BOILER(),
-    COMBUSTION_FURNACE(),
-    ELECTRIC_FURNACE(),
-
-    // Machines
-    FURNACE(207, 100, 0, false, null, null),
-    GRINDER(208, 100, 0, false, null, null),
-    CRAFTING_TABLE(209, 100, 0, false, null, null),
-    AUTOMATED_CRAFTING_TABLE(210, 100, 0, false, null, null),
-    COIN_PRESS(211, 100, 0, false, null, null),
-    STORAGE_COMPUTER(212, 100, 0, false, null, null),
-    CIRCUIT_DESIGNER(213, 100, 0, false, null, null),
-    INTEGRATED_CIRCUIT(214, 100, 0, false, null, null),
-    CIRCUIT_WIRE(215, 100, 0, false, null, null),
-    REFINERY(219, 100, 0, false, null, null),
-    AUTOMATED_FARMING_UNIT(220, 100, 0, false, null, null),
-    PISTON(221, 100, 0, false, null, null),
-    SHIELD(222, 100, 0, false, null, null),
-    QUARRY(223, 100, 0, false, null, null),
-    DIGITAL_MARKET_ADAPTER(225, 100, 0, false, null, null),
-    DIGITAL_BANK_ADAPTER(226, 100, 0, false, null, null),
-    WIRELESS_STORAGE_DEVICE(227, 100, 0, false, null, null),
     TESSERACT(228, 100, 0, false, null, null),
     TELEPORTER(229, 100, 0, false, null, null),
     LEYLINE_ETHER_TAP(230, 100, 0, false, null, null),
+
+    // Pneumatics
+    COMBUSTION_ENGINE(200, 100, 0, false, null, null),
+    ELECTRIC_ENGINE(201, 100, 0, false, null, null),
+    ETHERIC_ENGINE(202, 100, 0, false, null, null),
+    PNEUMATIC_PIPE(),
+    PUMP(224, 100, 0, false, null, null),
+    GRINDER(208, 100, 0, false, null, null),
+    COIN_PRESS(211, 100, 0, false, null, null),
+    PISTON(221, 100, 0, false, null, null),
+    QUARRY(223, 100, 0, false, null, null),
     MILL(231, 100, 0, false, null, null),
+
+    // Electricity
+    TIN_WIRE(),
+    ALUMINUM_WIRE(),
+    COPPER_WIRE(),
+    TUNGSTEN_WIRE(),
+    LOW_VOLTAGE_TRANSFORMER(),
+    MEDIUM_VOLTAGE_TRANSFORMER(),
+    HIGH_VOLTAGE_TRANSFORMER(),
+    EXTREME_VOLTAGE_TRANSFORMER(),
+    LEAD_BATTERY(),
+    NICKEL_BATTERY(),
+    FLUX_BATTERY(),
+    BASIC_CAPACITOR(),
+    SUPER_CAPACITOR(),
+    SOLAR_PANEL(218, 100, 0, false, null, null),
+    COAL_GENERATOR(216, 100, 0, false, null, null),
+    PNEUMATIC_GENERATOR(217, 100, 0, false, null, null),
+    THERMOELECTRIC_GENERATOR(),
+    AUTOMATED_CRAFTING_TABLE(210, 100, 0, false, null, null),
+    AUTOMATED_FARMING_UNIT(220, 100, 0, false, null, null),
+    SHIELD(222, 100, 0, false, null, null),
+
+    // Circuits
+    CIRCUIT_DESIGNER(213, 100, 0, false, null, null),
+    INTEGRATED_CIRCUIT(214, 100, 0, false, null, null),
+    CIRCUIT_WIRE(215, 100, 0, false, null, null),
+    SWITCH(),
+    PRESSURE_PLATE(),
+    LIGHT_SENSOR(),
+    LOW_VOLTAGE_RECTIFIER(),
+
+    // Computers
+    MICRO_CONTROLLER(),
+    DIGITAL_WIRE(),
+    DATA_STORAGE_UNIT(),
+    ANALOG_DIGITAL_CONVERTER(),
+    DIGITAL_ANALOG_CONVERTER(),
+    DISPLAY(),
+    DIGITAL_MARKET_ADAPTER(225, 100, 0, false, null, null),
+    DIGITAL_BANK_ADAPTER(226, 100, 0, false, null, null),
+    STORAGE_ADAPTER(),
+    PROGRAMMER(),
+    RADIO_TRANSCEIVER(),
+
+    // Digital Storage
+    STORAGE_COMPUTER(212, 100, 0, false, null, null),
+    WIRELESS_STORAGE_BASE_STATION(227, 100, 0, false, null, null),
+    SIMPLE_STORAGE_BUS(),
+    MULTIPLEXED_STORAGE_BUS(),
+    MATTER_DIGITAL_CONVERTER(),
+    DIGITAL_MATTER_CONVERTER(),
+    PHYSICAL_STORAGE_INTERFACE(),
+    MULTIPLEXER(),
+    DIGIMECHANICAL_HANDLER(),
+    HIGH_VOLTAGE_RECTIFIER(),
+    BASIC_STORAGE_BUILDING_BLOCK(),
+    ADVANCED_STORAGE_BUILDING_BLOCK(),
+    STORAGE_TERMINAL(),
 
     // Decorative
     WOOL(),
