@@ -6,7 +6,7 @@ import com.datastax.driver.mapping.annotations.Table;
 import com.runetide.common.dto.RegionRef;
 import com.runetide.common.dto.WorldRef;
 
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Table(name = "region")
@@ -21,22 +21,22 @@ public class Region {
     @Column(name = "chunk_data_id")
     private UUID chunkDataId;
     @Column(name = "instance_ids")
-    private List<UUID> instanceIds;
+    private Set<UUID> instanceIds;
     @Column(name = "new_instance_template")
     private String newInstanceTemplate;
     @Column(name = "difficulty_level")
     private int difficultyLevel;
     @Column(name = "settlement_ids")
-    private List<UUID> settlementIds;
+    private Set<UUID> settlementIds;
     @Column(name = "dungeon_ids")
-    private List<UUID> dungeonIds;
+    private Set<UUID> dungeonIds;
 
     public Region() {
     }
 
-    public Region(final UUID worldId, final long x, final long z, final UUID chunkDataId, final List<UUID> instanceIds,
-                  final String newInstanceTemplate, final int difficultyLevel, final List<UUID> settlementIds,
-                  final List<UUID> dungeonIds) {
+    public Region(final UUID worldId, final long x, final long z, final UUID chunkDataId, final Set<UUID> instanceIds,
+                  final String newInstanceTemplate, final int difficultyLevel, final Set<UUID> settlementIds,
+                  final Set<UUID> dungeonIds) {
         this.worldId = worldId;
         this.x = x;
         this.z = z;
@@ -80,11 +80,11 @@ public class Region {
         this.chunkDataId = chunkDataId;
     }
 
-    public List<UUID> getInstanceIds() {
+    public Set<UUID> getInstanceIds() {
         return instanceIds;
     }
 
-    public void setInstanceIds(final List<UUID> instanceIds) {
+    public void setInstanceIds(final Set<UUID> instanceIds) {
         this.instanceIds = instanceIds;
     }
 
@@ -104,19 +104,19 @@ public class Region {
         this.difficultyLevel = difficultyLevel;
     }
 
-    public List<UUID> getSettlementIds() {
+    public Set<UUID> getSettlementIds() {
         return settlementIds;
     }
 
-    public void setSettlementIds(final List<UUID> settlementIds) {
+    public void setSettlementIds(final Set<UUID> settlementIds) {
         this.settlementIds = settlementIds;
     }
 
-    public List<UUID> getDungeonIds() {
+    public Set<UUID> getDungeonIds() {
         return dungeonIds;
     }
 
-    public void setDungeonIds(final List<UUID> dungeonIds) {
+    public void setDungeonIds(final Set<UUID> dungeonIds) {
         this.dungeonIds = dungeonIds;
     }
 

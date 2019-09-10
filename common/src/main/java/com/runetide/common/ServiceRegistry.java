@@ -17,6 +17,8 @@ public class ServiceRegistry {
     private final ServiceDiscovery<ServiceData> serviceDiscovery;
     private final Map<String, ServiceInstance<ServiceData>> registeredServices = new ConcurrentHashMap<>();
 
+
+
     public void register(final String name) throws Exception {
         final ServiceInstance<ServiceData> serviceInstance = ServiceInstance.<ServiceData>builder()
                 .serviceType(ServiceType.DYNAMIC)

@@ -54,8 +54,8 @@ public class RegionRef {
         if(parts.length != 3)
             throw new IllegalArgumentException("Invalid RegionRef: " + stringValue);
         final WorldRef worldRef = WorldRef.valueOf(parts[0]);
-        final long x = Long.valueOf(parts[1]);
-        final long z = Long.valueOf(parts[2]);
+        final long x = Long.parseLong(parts[1]);
+        final long z = Long.parseLong(parts[2]);
         return new RegionRef(worldRef, x, z);
     }
 
@@ -70,5 +70,9 @@ public class RegionRef {
         final long x = dataInputStream.readLong();
         final long z = dataInputStream.readLong();
         return new RegionRef(worldRef, x, z);
+    }
+
+    public ChunkRef chunk(final int x, final int z) {
+        return new ChunkRef(this, x, z);
     }
 }
