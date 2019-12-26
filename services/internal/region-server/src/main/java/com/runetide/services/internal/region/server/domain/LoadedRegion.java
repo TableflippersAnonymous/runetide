@@ -5,10 +5,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.cache.RemovalListener;
 import com.runetide.common.Constants;
-import com.runetide.common.dto.ChunkDataRef;
-import com.runetide.common.dto.DungeonRef;
-import com.runetide.common.dto.InstanceRef;
-import com.runetide.common.dto.SettlementRef;
+import com.runetide.common.dto.*;
 import com.runetide.common.util.Compressor;
 import com.runetide.services.internal.region.common.Chunk;
 import com.runetide.services.internal.region.common.InstanceTemplate;
@@ -17,7 +14,10 @@ import com.runetide.services.internal.region.server.dto.Region;
 import com.runetide.services.internal.region.server.dto.RegionData;
 
 import java.io.IOException;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 
 public class LoadedRegion {
@@ -66,8 +66,29 @@ public class LoadedRegion {
         return regionData.toRef();
     }
 
+    public byte[][] quiesce() {
+        final byte[][] compressedChunks;
+        final Map<Integer, LoadedChunk> activeChunks;
+        synchronized (this) {
+            compressedChunks = Arrays.stream(regionData.getCompressedChunks())
+                    .map(byte[]::clone).toArray(byte[][]::new);
+            activeChunks = loadedChunks.asMap().entrySet().stream().collect(Collectors.toMap(
+                    Map.Entry::getKey,
+                    entry -> entry.getValue().snapshot()
+            ));
+        }
+        for(final Map.Entry<Integer, LoadedChunk> entry : activeChunks.entrySet())
+            compressedChunks[entry.getKey()] = compressor.compress(entry.getValue().encode());
+        return compressedChunks;
+    }
+
+    public RegionRef getRegionRef() {
+        return region.toRef();
+    }
+
     private synchronized LoadedChunk decompress(final Integer key) throws IOException {
-        return new LoadedChunk(compressor.decompress(regionData.getCompressedChunks()[key]));
+        return new LoadedChunk(getRegionRef(), key / Constants.CHUNKS_PER_REGION_Z,
+                key % Constants.CHUNKS_PER_REGION_Z, compressor.decompress(regionData.getCompressedChunks()[key]));
     }
 
     private synchronized void compress(final Integer key, final LoadedChunk value) {
@@ -80,5 +101,9 @@ public class LoadedRegion {
 
     private int chunkKey(final int x, final int z) {
         return x * Constants.CHUNKS_PER_REGION_Z + z;
+    }
+
+    public void setChunkDataId(final UUID newId) {
+        regionData.setId(newId);
     }
 }

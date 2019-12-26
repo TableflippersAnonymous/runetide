@@ -20,4 +20,8 @@ public class WorldRef extends UUIDRef<WorldRef> {
     public RegionRef region(final long x, final long z) {
         return new RegionRef(this, x, z);
     }
+
+    public UUID getId() {
+        return getUuidRef();
+    }
 }

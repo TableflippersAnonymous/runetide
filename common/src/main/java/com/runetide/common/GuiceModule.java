@@ -104,12 +104,6 @@ public class GuiceModule<T extends ServiceConfiguration> extends AbstractModule 
     @Provides @Singleton
     @Named("region")
     public ServiceProvider<ServiceData> getRegionServiceProvider(final ServiceDiscovery<ServiceData> serviceDiscovery) throws Exception {
-
-    }
-
-    @Provides @Singleton
-    @Named("region")
-    public ServiceProvider<ServiceData> getRegionServiceProvider(final ServiceDiscovery<ServiceData> serviceDiscovery) throws Exception {
         final ServiceProvider<ServiceData> serviceProvider = serviceDiscovery.serviceProviderBuilder()
                 .providerStrategy(instanceProvider -> instanceProvider.getInstances().stream()
                         .min((o1, o2) -> o2.getPayload().getLoad() - o1.getPayload().getLoad()).get())

@@ -1,6 +1,7 @@
 package com.runetide.services.internal.region.server.services;
 
 import com.runetide.common.Constants;
+import com.runetide.common.dto.ChunkDataRef;
 import com.runetide.common.dto.RegionRef;
 import com.runetide.common.services.blobstore.BlobStore;
 import com.runetide.common.util.Compressor;
@@ -14,7 +15,10 @@ import com.runetide.services.internal.region.server.dto.RegionData;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Date;
+import java.util.UUID;
 
 @Singleton
 public class RegionLoader {
@@ -55,5 +59,32 @@ public class RegionLoader {
             );
         }
         return loadedRegion;
+    }
+
+    public void save(final LoadedRegion loadedRegion) throws IOException {
+        final UUID newUuid = UUID.randomUUID();
+        final ChunkDataRef newChunkDataRef = new ChunkDataRef(newUuid);
+        final ChunkDataRef oldChunkDataRef = loadedRegion.getChunkDataRef();
+        journaler.beginReplication(oldChunkDataRef, newChunkDataRef);
+        try {
+            final byte[][] compressedChunks = loadedRegion.quiesce();
+            final RegionData regionData = new RegionData(RegionData.CURRENT_VERSION, newUuid,
+                    loadedRegion.getRegionRef(), new Date().getTime(), compressedChunks);
+            try (final DataOutputStream dataOutputStream = new DataOutputStream(blobStore.put(
+                    Constants.REGION_BLOBSTORE_NAMESPACE, regionData.getId().toString()))) {
+                regionData.encode(dataOutputStream);
+            }
+
+            final Region region = daoRegion.getRegion(loadedRegion.getRegionRef());
+            if (region == null)
+                throw new RuntimeException("Could not find loaded region {}" + loadedRegion.getRegionRef());
+
+            region.setChunkDataId(newUuid);
+            loadedRegion.setChunkDataId(newUuid);
+            daoRegion.save(region);
+            journaler.delete(oldChunkDataRef);
+        } finally {
+            journaler.endReplication(oldChunkDataRef, newChunkDataRef);
+        }
     }
 }

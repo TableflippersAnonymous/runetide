@@ -1,9 +1,8 @@
 package com.runetide.services.internal.region.server.services;
 
-import com.runetide.common.Constants;
-import com.runetide.common.ServiceRegistry;
-import com.runetide.common.TopicManager;
+import com.runetide.common.*;
 import com.runetide.common.dto.RegionRef;
+import com.runetide.common.services.servicediscovery.ServiceData;
 import com.runetide.services.internal.region.common.BulkBlockUpdateEntry;
 import com.runetide.services.internal.region.common.BulkBlockUpdateRequest;
 import com.runetide.services.internal.region.common.Chunk;
@@ -18,73 +17,80 @@ import com.runetide.services.internal.region.common.RegionLoadMessage;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.framework.state.ConnectionStateListener;
+import org.apache.curator.x.discovery.ServiceInstance;
+import org.redisson.api.RedissonClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Singleton;
+import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 
 @Singleton
-public class RegionManager {
-    private final ExecutorService executorService;
+public class RegionManager extends UniqueLoadingManager<RegionRef, LoadedRegion> {
+    private static final String REGION_NAMESPACE = "region";
+
     private final RegionLoader regionLoader;
     private final TopicManager topicManager;
-    private final CuratorFramework curatorFramework;
     private final Journaler journaler;
-    private final ServiceRegistry serviceRegistry;
-    private final Map<RegionRef, LoadedRegion> loadedRegions = new ConcurrentHashMap<>();
 
-
-    public RegionManager(final ExecutorService executorService, final RegionLoader regionLoader,
-                         final TopicManager topicManager, final CuratorFramework curatorFramework,
-                         final ServiceRegistry serviceRegistry) throws InterruptedException {
-        this.executorService = executorService;
+    public RegionManager(final String myUrl, final LockManager lockManager, final ServiceRegistry serviceRegistry,
+                         final ExecutorService executorService, final RedissonClient redissonClient,
+                         final CuratorFramework curatorFramework, final RegionLoader regionLoader,
+                         final TopicManager topicManager, final Journaler journaler) throws InterruptedException {
+        super(myUrl, REGION_NAMESPACE, lockManager, serviceRegistry, executorService, redissonClient, curatorFramework);
         this.regionLoader = regionLoader;
         this.topicManager = topicManager;
-        this.curatorFramework = curatorFramework;
-        this.serviceRegistry = serviceRegistry;
-        curatorFramework.getConnectionStateListenable().addListener(new ConnectionStateListener() {
-            @Override
-            public void stateChanged(final CuratorFramework curatorFramework, final ConnectionState connectionState) {
-                if(connectionState == ConnectionState.SUSPENDED)
-            }
-        });
-        curatorFramework.blockUntilConnected();
-        isConnected = true;
+        this.journaler = journaler;
     }
 
-    public URI queueLoad(final RegionRef region) {
-        executorService.submit(()->load(region));
-        return null; //FIXME
+    @Override
+    protected LoadedRegion handleLoad(final RegionRef key) throws IOException {
+        return regionLoader.load(key);
     }
 
-    public boolean queueUnload(final RegionRef regionRef) {
-        if(!loadedRegions.containsKey(regionRef))
-            return false;
-        executorService.submit(()->unload(regionRef));
-        return true;
+    @Override
+    protected void postLoad(RegionRef key, LoadedRegion value) {
+        topicManager.publish("region:" + key + ":load", new RegionLoadMessage(key));
     }
 
-    private void load(final RegionRef region) {
-        final LoadedRegion loadedRegion = regionLoader.load(region);
-        loadedRegions.put(region, loadedRegion);
-        serviceRegistry.register("region:" + region);
-        topicManager.publish("region:" + region + ":load", new RegionLoadMessage(region));
+    @Override
+    protected void postUnload(RegionRef key) {
+
     }
 
-    private void unload(final RegionRef regionRef) {
-        serviceRegistry.unregister("region:" + regionRef);
-        regionLoader.save(getLoadedRegion(regionRef));
+    @Override
+    protected void handleUnload(RegionRef key, LoadedRegion value) throws IOException {
+        regionLoader.save(value);
+    }
+
+    @Override
+    protected void handleReset() {
+
+    }
+
+    @Override
+    protected void handleSuspend() {
+
+    }
+
+    @Override
+    protected void handleResume() {
+
     }
 
     public Collection<LoadedRegion> getLoadedRegions() {
-        return loadedRegions.values();
+        return loaded.values();
     }
 
     public LoadedRegion getLoadedRegion(final RegionRef regionRef) {
-        return loadedRegions.get(regionRef);
+        return loaded.get(regionRef);
     }
 
     public RegionChunkData getRegionData(final RegionRef regionRef) {
@@ -100,6 +106,7 @@ public class RegionManager {
     }
 
     public synchronized void update(final RegionRef regionRef, final BulkBlockUpdateRequest bulkBlockUpdateRequest) {
+        awaitLive();
         final LoadedRegion loadedRegion = getLoadedRegion(regionRef);
         for(final BulkBlockUpdateEntry bulkBlockUpdateEntry : bulkBlockUpdateRequest.getUpdates()) {
             final LoadedChunk chunk = loadedRegion.getChunk(bulkBlockUpdateEntry.getCx(), bulkBlockUpdateEntry.getCz());

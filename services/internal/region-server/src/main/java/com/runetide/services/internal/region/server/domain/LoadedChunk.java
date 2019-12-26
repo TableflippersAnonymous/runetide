@@ -2,6 +2,8 @@ package com.runetide.services.internal.region.server.domain;
 
 import com.runetide.common.Constants;
 import com.runetide.common.domain.BiomeType;
+import com.runetide.common.dto.ChunkRef;
+import com.runetide.common.dto.RegionRef;
 import com.runetide.services.internal.region.common.Block;
 import com.runetide.services.internal.region.common.Chunk;
 import com.runetide.services.internal.region.common.ChunkSection;
@@ -21,17 +23,25 @@ import java.util.stream.IntStream;
 public class LoadedChunk {
     private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
+    private final ChunkRef ref;
     private LoadedChunkSection[] loadedChunkSections = new LoadedChunkSection[Constants.CHUNK_SECTIONS_PER_CHUNK];
     private byte[] columns = new byte[Constants.COLUMNS_PER_CHUNK * Constants.BYTES_PER_COLUMN]; // x/z; 3 bytes for: top (12 bits), biome (12 bits)
 
-    public LoadedChunk(final byte[] encoded) throws IOException {
+    public LoadedChunk(final RegionRef regionRef, final int x, final int z, final byte[] encoded) throws IOException {
+        this.ref = new ChunkRef(regionRef, x, z);
         decode(encoded);
+    }
+
+    private LoadedChunk(final ChunkRef ref, final LoadedChunkSection[] loadedChunkSections, final byte[] columns) {
+        this.ref = ref;
+        this.loadedChunkSections = loadedChunkSections;
+        this.columns = columns;
     }
 
     private void decode(final byte[] encoded) throws IOException {
         try(final DataInputStream dataInputStream = new DataInputStream(new ByteArrayInputStream(encoded))) {
             for (int i = 0; i < loadedChunkSections.length; i++)
-                loadedChunkSections[i] = new LoadedChunkSection(dataInputStream);
+                loadedChunkSections[i] = new LoadedChunkSection(ref, i, dataInputStream);
             dataInputStream.readFully(columns);
         }
     }
@@ -56,7 +66,7 @@ public class LoadedChunk {
         return loadedChunkSections[sy];
     }
 
-    public byte[] encode() {
+    public synchronized byte[] encode() {
         final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         try (final DataOutputStream dataOutputStream = new DataOutputStream(byteArrayOutputStream)) {
             for(final LoadedChunkSection loadedChunkSection : loadedChunkSections)
@@ -81,10 +91,10 @@ public class LoadedChunk {
 
     public Block getBlock(final int x, final int y, final int z) {
         final LoadedChunkSection chunkSection = getSection(y / Constants.BLOCKS_PER_CHUNK_SECTION_Y);
-        return chunkSection.getBlock()
+        return chunkSection.getBlock(x, y % Constants.BLOCKS_PER_CHUNK_SECTION_Y, z);
     }
 
-    public void setBlock(final int x, final int y, final int z, final Block block) {
+    public synchronized void setBlock(final int x, final int y, final int z, final Block block) {
         final LoadedChunkSection chunkSection = getSection(y / Constants.BLOCKS_PER_CHUNK_SECTION_Y);
         chunkSection.setBlock(x, y % Constants.BLOCKS_PER_CHUNK_SECTION_Y, z, block);
         if(block.getType().isTransparent() && getTop(x, z) == y)
@@ -95,5 +105,12 @@ public class LoadedChunk {
                     .orElse(0));
         else if(!block.getType().isTransparent() && getTop(x, z) < y)
             setTop(x, z, y);
+    }
+
+    public synchronized LoadedChunk snapshot() {
+        final byte[] columns = this.columns.clone();
+        final LoadedChunkSection[] loadedChunkSections = Arrays.stream(this.loadedChunkSections)
+                .map(LoadedChunkSection::snapshot).toArray(LoadedChunkSection[]::new);
+        return new LoadedChunk(ref, loadedChunkSections, columns);
     }
 }

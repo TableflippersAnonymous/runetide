@@ -41,11 +41,10 @@ public class RegionsResource {
     }
 
     @POST
-    public Response loadRegion(final LoadRegionRequest loadRegionRequest) {
-        final URI uri = regionManager.queueLoad(loadRegionRequest.getRegion());
-        if(uri == null)
+    public Response loadRegion(final LoadRegionRequest loadRegionRequest) throws Exception {
+        if(regionManager.requestLoad(loadRegionRequest.getRegion()))
             return Response.noContent().build();
-        return Response.seeOther(uri).build();
+        return Response.seeOther(regionManager.getUri(loadRegionRequest.getRegion())).build();
     }
 
     @GET
@@ -75,7 +74,7 @@ public class RegionsResource {
     public Response unloadRegion(@PathParam("worldId") final WorldRef worldId, @PathParam("rx") final long rx,
                                  @PathParam("rz") final long rz) {
         final RegionRef regionRef = new RegionRef(worldId, rx, rz);
-        if(regionManager.queueUnload(regionRef))
+        if(regionManager.requestUnload(regionRef))
             return Response.noContent().build();
         return Response.status(Response.Status.NOT_FOUND).build();
     }

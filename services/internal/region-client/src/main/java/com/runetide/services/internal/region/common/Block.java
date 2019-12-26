@@ -4,9 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.runetide.common.domain.BlockType;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
+import java.util.HashMap;
 import java.util.Map;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -85,5 +84,21 @@ public class Block {
             throw new IllegalStateException(e);
         }
         return byteArrayOutputStream.toByteArray();
+    }
+
+    public static Map<Integer, String> decodeData(final byte[] bytes) {
+        final Map<Integer, String> map = new HashMap<>();
+        if(bytes == null || bytes.length == 0)
+            return map;
+        try(final DataInputStream dataInputStream = new DataInputStream(new ByteArrayInputStream(bytes))) {
+            while(dataInputStream.available() > 0) {
+                final int key = dataInputStream.readInt();
+                final String value = dataInputStream.readUTF();
+                map.put(key, value);
+            }
+        } catch (final IOException e) {
+            throw new IllegalStateException(e);
+        }
+        return map;
     }
 }

@@ -14,10 +14,11 @@ import java.lang.invoke.MethodHandles;
 import java.util.UUID;
 
 public class RegionData {
+    public static final long CURRENT_VERSION = 0;
     private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private final long version;
-    private final UUID id;
+    private UUID id;
     private final RegionRef regionId;
     private final long timestamp;
     private final byte[][] compressedChunks;
@@ -54,6 +55,10 @@ public class RegionData {
         return id;
     }
 
+    public void setId(final UUID newId) {
+        id = newId;
+    }
+
     public RegionRef getRegionId() {
         return regionId;
     }
@@ -66,9 +71,8 @@ public class RegionData {
         return compressedChunks;
     }
 
-    public byte[] encode() {
-        final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        try (final DataOutputStream dataOutputStream = new DataOutputStream(byteArrayOutputStream)) {
+    public void encode(final DataOutputStream dataOutputStream) {
+        try {
             dataOutputStream.writeLong(version);
             dataOutputStream.writeLong(id.getLeastSignificantBits());
             dataOutputStream.writeLong(id.getMostSignificantBits());
@@ -81,7 +85,6 @@ public class RegionData {
         } catch (final IOException e) {
             LOG.error("IO Exception encoding Region: {}", id, e);
         }
-        return byteArrayOutputStream.toByteArray();
     }
 
     public ChunkDataRef toRef() {
