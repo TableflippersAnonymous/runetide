@@ -21,5 +21,8 @@ public class Constants {
     public static final int BYTES_PER_LIGHT = 1;
     public static final int BYTES_PER_COLUMN = 3;
     public static final int S3_UPLOAD_PART_SIZE = 5 * 1024 * 1024;
+
     public static final String REGION_BLOBSTORE_NAMESPACE = "region";
+
+    public static final String ZK_LOCKS = "/runetide/locks/";
 }

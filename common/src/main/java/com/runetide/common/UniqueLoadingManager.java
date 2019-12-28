@@ -47,8 +47,6 @@ import java.util.concurrent.locks.*;
  *
  * Loss of lock results in handleReset being called, followed by attempted clean-up.
  * handleUnload is not called.
- *
- *
  */
 public abstract class UniqueLoadingManager<K, V> {
     private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -115,7 +113,7 @@ public abstract class UniqueLoadingManager<K, V> {
             return true;
         } catch(final Exception e) {
             LOG.error("[{}] Exception caught requesting load key={}", objectName, key, e);
-            lockManager.tryRelease(objectName + ":" + key);
+            lockManager.release(objectName + ":" + key);
             throw new RuntimeException(e);
         }
     }
@@ -176,7 +174,7 @@ public abstract class UniqueLoadingManager<K, V> {
                 serviceRegistry.unregister(objectName + ":" + key);
             } catch(final Exception e2) {}
             try {
-                lockManager.tryRelease(objectName + ":" + key);
+                lockManager.release(objectName + ":" + key);
             } catch(final Exception e2) {}
             throw new RuntimeException(e);
         }
@@ -200,7 +198,7 @@ public abstract class UniqueLoadingManager<K, V> {
         } catch(final Exception e) {}
         clearState(key, UNLOADING);
         try {
-            lockManager.tryRelease(objectName + ":" + key);
+            lockManager.release(objectName + ":" + key);
         } catch(final Exception e) {}
         postUnload(key);
     }
@@ -214,7 +212,7 @@ public abstract class UniqueLoadingManager<K, V> {
                 serviceClaims.remove(key.toString(), myUrl);
             } catch(final Exception e) {}
             try {
-                lockManager.tryRelease(objectName + ":" + key);
+                lockManager.release(objectName + ":" + key);
             } catch(final Exception e) {}
         }
         loaded.clear();
