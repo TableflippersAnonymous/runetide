@@ -22,7 +22,16 @@ public class Constants {
     public static final int BYTES_PER_COLUMN = 3;
     public static final int S3_UPLOAD_PART_SIZE = 5 * 1024 * 1024;
 
-    public static final String REGION_BLOBSTORE_NAMESPACE = "region";
-
     public static final String ZK_LOCKS = "/runetide/locks/";
+    public static final String ZK_SERVICES = "/runetide/services/";
+    public static final String ZK_LEADERS = "/runetide/leaders/";
+
+    public static final String REGION_BLOBSTORE_NAMESPACE = "region";
+    public static final String REGION_TOPIC_PREFIX = "region:";
+    public static final String REGION_JOURNAL_PREFIX = "region:journal:";
+    public static final String REGION_LOADING_NAMESPACE = "region";
+
+    public static final String TIME_REDIS = "time:clock";
+    public static final long TIME_TICK_RATE_MS = 50;
+    public static final String TIME_TOPIC = "time:clock";
 }

@@ -8,17 +8,21 @@ import org.apache.curator.framework.recipes.locks.InterProcessMutex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+@Singleton
 public class LockManagerImpl implements LockManager {
     private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private final LoadingCache<String, InterProcessMutex> cache;
     private final Map<String, InterProcessMutex> active = new HashMap<>();
 
+    @Inject
     public LockManagerImpl(final CuratorFramework curatorFramework) {
         this.cache = CacheBuilder.newBuilder()
                 .expireAfterAccess(30, TimeUnit.MINUTES)

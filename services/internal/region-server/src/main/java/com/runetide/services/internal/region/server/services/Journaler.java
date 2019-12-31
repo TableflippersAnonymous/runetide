@@ -7,6 +7,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.SetMultimap;
+import com.runetide.common.Constants;
 import com.runetide.common.dto.ChunkDataRef;
 import com.runetide.services.internal.region.server.dto.RegionChunkJournalEntry;
 import org.redisson.api.RList;
@@ -45,7 +46,7 @@ public class Journaler {
     }
 
     public Iterable<RegionChunkJournalEntry> replay(final ChunkDataRef chunkDataRef) {
-        final RList<byte[]> journal = redissonClient.getList("region:journal:" + chunkDataRef, ByteArrayCodec.INSTANCE);
+        final RList<byte[]> journal = redissonClient.getList(Constants.REGION_JOURNAL_PREFIX + chunkDataRef, ByteArrayCodec.INSTANCE);
         return journal.stream().map(b -> {
             try {
                 return mapper.readValue(b, RegionChunkJournalEntry.class);
@@ -57,7 +58,7 @@ public class Journaler {
     }
 
     public void delete(final ChunkDataRef chunkDataRef) {
-        final RList<byte[]> journal = redissonClient.getList("region:journal:" + chunkDataRef, ByteArrayCodec.INSTANCE);
+        final RList<byte[]> journal = redissonClient.getList(Constants.REGION_JOURNAL_PREFIX + chunkDataRef, ByteArrayCodec.INSTANCE);
         journal.delete();
         replicationMap.removeAll(chunkDataRef);
     }
@@ -71,7 +72,7 @@ public class Journaler {
     }
 
     private void journalOne(final ChunkDataRef regionDataRef, final RegionChunkJournalEntry regionChunkJournalEntry) {
-        final RList<byte[]> journal = redissonClient.getList("region:journal:" + regionDataRef, ByteArrayCodec.INSTANCE);
+        final RList<byte[]> journal = redissonClient.getList(Constants.REGION_JOURNAL_PREFIX + regionDataRef, ByteArrayCodec.INSTANCE);
         try {
             journal.add(mapper.writeValueAsBytes(regionChunkJournalEntry));
         } catch (final JsonProcessingException e) {

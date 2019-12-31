@@ -20,7 +20,10 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
+import com.runetide.common.services.blobstore.BlobStore;
 import com.runetide.common.services.servicediscovery.ServiceData;
+import com.runetide.common.util.Compressor;
+import com.runetide.common.util.XZCompressor;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.BoundedExponentialBackoffRetry;
@@ -35,6 +38,8 @@ import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
 
 import java.util.UUID;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class GuiceModule<T extends ServiceConfiguration> extends AbstractModule {
@@ -47,6 +52,8 @@ public class GuiceModule<T extends ServiceConfiguration> extends AbstractModule 
     @Override
     protected void configure() {
         bind(TopicManager.class).to(TopicManagerImpl.class);
+        bind(LockManager.class).to(LockManagerImpl.class);
+        bind(Compressor.class).to(XZCompressor.class);
     }
 
     @Provides
@@ -91,7 +98,7 @@ public class GuiceModule<T extends ServiceConfiguration> extends AbstractModule 
     public ServiceDiscovery<ServiceData> getServiceDiscovery(final CuratorFramework curatorFramework,
                                                              final ServiceInstance<ServiceData> instance) throws Exception {
         final ServiceDiscovery<ServiceData> serviceDiscovery = ServiceDiscoveryBuilder.builder(ServiceData.class)
-                .basePath("/discovery")
+                .basePath(Constants.ZK_SERVICES)
                 .client(curatorFramework)
                 .thisInstance(instance)
                 .serializer(new JsonInstanceSerializer<>(ServiceData.class))
@@ -99,17 +106,6 @@ public class GuiceModule<T extends ServiceConfiguration> extends AbstractModule 
                 .build();
         serviceDiscovery.start();
         return serviceDiscovery;
-    }
-
-    @Provides @Singleton
-    @Named("region")
-    public ServiceProvider<ServiceData> getRegionServiceProvider(final ServiceDiscovery<ServiceData> serviceDiscovery) throws Exception {
-        final ServiceProvider<ServiceData> serviceProvider = serviceDiscovery.serviceProviderBuilder()
-                .providerStrategy(instanceProvider -> instanceProvider.getInstances().stream()
-                        .min((o1, o2) -> o2.getPayload().getLoad() - o1.getPayload().getLoad()).get())
-                .serviceName("region")
-                .build();
-        serviceProvider.start();
     }
 
     @Provides @Singleton
@@ -163,6 +159,16 @@ public class GuiceModule<T extends ServiceConfiguration> extends AbstractModule 
     @Provides @Singleton
     public MappingManager getMappingManager(final Session session) {
         return new MappingManager(session);
+    }
+
+    @Provides @Singleton
+    public BlobStore getBlobStore(final ServiceConfiguration configuration) {
+
+    }
+
+    @Provides @Singleton
+    public ScheduledExecutorService getExecutorService() {
+        return Executors.newScheduledThreadPool(5);
     }
 }
 

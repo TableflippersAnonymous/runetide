@@ -26,7 +26,7 @@ public abstract class Service<T extends ServiceConfiguration> extends Applicatio
     }
 
     @Override
-    public void run(final T t, final Environment environment) throws Exception {
+    public void run(final T configuration, final Environment environment) throws Exception {
 
     }
 }
