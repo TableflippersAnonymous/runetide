@@ -15,12 +15,73 @@
     <name>runetide-internal-services</name>
 
     <modules>
-        <module>time-client</module>
-        <module>time-server</module>
-        <module>region-client</module>
-        <module>region-server</module>
+        <module>account-client</module>
+        <module>account-server</module>
+        <module>achievement-client</module>
+        <module>achievement-server</module>
+        <module>ai-client</module>
+        <module>ai-server</module>
+        <module>character-client</module>
+        <module>character-server</module>
+        <module>chat-client</module>
+        <module>chat-server</module>
+        <module>chunksection-client</module>
+        <module>chunksection-server</module>
+        <module>clan-client</module>
+        <module>clan-server</module>
+        <module>clan-server</module>
+        <module>combatsession-client</module>
+        <module>combatsession-server</module>
+        <module>dungeon-client</module>
+        <module>dungeon-server</module>
+        <module>empire-client</module>
+        <module>empire-server</module>
+        <module>entity-client</module>
+        <module>entity-server</module>
+        <module>history-client</module>
+        <module>history-server</module>
+        <module>instance-client</module>
+        <module>instance-server</module>
+        <module>inventory-client</module>
+        <module>inventory-server</module>
+        <module>item-client</module>
+        <module>item-server</module>
+        <module>kingdom-client</module>
+        <module>kingdom-server</module>
+        <module>knowledge-client</module>
+        <module>knowledge-server</module>
         <module>loader-client</module>
         <module>loader-server</module>
+        <module>logic-client</module>
+        <module>logic-server</module>
+        <module>map-client</module>
+        <module>map-server</module>
+        <module>market-client</module>
+        <module>market-server</module>
+        <module>multiverse-client</module>
+        <module>multiverse-server</module>
+        <module>notification-client</module>
+        <module>notification-server</module>
+        <module>party-client</module>
+        <module>party-server</module>
+        <module>prompt-client</module>
+        <module>prompt-server</module>
+        <module>quest-client</module>
+        <module>quest-server</module>
+        <module>questgen-client</module>
+        <module>questgen-server</module>
+        <module>region-client</module>
+        <module>region-server</module>
+        <module>reputation-client</module>
+        <module>reputation-server</module>
+        <module>settlement-client</module>
+        <module>settlement-server</module>
+        <module>time-client</module>
+        <module>time-server</module>
+        <module>world-client</module>
+        <module>world-server</module>
+        <module>worldgen-client</module>
+        <module>worldgen-server</module>
     </modules>
 
     <dependencies>
