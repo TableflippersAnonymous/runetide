@@ -1,14 +1,9 @@
 package com.runetide.services.internal.region.client;
 
+import com.runetide.common.*;
 import com.runetide.common.dto.*;
 import com.runetide.common.services.servicediscovery.ServiceData;
-import com.runetide.services.internal.region.common.Block;
-import com.runetide.services.internal.region.common.BulkBlockUpdateRequest;
-import com.runetide.services.internal.region.common.Chunk;
-import com.runetide.services.internal.region.common.ChunkSection;
-import com.runetide.services.internal.region.common.LoadRegionRequest;
-import com.runetide.services.internal.region.common.Region;
-import com.runetide.services.internal.region.common.RegionChunkData;
+import com.runetide.services.internal.region.common.*;
 import org.apache.curator.x.discovery.ServiceDiscovery;
 import org.apache.curator.x.discovery.ServiceInstance;
 import org.apache.curator.x.discovery.ServiceProvider;
@@ -30,36 +25,16 @@ import java.lang.invoke.MethodHandles;
 import java.util.List;
 
 @Singleton
-public class RegionsClient {
-    private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-    private static final String ACCEPT = MediaType.APPLICATION_JSON;
-    private static final String URI_FORMAT = "http://%s";
-
-    private final ServiceProvider<ServiceData> regionsService;
-    private final Client client;
-
+public class RegionsClient extends UniqueLoadingClient<RegionRef> {
     @Inject
-    public RegionsClient(final ServiceDiscovery<ServiceData> serviceDiscovery) throws Exception {
-        regionsService = serviceDiscovery.serviceProviderBuilder()
-                .providerStrategy(instanceProvider -> instanceProvider.getInstances().stream()
-                        .min((o1, o2) -> o2.getPayload().getLoad() - o1.getPayload().getLoad()).orElse(null))
-                .serviceName("RegionService")
-                .build();
-        regionsService.start();
-        client = ClientBuilder.newClient();
-        client.register(JacksonFeature.class);
+    public RegionsClient(final ServiceRegistry serviceRegistry, final TopicManager topicManager) {
+        super(serviceRegistry, topicManager, Constants.REGION_LOADING_NAMESPACE, "regions");
     }
 
     public Response loadRegion(final LoadRegionRequest loadRegionRequest) {
         return getTarget()
                 .request(ACCEPT)
                 .post(Entity.entity(loadRegionRequest, MediaType.APPLICATION_JSON), Response.class);
-    }
-
-    public List<Region> getRegions() {
-        return getTarget()
-                .request(ACCEPT)
-                .get(new GenericType<List<Region>>() {});
     }
 
     public Region getRegion(final RegionRef regionRef) {
@@ -98,24 +73,21 @@ public class RegionsClient {
                 .put(Entity.entity(block, MediaType.APPLICATION_JSON), ChunkSection.class);
     }
 
-    private WebTarget getTarget(final String address) {
-        final WebTarget webTarget = client.target(String.format(URI_FORMAT, address));
-        return webTarget.path("regions");
+    public TopicListenerHandle<RegionLoadMessage> listenLoad(final RegionRef regionRef,
+                                                             final TopicListener<RegionLoadMessage> listener) {
+        return topicManager.addListener(Constants.REGION_TOPIC_PREFIX + regionRef + ":load", listener,
+                RegionLoadMessage.class);
     }
 
-    private WebTarget getTarget() {
-        try {
-            final ServiceInstance<ServiceData> instance = regionsService.getInstance();
-            return getTarget(instance.getAddress());
-        } catch (final Exception e) {
-            LOG.error("Unexpected exception getting RegionService instance.", e);
-            throw new IllegalStateException(e);
-        }
+    public TopicListenerHandle<BlockUpdateMessage> listenUpdate(final RegionRef regionRef,
+                                                                final TopicListener<BlockUpdateMessage> listener) {
+        return topicManager.addListener(Constants.REGION_TOPIC_PREFIX + regionRef + ":blockupdate", listener,
+                BlockUpdateMessage.class);
     }
 
-    private WebTarget getTarget(final RegionRef regionRef) {
-        final String address = null; //FIXME
-        return getTarget(address)
+    @Override
+    protected WebTarget getTarget(final RegionRef regionRef) {
+        return super.getTarget(regionRef)
                 .path(regionRef.getWorldRef().toString())
                 .path(String.valueOf(regionRef.getX())).path(String.valueOf(regionRef.getZ()));
     }

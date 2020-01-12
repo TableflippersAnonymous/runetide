@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.lang.invoke.MethodHandles;
+import java.net.URI;
 import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
@@ -48,6 +49,26 @@ public class ServiceRegistry {
     public ServiceInstance<ServiceData> getFirst(final String name) throws Exception {
         final Collection<ServiceInstance<ServiceData>> serviceInstances = serviceDiscovery.queryForInstances(name);
         return Iterables.getFirst(serviceInstances, null);
+    }
+
+    public ServiceInstance<ServiceData> getRandom(final String name) throws Exception {
+        final Collection<ServiceInstance<ServiceData>> serviceInstances = serviceDiscovery.queryForInstances(name);
+        return serviceInstances.stream()
+                .skip((int) (serviceInstances.size() * Math.random()))
+                .findFirst().orElse(null);
+    }
+
+    public URI getRandomUri(final String name) {
+        final ServiceInstance<ServiceData> serviceInstance;
+        try {
+            serviceInstance = getRandom(name);
+        } catch (final Exception e) {
+            LOG.error("Caught exception getting URI for service discovery.");
+            throw new RuntimeException(e);
+        }
+        if (serviceInstance == null)
+            throw new IllegalStateException();
+        return URI.create("http://" + serviceInstance.getAddress());
     }
 
     public void clear() {

@@ -10,7 +10,7 @@ public enum BlockType {
     AIR(0, 0, 0, true, null, null),
 
     // Rocks
-    TALC(1, 20, 0, false, ItemType.BROKEN_TALC, ItemType.WOODEN_PICKAXES),
+/*    TALC(1, 20, 0, false, ItemType.BROKEN_TALC, ItemType.WOODEN_PICKAXES),
     GYPSUM(2, 80, 0, false, ItemType.BROKEN_GYPSUM, ItemType.STONE_PICKAXES),
     CALCITE(3, 100, 0, false, ItemType.BROKEN_CALCITE, ItemType.STONE_PICKAXES),
     LIMESTONE(4, 140, 0, false, ItemType.BROKEN_LIMESTONE, ItemType.STONE_PICKAXES),
@@ -24,7 +24,7 @@ public enum BlockType {
     GRANITE(12, 500, 0, false, ItemType.BROKEN_GRANITE, ItemType.JADE_PICKAXES),
     RHYOLITE(13, 750, 0, false, ItemType.BROKEN_RHYOLITE, ItemType.JADE_PICKAXES),
     DIORITE(14, 1000, 0, false, ItemType.BROKEN_DIORITE, ItemType.DIAMOND_PICKAXES),
-    ANDESITE(15, 5000, 0, false, ItemType.BROKEN_ANDESITE, ItemType.DIAMOND_PICKAXES),
+    ANDESITE(15, 5000, 0, false, ItemType.BROKEN_ANDESITE, ItemType.DIAMOND_PICKAXES),*/
     BEDROCK(16, 10000000, 0, false, null, ItemType.NONE),
 
     // Drops from above
@@ -46,7 +46,7 @@ public enum BlockType {
 
     // Trees
     // - Real
-    ALDER_LOG(),
+    /*ALDER_LOG(),
     FRUIT_LOG(),
     ASH_LOG(),
     POPLAR_LOG(),
@@ -538,7 +538,7 @@ public enum BlockType {
     BED(),
     CARPET(),
     CAMP_FIRE(),
-    FLOWER_POT()
+    FLOWER_POT()*/
     ;
 
     private static final Map<Integer, BlockType> map = new HashMap<>();

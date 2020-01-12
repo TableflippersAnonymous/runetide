@@ -1,6 +1,6 @@
 package com.runetide.services.internal.time.server.resources;
 
-import com.runetide.services.internal.time.server.dto.Time;
+import com.runetide.services.internal.time.common.Time;
 import com.runetide.services.internal.time.server.services.ClockTickService;
 
 import javax.inject.Inject;

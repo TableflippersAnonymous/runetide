@@ -1,5 +1,7 @@
 package com.runetide.common;
 
+import java.util.concurrent.TimeUnit;
+
 public class Constants {
     public static final int CHUNKS_PER_REGION_X = 64;
     public static final int CHUNKS_PER_REGION_Z = 64;
@@ -26,12 +28,19 @@ public class Constants {
     public static final String ZK_SERVICES = "/runetide/services/";
     public static final String ZK_LEADERS = "/runetide/leaders/";
 
-    public static final String REGION_BLOBSTORE_NAMESPACE = "region";
-    public static final String REGION_TOPIC_PREFIX = "region:";
-    public static final String REGION_JOURNAL_PREFIX = "region:journal:";
-    public static final String REGION_LOADING_NAMESPACE = "region";
+    public static final String ITEM_SERVICE_NAME = "item";
+    public static final String LOADER_SERVICE_NAME = "loader";
+    public static final String REGION_SERVICE_NAME = "region";
+    public static final String TIME_SERVICE_NAME = "time";
+
+    public static final String REGION_BLOBSTORE_NAMESPACE = REGION_SERVICE_NAME;
+    public static final String REGION_TOPIC_PREFIX = REGION_SERVICE_NAME + ":";
+    public static final String REGION_JOURNAL_PREFIX = REGION_SERVICE_NAME + ":journal:";
+    public static final String REGION_LOADING_NAMESPACE = REGION_SERVICE_NAME;
 
     public static final String TIME_REDIS = "time:clock";
     public static final long TIME_TICK_RATE_MS = 50;
     public static final String TIME_TOPIC = "time:clock";
+
+    public static final long SAVE_RATE_MS = TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES);
 }

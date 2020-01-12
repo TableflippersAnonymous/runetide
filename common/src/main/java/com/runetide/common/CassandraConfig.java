@@ -5,19 +5,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 public class CassandraConfig {
-    private String clusterName;
     private String keyspace;
     private List<String> contactPoints;
     private int port = 9042;
     private boolean authenticated = false;
     private String username;
     private String password;
-
-    private double exclusionThreshold = 3.0;
-    private long scaleMs = 100;
-    private long retryMs = 10000;
-    private long updateMs = 100;
-    private int minimumMeasurements = 50;
 
     private String consistencyLevel = "LOCAL_ONE";
     private String serialConsistencyLevel = "SERIAL";
@@ -28,20 +21,6 @@ public class CassandraConfig {
 
     private int connectTimeoutMs = 5000;
     private boolean tcpKeepAlive = true;
-
-    private long highestTrackableLatencyMs = 15000;
-    private double speculativeRetryPercentile = 99.0;
-    private int speculativeMaxRetries = 2;
-
-    @JsonProperty("cluster_name")
-    public String getClusterName() {
-        return clusterName;
-    }
-
-    @JsonProperty("cluster_name")
-    public void setClusterName(final String clusterName) {
-        this.clusterName = clusterName;
-    }
 
     @JsonProperty("keyspace")
     public String getKeyspace() {
@@ -101,56 +80,6 @@ public class CassandraConfig {
     @JsonProperty("password")
     public void setPassword(final String password) {
         this.password = password;
-    }
-
-    @JsonProperty("exclusion_threshold")
-    public double getExclusionThreshold() {
-        return exclusionThreshold;
-    }
-
-    @JsonProperty("exclusion_threshold")
-    public void setExclusionThreshold(final double exclusionThreshold) {
-        this.exclusionThreshold = exclusionThreshold;
-    }
-
-    @JsonProperty("scale_ms")
-    public long getScaleMs() {
-        return scaleMs;
-    }
-
-    @JsonProperty("scale_ms")
-    public void setScaleMs(final long scaleMs) {
-        this.scaleMs = scaleMs;
-    }
-
-    @JsonProperty("retry_ms")
-    public long getRetryMs() {
-        return retryMs;
-    }
-
-    @JsonProperty("retry_ms")
-    public void setRetryMs(final long retryMs) {
-        this.retryMs = retryMs;
-    }
-
-    @JsonProperty("update_ms")
-    public long getUpdateMs() {
-        return updateMs;
-    }
-
-    @JsonProperty("update_ms")
-    public void setUpdateMs(final long updateMs) {
-        this.updateMs = updateMs;
-    }
-
-    @JsonProperty("minimum_measurements")
-    public int getMinimumMeasurements() {
-        return minimumMeasurements;
-    }
-
-    @JsonProperty("minimum_measurements")
-    public void setMinimumMeasurements(final int minimumMeasurements) {
-        this.minimumMeasurements = minimumMeasurements;
     }
 
     @JsonProperty("consistency_level")
@@ -221,35 +150,5 @@ public class CassandraConfig {
     @JsonProperty("tcp_keep_alive")
     public void setTcpKeepAlive(final boolean tcpKeepAlive) {
         this.tcpKeepAlive = tcpKeepAlive;
-    }
-
-    @JsonProperty("highest_trackable_latency_ms")
-    public long getHighestTrackableLatencyMs() {
-        return highestTrackableLatencyMs;
-    }
-
-    @JsonProperty("highest_trackable_latency_ms")
-    public void setHighestTrackableLatencyMs(final long highestTrackableLatencyMs) {
-        this.highestTrackableLatencyMs = highestTrackableLatencyMs;
-    }
-
-    @JsonProperty("speculative_retry_percentile")
-    public double getSpeculativeRetryPercentile() {
-        return speculativeRetryPercentile;
-    }
-
-    @JsonProperty("speculative_retry_percentile")
-    public void setSpeculativeRetryPercentile(final double speculativeRetryPercentile) {
-        this.speculativeRetryPercentile = speculativeRetryPercentile;
-    }
-
-    @JsonProperty("speculative_max_retries")
-    public int getSpeculativeMaxRetries() {
-        return speculativeMaxRetries;
-    }
-
-    @JsonProperty("speculative_max_retries")
-    public void setSpeculativeMaxRetries(final int speculativeMaxRetries) {
-        this.speculativeMaxRetries = speculativeMaxRetries;
     }
 }

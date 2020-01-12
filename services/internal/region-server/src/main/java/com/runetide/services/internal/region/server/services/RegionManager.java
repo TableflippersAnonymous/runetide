@@ -20,22 +20,23 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 @Singleton
-public class RegionManager extends UniqueLoadingManager<RegionRef, LoadedRegion> {
+public class RegionManager extends SavingUniqueLoadingManager<RegionRef, LoadedRegion> {
     private final RegionLoader regionLoader;
     private final TopicManager topicManager;
     private final Journaler journaler;
 
     @Inject
     public RegionManager(@Named("myUrl") final String myUrl, final LockManager lockManager,
-                         final ServiceRegistry serviceRegistry, final ExecutorService executorService,
+                         final ServiceRegistry serviceRegistry, final ScheduledExecutorService executorService,
                          final RedissonClient redissonClient, final CuratorFramework curatorFramework,
                          final RegionLoader regionLoader, final TopicManager topicManager,
                          final Journaler journaler) throws InterruptedException {
-        super(myUrl, Constants.REGION_LOADING_NAMESPACE, lockManager, serviceRegistry, executorService, redissonClient,
-                curatorFramework);
+        super(myUrl, Constants.REGION_LOADING_NAMESPACE, Constants.SAVE_RATE_MS, TimeUnit.MILLISECONDS, lockManager,
+                serviceRegistry, executorService, redissonClient, curatorFramework);
         this.regionLoader = regionLoader;
         this.topicManager = topicManager;
         this.journaler = journaler;
@@ -74,6 +75,11 @@ public class RegionManager extends UniqueLoadingManager<RegionRef, LoadedRegion>
     @Override
     protected void handleResume() {
 
+    }
+
+    @Override
+    protected void handleSave(RegionRef key, LoadedRegion value) throws IOException {
+        regionLoader.save(value);
     }
 
     public Collection<LoadedRegion> getLoadedRegions() {

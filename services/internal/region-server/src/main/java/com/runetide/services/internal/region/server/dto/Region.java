@@ -1,34 +1,35 @@
 package com.runetide.services.internal.region.server.dto;
 
-import com.datastax.driver.mapping.annotations.Column;
-import com.datastax.driver.mapping.annotations.PartitionKey;
-import com.datastax.driver.mapping.annotations.Table;
+import com.datastax.oss.driver.api.mapper.annotations.CqlName;
+import com.datastax.oss.driver.api.mapper.annotations.Entity;
+import com.datastax.oss.driver.api.mapper.annotations.PartitionKey;
 import com.runetide.common.dto.RegionRef;
 import com.runetide.common.dto.WorldRef;
 
 import java.util.Set;
 import java.util.UUID;
 
-@Table(name = "region")
+@Entity
+@CqlName("region")
 public class Region {
     @PartitionKey(0)
-    @Column(name = "world_id")
+    @CqlName("world_id")
     private UUID worldId;
     @PartitionKey(1)
     private long x;
     @PartitionKey(2)
     private long z;
-    @Column(name = "chunk_data_id")
+    @CqlName("chunk_data_id")
     private UUID chunkDataId;
-    @Column(name = "instance_ids")
+    @CqlName("instance_ids")
     private Set<UUID> instanceIds;
-    @Column(name = "new_instance_template")
+    @CqlName("new_instance_template")
     private String newInstanceTemplate;
-    @Column(name = "difficulty_level")
+    @CqlName("difficulty_level")
     private int difficultyLevel;
-    @Column(name = "settlement_ids")
+    @CqlName("settlement_ids")
     private Set<UUID> settlementIds;
-    @Column(name = "dungeon_ids")
+    @CqlName("dungeon_ids")
     private Set<UUID> dungeonIds;
 
     public Region() {

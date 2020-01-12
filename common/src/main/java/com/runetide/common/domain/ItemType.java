@@ -1,7 +1,7 @@
 package com.runetide.common.domain;
 
 public enum ItemType {
-    TALC(0, 5, BlockType.TALC, null, null),
+/*    TALC(0, 5, BlockType.TALC, null, null),
     GYPSUM(1, 5, BlockType.GYPSUM, null, null),
     CALCITE(2, 5, BlockType.CALCITE, null, null),
     LIMESTONE(3, 5, BlockType.LIMESTONE, null, null),
@@ -15,7 +15,7 @@ public enum ItemType {
     GRANITE(11, 15, BlockType.GRANITE, null, null),
     RHYOLITE(12, 20, BlockType.RHYOLITE, null, null),
     DIORITE(13, 20, BlockType.DIORITE, null, null),
-    ANDESITE(14, 50, BlockType.ANDESITE, null, null),
+    ANDESITE(14, 50, BlockType.ANDESITE, null, null),*/
 
     BROKEN_TALC(15, 5, BlockType.BROKEN_TALC, null, null),
     BROKEN_GYPSUM(16, 5, BlockType.BROKEN_GYPSUM, null, null),
@@ -32,7 +32,7 @@ public enum ItemType {
     BROKEN_RHYOLITE(27, 20, BlockType.BROKEN_RHYOLITE, null, null),
     BROKEN_DIORITE(28, 20, BlockType.BROKEN_DIORITE, null, null),
     BROKEN_ANDESITE(29, 50, BlockType.BROKEN_ANDESITE, null, null),
-
+/*
     DIRT(30, 5, BlockType.DIRT, null, null),
     GRAVEL(31, 5, BlockType.GRAVEL, null, null),
     SAND(32, 5, BlockType.SAND, null, null),
@@ -242,11 +242,11 @@ public enum ItemType {
     JADE_PICKAXE(228, 3, null, EquipmentType.MAIN_HAND, DamageType.PIERCING),
     DIAMOND_PICKAXE(229, 4, null, EquipmentType.MAIN_HAND, DamageType.PIERCING),
     TUNGSTEN_PICKAXE(230, 5, null, EquipmentType.MAIN_HAND, DamageType.PIERCING),
-
+*/
     ;
     public static final ItemType[] NONE = new ItemType[] {};
     public static final ItemType[] ANY = null;
-    public static final ItemType[] WOODEN_PICKAXES = new ItemType[] { WOODEN_PICKAXE, STONE_PICKAXE, IRON_PICKAXE,
+/*    public static final ItemType[] WOODEN_PICKAXES = new ItemType[] { WOODEN_PICKAXE, STONE_PICKAXE, IRON_PICKAXE,
             QUARTZ_PICKAXE, JADE_PICKAXE, DIAMOND_PICKAXE, TUNGSTEN_PICKAXE };
     public static final ItemType[] STONE_PICKAXES = new ItemType[] { STONE_PICKAXE, IRON_PICKAXE, QUARTZ_PICKAXE,
             JADE_PICKAXE, DIAMOND_PICKAXE, TUNGSTEN_PICKAXE };
@@ -256,7 +256,7 @@ public enum ItemType {
             TUNGSTEN_PICKAXE };
     public static final ItemType[] JADE_PICKAXES = new ItemType[] { JADE_PICKAXE, DIAMOND_PICKAXE, TUNGSTEN_PICKAXE };
     public static final ItemType[] DIAMOND_PICKAXES = new ItemType[] { DIAMOND_PICKAXE, TUNGSTEN_PICKAXE };
-    public static final ItemType[] TUNGSTEN_PICKAXES = new ItemType[] { TUNGSTEN_PICKAXE };
+    public static final ItemType[] TUNGSTEN_PICKAXES = new ItemType[] { TUNGSTEN_PICKAXE };*/
 
     private final int id;
     private final int weight;

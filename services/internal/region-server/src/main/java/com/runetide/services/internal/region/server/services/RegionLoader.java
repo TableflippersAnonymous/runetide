@@ -5,7 +5,7 @@ import com.runetide.common.dto.ChunkDataRef;
 import com.runetide.common.dto.RegionRef;
 import com.runetide.common.services.blobstore.BlobStore;
 import com.runetide.common.util.Compressor;
-import com.runetide.services.internal.region.server.dao.DAORegion;
+import com.runetide.services.internal.region.server.dao.RegionDao;
 import com.runetide.services.internal.region.server.domain.LoadedChunk;
 import com.runetide.services.internal.region.server.domain.LoadedRegion;
 import com.runetide.services.internal.region.server.dto.Region;
@@ -24,11 +24,11 @@ import java.util.UUID;
 public class RegionLoader {
     private final Compressor compressor;
     private final BlobStore blobStore;
-    private final DAORegion daoRegion;
+    private final RegionDao daoRegion;
     private final Journaler journaler;
 
     @Inject
-    public RegionLoader(final Compressor compressor, final BlobStore blobStore, final DAORegion daoRegion, final Journaler journaler) {
+    public RegionLoader(final Compressor compressor, final BlobStore blobStore, final RegionDao daoRegion, final Journaler journaler) {
         this.compressor = compressor;
         this.blobStore = blobStore;
         this.daoRegion = daoRegion;

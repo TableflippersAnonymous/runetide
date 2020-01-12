@@ -1,4 +1,4 @@
-package com.runetide.services.internal.time.server.dto;
+package com.runetide.services.internal.time.common;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;

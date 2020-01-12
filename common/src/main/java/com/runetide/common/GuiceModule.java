@@ -1,46 +1,43 @@
 package com.runetide.common;
 
-import com.datastax.driver.core.AuthProvider;
-import com.datastax.driver.core.Cluster;
-import com.datastax.driver.core.CodecRegistry;
-import com.datastax.driver.core.ConsistencyLevel;
-import com.datastax.driver.core.PerHostPercentileTracker;
-import com.datastax.driver.core.PlainTextAuthProvider;
-import com.datastax.driver.core.QueryOptions;
-import com.datastax.driver.core.Session;
-import com.datastax.driver.core.SimpleStatement;
-import com.datastax.driver.core.SocketOptions;
-import com.datastax.driver.core.policies.DCAwareRoundRobinPolicy;
-import com.datastax.driver.core.policies.ExponentialReconnectionPolicy;
-import com.datastax.driver.core.policies.LatencyAwarePolicy;
-import com.datastax.driver.core.policies.PercentileSpeculativeExecutionPolicy;
-import com.datastax.driver.core.policies.TokenAwarePolicy;
-import com.datastax.driver.mapping.MappingManager;
+import com.datastax.oss.driver.api.core.CqlSession;
+import com.datastax.oss.driver.api.core.config.DefaultDriverOption;
+import com.datastax.oss.driver.api.core.config.DriverConfig;
+import com.datastax.oss.driver.api.core.config.DriverConfigLoader;
+import com.datastax.oss.driver.api.core.context.DriverContext;
+import com.datastax.oss.driver.api.core.type.codec.registry.CodecRegistry;
+import com.datastax.oss.driver.internal.core.auth.ProgrammaticPlainTextAuthProvider;
+import com.datastax.oss.driver.internal.core.loadbalancing.DefaultLoadBalancingPolicy;
+import com.datastax.oss.driver.internal.core.specex.ConstantSpeculativeExecutionPolicy;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
-import com.google.inject.name.Named;
 import com.runetide.common.services.blobstore.BlobStore;
+import com.runetide.common.services.blobstore.FSBlobStore;
 import com.runetide.common.services.servicediscovery.ServiceData;
 import com.runetide.common.util.Compressor;
 import com.runetide.common.util.XZCompressor;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.BoundedExponentialBackoffRetry;
 import org.apache.curator.x.discovery.ServiceDiscovery;
 import org.apache.curator.x.discovery.ServiceDiscoveryBuilder;
 import org.apache.curator.x.discovery.ServiceInstance;
-import org.apache.curator.x.discovery.ServiceProvider;
 import org.apache.curator.x.discovery.ServiceType;
 import org.apache.curator.x.discovery.details.JsonInstanceSerializer;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
 
+import java.net.InetSocketAddress;
+import java.time.Duration;
 import java.util.UUID;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class GuiceModule<T extends ServiceConfiguration> extends AbstractModule {
     private final Service<T> service;
@@ -109,61 +106,29 @@ public class GuiceModule<T extends ServiceConfiguration> extends AbstractModule 
     }
 
     @Provides @Singleton
-    public Cluster getCassandraCluster(final CassandraConfig cassandraConfig) {
-        return Cluster.builder() /* Yay, options! */
-                .withClusterName(cassandraConfig.getClusterName())
-                .addContactPoints(cassandraConfig.getContactPoints().toArray(new String[] {}))
-                .withPort(cassandraConfig.getPort())
-                .withAuthProvider(cassandraConfig.isAuthenticated() ? new PlainTextAuthProvider(cassandraConfig.getUsername(), cassandraConfig.getPassword()) : AuthProvider.NONE)
-                .withLoadBalancingPolicy(new TokenAwarePolicy(
-                        LatencyAwarePolicy.builder(
-                                DCAwareRoundRobinPolicy.builder()
-                                        .build()
-                        )
-                                .withExclusionThreshold(cassandraConfig.getExclusionThreshold())
-                                .withScale(cassandraConfig.getScaleMs(), TimeUnit.MILLISECONDS)
-                                .withRetryPeriod(cassandraConfig.getRetryMs(), TimeUnit.MILLISECONDS)
-                                .withUpdateRate(cassandraConfig.getUpdateMs(), TimeUnit.MILLISECONDS)
-                                .withMininumMeasurements(cassandraConfig.getMinimumMeasurements())
-                                .build()
-                ))
-                .withQueryOptions(new QueryOptions()
-                        .setConsistencyLevel(ConsistencyLevel.valueOf(cassandraConfig.getConsistencyLevel()))
-                        .setSerialConsistencyLevel(ConsistencyLevel.valueOf(cassandraConfig.getSerialConsistencyLevel()))
-                        .setFetchSize(cassandraConfig.getFetchSize())
-                )
-                .withReconnectionPolicy(new ExponentialReconnectionPolicy(cassandraConfig.getReconnectBaseDelayMs(), cassandraConfig.getReconnectMaxDelayMs()))
-                .withSocketOptions(new SocketOptions()
-                        .setConnectTimeoutMillis(cassandraConfig.getConnectTimeoutMs())
-                        .setKeepAlive(cassandraConfig.isTcpKeepAlive())
-                )
-                .withSpeculativeExecutionPolicy(new PercentileSpeculativeExecutionPolicy(
-                        PerHostPercentileTracker.builder(cassandraConfig.getHighestTrackableLatencyMs()).build(),
-                        cassandraConfig.getSpeculativeRetryPercentile(),
-                        cassandraConfig.getSpeculativeMaxRetries()
-                ))
-                .withCodecRegistry(new CodecRegistry()
-
-                )
-                .withoutMetrics() // FIXME: Needed for dependency issues with Dropwizard.
+    public CqlSession getCassandraSession(final CassandraConfig cassandraConfig) {
+        return CqlSession.builder() /* Yay, options! */
+                .addContactPoints(cassandraConfig.getContactPoints().stream().map(s -> new InetSocketAddress(s, cassandraConfig.getPort())).collect(Collectors.toList()))
+                .withAuthProvider(cassandraConfig.isAuthenticated() ? new ProgrammaticPlainTextAuthProvider(cassandraConfig.getUsername(), cassandraConfig.getPassword()) : null)
+                .withConfigLoader(DriverConfigLoader.programmaticBuilder()
+                        .withString(DefaultDriverOption.LOAD_BALANCING_POLICY_CLASS, "DcInferringLoadBalancingPolicy")
+                        .withString(DefaultDriverOption.REQUEST_CONSISTENCY, cassandraConfig.getConsistencyLevel())
+                        .withString(DefaultDriverOption.REQUEST_SERIAL_CONSISTENCY, cassandraConfig.getSerialConsistencyLevel())
+                        .withInt(DefaultDriverOption.REQUEST_PAGE_SIZE, cassandraConfig.getFetchSize())
+                        .withString(DefaultDriverOption.RECONNECTION_POLICY_CLASS, "ExponentialReconnectionPolicy")
+                        .withDuration(DefaultDriverOption.RECONNECTION_BASE_DELAY, Duration.ofMillis(cassandraConfig.getReconnectBaseDelayMs()))
+                        .withDuration(DefaultDriverOption.RECONNECTION_MAX_DELAY, Duration.ofMillis(cassandraConfig.getReconnectMaxDelayMs()))
+                        .withDuration(DefaultDriverOption.CONTROL_CONNECTION_TIMEOUT, Duration.ofMillis(cassandraConfig.getConnectTimeoutMs()))
+                        .withBoolean(DefaultDriverOption.SOCKET_KEEP_ALIVE, cassandraConfig.isTcpKeepAlive())
+                        .build())
+                .withKeyspace(cassandraConfig.getKeyspace())
                 .build();
     }
 
     @Provides @Singleton
-    public Session getCassandraSession(final CassandraConfig cassandraConfig, final Cluster cassandraCluster) {
-        final Session session = cassandraCluster.connect();
-        session.execute(new SimpleStatement("USE " + cassandraConfig.getKeyspace()));
-        return session;
-    }
-
-    @Provides @Singleton
-    public MappingManager getMappingManager(final Session session) {
-        return new MappingManager(session);
-    }
-
-    @Provides @Singleton
     public BlobStore getBlobStore(final ServiceConfiguration configuration) {
-
+        //TODO: FIXME
+        return new FSBlobStore(".");
     }
 
     @Provides @Singleton

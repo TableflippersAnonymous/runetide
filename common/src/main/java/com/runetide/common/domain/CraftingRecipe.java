@@ -1,7 +1,7 @@
 package com.runetide.common.domain;
 
 public enum CraftingRecipe {
-    ALEXANDRITE_BLOCK(
+    /*ALEXANDRITE_BLOCK(
             "AAAAA",
             "AAAAA",
             "AAAAA",
@@ -28,12 +28,12 @@ public enum CraftingRecipe {
             "  |  ",
             "  |  ",
             "  |  ",
-            ItemType.WOODEN_PICKAXE, 1, "W|", ItemType.WOODEN_PLANK, ItemType.STICK)
+            ItemType.WOODEN_PICKAXE, 1, "W|", ItemType.WOODEN_PLANK, ItemType.STICK)*/
 
     ;
-    private final ItemType[] grid;
+    /*private final ItemType[] grid;
     private final ItemType output;
-    private final int count;
+    private final int count;*/
 
     CraftingRecipe(final String row1, final String row2, final String row3, final String row4, final String row5,
                    final ItemType output, final int count, final String legend, final ItemType... key) {
