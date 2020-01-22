@@ -28,10 +28,13 @@ public class Constants {
     public static final String ZK_SERVICES = "/runetide/services/";
     public static final String ZK_LEADERS = "/runetide/leaders/";
 
+    public static final String ENTITY_SERVICE_NAME = "entity";
     public static final String ITEM_SERVICE_NAME = "item";
     public static final String LOADER_SERVICE_NAME = "loader";
     public static final String REGION_SERVICE_NAME = "region";
     public static final String TIME_SERVICE_NAME = "time";
+
+    public static final String ENTITY_LOADING_NAMESPACE = ENTITY_SERVICE_NAME;
 
     public static final String REGION_BLOBSTORE_NAMESPACE = REGION_SERVICE_NAME;
     public static final String REGION_TOPIC_PREFIX = REGION_SERVICE_NAME + ":";

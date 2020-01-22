@@ -20,7 +20,8 @@ CREATE TYPE entity_direction (
 
 CREATE TYPE entity_effect (
     kind int,
-    duration int
+    duration int,
+    intensity int
 );
 
 CREATE TABLE entity (
@@ -36,3 +37,10 @@ CREATE TABLE entity (
     effects frozen<set<entity_effect>>,
     PRIMARY KEY ((id))
 ) WITH COMPACTION = { 'class': 'LeveledCompactionStrategy' };
+
+CREATE MATERIALIZED VIEW entities_by_instance
+  AS SELECT id, kind, instance, inventory, position, speed, accel, face, look, effects
+   FROM entity
+   WHERE instance IS NOT NULL AND id IS NOT NULL
+  PRIMARY KEY (instance, id)
+  WITH COMPACTION = { 'class': 'LeveledCompactionStrategy' };
