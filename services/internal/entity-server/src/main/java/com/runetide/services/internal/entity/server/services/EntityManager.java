@@ -27,7 +27,7 @@ public class EntityManager extends TickingSavingUniqueLoadingManager<EntityRef, 
 
     @Override
     protected void handleTick(EntityRef key, LoadedEntity value, long tick) throws Exception {
-
+        value.tick();
     }
 
     @Override
