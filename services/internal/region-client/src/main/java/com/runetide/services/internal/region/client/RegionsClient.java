@@ -4,6 +4,7 @@ import com.runetide.common.*;
 import com.runetide.common.dto.*;
 import com.runetide.common.services.servicediscovery.ServiceData;
 import com.runetide.services.internal.region.common.*;
+import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.x.discovery.ServiceDiscovery;
 import org.apache.curator.x.discovery.ServiceInstance;
 import org.apache.curator.x.discovery.ServiceProvider;
@@ -27,8 +28,9 @@ import java.util.List;
 @Singleton
 public class RegionsClient extends UniqueLoadingClient<RegionRef> {
     @Inject
-    public RegionsClient(final ServiceRegistry serviceRegistry, final TopicManager topicManager) {
-        super(serviceRegistry, topicManager, Constants.REGION_LOADING_NAMESPACE, "regions");
+    public RegionsClient(final ServiceRegistry serviceRegistry, final TopicManager topicManager,
+                         final CuratorFramework curatorFramework) {
+        super(serviceRegistry, topicManager, Constants.REGION_LOADING_NAMESPACE, "regions", curatorFramework);
     }
 
     public Response loadRegion(final LoadRegionRequest loadRegionRequest) {

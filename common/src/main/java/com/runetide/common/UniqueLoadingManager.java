@@ -1,6 +1,11 @@
 package com.runetide.common;
 
 import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.recipes.cache.PathChildrenCache;
+import org.apache.curator.framework.recipes.leader.LeaderSelector;
+import org.apache.curator.framework.recipes.leader.LeaderSelectorListener;
+import org.apache.curator.framework.state.ConnectionState;
+import org.apache.curator.utils.ZKPaths;
 import org.redisson.api.RMap;
 import org.redisson.api.RedissonClient;
 import org.redisson.client.codec.StringCodec;
@@ -9,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -66,18 +72,23 @@ public abstract class UniqueLoadingManager<K, V> {
     private final RMap<String, String> serviceClaims;
     private final Lock suspendLock = new ReentrantLock();
     private final Condition suspendCondition = suspendLock.newCondition();
+    private final Map<K, LeaderSelector> leaderSelectors = new HashMap<>();
+    private final PathChildrenCache pathChildrenCache;
+    private final CuratorFramework curatorFramework;
     protected final Map<K, V> loaded = new ConcurrentHashMap<>();
     protected volatile boolean isLive;
     protected volatile boolean isLost;
 
     protected UniqueLoadingManager(final String myUrl, final String objectName, final LockManager lockManager,
                                    final ServiceRegistry serviceRegistry, final ExecutorService executorService,
-                                   final RedissonClient redissonClient, final CuratorFramework curatorFramework) throws InterruptedException {
+                                   final RedissonClient redissonClient, final CuratorFramework curatorFramework) throws Exception {
         this.myUrl = myUrl;
         this.objectName = objectName;
         this.lockManager = lockManager;
         this.serviceRegistry = serviceRegistry;
         this.executorService = executorService;
+        this.curatorFramework = curatorFramework;
+        this.pathChildrenCache = new PathChildrenCache(curatorFramework, Constants.ZK_SVC_INTEREST + objectName, false);
         this.serviceState = redissonClient.getMap("services:" + objectName + ":state", StringCodec.INSTANCE);
         this.serviceClaims = redissonClient.getMap("services:" + objectName + ":claims", StringCodec.INSTANCE);
         curatorFramework.getConnectionStateListenable().addListener((curatorFramework1, connectionState) -> {
@@ -97,6 +108,7 @@ public abstract class UniqueLoadingManager<K, V> {
         });
         curatorFramework.blockUntilConnected();
         isLive = true;
+        startAutoLoad();
     }
 
     public boolean requestLoad(final K key) {
@@ -107,9 +119,7 @@ public abstract class UniqueLoadingManager<K, V> {
                 return false;
             if(!lockManager.tryAcquire(objectName + ":" + key))
                 return false;
-            serviceClaims.put(key.toString(), myUrl);
-            setState(key, CLAIMED);
-            executorService.submit(() -> load(key));
+            beginLoad(key);
             return true;
         } catch(final Exception e) {
             LOG.error("[{}] Exception caught requesting load key={}", objectName, key, e);
@@ -142,6 +152,7 @@ public abstract class UniqueLoadingManager<K, V> {
     protected abstract void handleReset();
     protected abstract void handleSuspend();
     protected abstract void handleResume();
+    protected abstract K keyFromString(final String key);
 
     protected void awaitLive() {
         suspendLock.lock();
@@ -153,6 +164,66 @@ public abstract class UniqueLoadingManager<K, V> {
         } finally {
             suspendLock.unlock();
         }
+    }
+
+    private void startAutoLoad() throws Exception {
+        pathChildrenCache.getListenable().addListener((client, event) -> {
+            switch(event.getType()) {
+                case CHILD_ADDED:
+                    shouldAutoLoad(keyFromString(ZKPaths.getNodeFromPath(event.getData().getPath())));
+                    break;
+                case CHILD_REMOVED:
+                    noLongerAutoLoad(keyFromString(ZKPaths.getNodeFromPath(event.getData().getPath())));
+                    break;
+            }
+        });
+        pathChildrenCache.start(PathChildrenCache.StartMode.BUILD_INITIAL_CACHE);
+    }
+
+    private synchronized void shouldAutoLoad(final K key) {
+        if(leaderSelectors.containsKey(key))
+            return;
+        final LeaderSelector leaderSelector = new LeaderSelector(curatorFramework, Constants.ZK_SVC_LEADERS + objectName + "/" + key, new LeaderSelectorListener() {
+            @Override
+            public void takeLeadership(CuratorFramework client) throws Exception {
+                try {
+                    // Need to wait for the older node to be evicted from the lock.
+                    if(lockManager.acquire(objectName + ":" + key) && shouldStillAutoLoad(key))
+                        beginLoad(key);
+                    else
+                        lockManager.release(objectName + ":" + key);
+                } catch(final Exception e) {
+                    LOG.error("[{}] Exception caught requesting load key={}", objectName, key, e);
+                    lockManager.release(objectName + ":" + key);
+                    throw e;
+                }
+            }
+
+            @Override
+            public void stateChanged(CuratorFramework client, ConnectionState newState) {
+                /* Ignore.  We already handle this in the master listener in the constructor. */
+            }
+        });
+        leaderSelector.start();
+        leaderSelectors.put(key, leaderSelector);
+    }
+
+    private boolean shouldStillAutoLoad(final K key) {
+        return pathChildrenCache.getCurrentData(Constants.ZK_SVC_INTEREST + objectName + "/" + key) != null;
+    }
+
+    private synchronized void noLongerAutoLoad(final K key) {
+        final LeaderSelector leaderSelector = leaderSelectors.remove(key);
+        if(leaderSelector == null)
+            return;
+        requestUnload(key);
+        leaderSelector.close();
+    }
+
+    private void beginLoad(K key) {
+        serviceClaims.put(key.toString(), myUrl);
+        setState(key, CLAIMED);
+        executorService.submit(() -> load(key));
     }
 
     private void load(final K key) {

@@ -35,7 +35,7 @@ public class LockManagerImpl implements LockManager {
     }
 
     @Override
-    public boolean tryAcquire(final String name) {
+    public synchronized boolean tryAcquire(final String name) {
         final InterProcessMutex mutex = cache.getUnchecked(name);
         boolean acquired = false;
         try {
@@ -49,7 +49,20 @@ public class LockManagerImpl implements LockManager {
     }
 
     @Override
-    public void release(final String name) {
+    public synchronized boolean acquire(final String name)  {
+        final InterProcessMutex mutex = cache.getUnchecked(name);
+        try {
+            mutex.acquire();
+            active.put(name, mutex);
+            return true;
+        } catch (final Exception e) {
+            LOG.error("Caught exception acquiring lock={}", name, e);
+            return false;
+        }
+    }
+
+    @Override
+    public synchronized void release(final String name) {
         final InterProcessMutex mutex = active.get(name);
         if(mutex == null)
             return;

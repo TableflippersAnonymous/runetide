@@ -74,6 +74,8 @@
         <module>region-server</module>
         <module>reputation-client</module>
         <module>reputation-server</module>
+        <module>resourcepool-client</module>
+        <module>resourcepool-server</module>
         <module>settlement-client</module>
         <module>settlement-server</module>
         <module>time-client</module>

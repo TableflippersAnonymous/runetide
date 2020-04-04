@@ -22,7 +22,7 @@ public abstract class SavingUniqueLoadingManager<K, V> extends UniqueLoadingMana
                                          final ServiceRegistry serviceRegistry,
                                          final ScheduledExecutorService executorService,
                                          final RedissonClient redissonClient,
-                                         final CuratorFramework curatorFramework) throws InterruptedException {
+                                         final CuratorFramework curatorFramework) throws Exception {
         super(myUrl, objectName, lockManager, serviceRegistry, executorService, redissonClient, curatorFramework);
         executorService.scheduleAtFixedRate(this::save, saveInterval, saveInterval, saveTimeUnit);
     }

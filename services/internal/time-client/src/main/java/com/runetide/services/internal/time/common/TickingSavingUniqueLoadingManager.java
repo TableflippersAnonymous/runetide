@@ -30,7 +30,7 @@ public abstract class TickingSavingUniqueLoadingManager<K, V>
                                                 ScheduledExecutorService executorService,
                                                 RedissonClient redissonClient,
                                                 CuratorFramework curatorFramework,
-                                                TimeClient timeClient) throws InterruptedException {
+                                                TimeClient timeClient) throws Exception {
         super(myUrl, objectName, saveInterval, saveTimeUnit, lockManager, serviceRegistry, executorService,
                 redissonClient, curatorFramework);
         this.executorService = executorService;

@@ -34,7 +34,7 @@ public class RegionManager extends SavingUniqueLoadingManager<RegionRef, LoadedR
                          final ServiceRegistry serviceRegistry, final ScheduledExecutorService executorService,
                          final RedissonClient redissonClient, final CuratorFramework curatorFramework,
                          final RegionLoader regionLoader, final TopicManager topicManager,
-                         final Journaler journaler) throws InterruptedException {
+                         final Journaler journaler) throws Exception {
         super(myUrl, Constants.REGION_LOADING_NAMESPACE, Constants.SAVE_RATE_MS, TimeUnit.MILLISECONDS, lockManager,
                 serviceRegistry, executorService, redissonClient, curatorFramework);
         this.regionLoader = regionLoader;
@@ -75,6 +75,11 @@ public class RegionManager extends SavingUniqueLoadingManager<RegionRef, LoadedR
     @Override
     protected void handleResume() {
 
+    }
+
+    @Override
+    protected RegionRef keyFromString(String key) {
+        return RegionRef.valueOf(key);
     }
 
     @Override
