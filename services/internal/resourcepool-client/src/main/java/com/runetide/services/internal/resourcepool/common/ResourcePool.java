@@ -1,7 +1,16 @@
 package com.runetide.services.internal.resourcepool.common;
 
+import com.datastax.oss.driver.api.mapper.annotations.CqlName;
+import com.datastax.oss.driver.api.mapper.annotations.Entity;
+import com.datastax.oss.driver.api.mapper.annotations.PartitionKey;
+import com.datastax.oss.driver.api.mapper.annotations.Transient;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.runetide.common.dto.ResourcePoolRef;
+
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * A ResourcePool holds the value of an RPG Resource Pool.
@@ -25,27 +34,37 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * temporary HP should not regenerate.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
+@Entity
+@CqlName("resource_pool")
 public class ResourcePool {
     @JsonProperty("$")
-    private String id;
+    @Transient // See getCqlId/setCqlId below
+    private ResourcePoolRef id;
     @JsonProperty("t")
+    @Transient // Set getCqlType/setCqlType below
     private ResourceType type;
     @JsonProperty("v")
     private long value;
     @JsonProperty("N")
+    @CqlName("normal_limit_upper")
     private long normalLimitUpper;
     @JsonProperty("n")
+    @CqlName("normal_limit_lower")
     private long normalLimitLower;
     @JsonProperty("F")
+    @CqlName("final_limit_upper")
     private long finalLimitUpper;
     @JsonProperty("f")
+    @CqlName("final_limit_lower")
     private long finalLimitLower;
+    @JsonProperty("e")
+    private Map<String, ResourcePoolEffect> effects;
 
     public ResourcePool() {
     }
 
-    public ResourcePool(String id, ResourceType type, long value, long normalLimitUpper, long normalLimitLower,
-                        long finalLimitUpper, long finalLimitLower) {
+    public ResourcePool(ResourcePoolRef id, ResourceType type, long value, long normalLimitUpper, long normalLimitLower,
+                        long finalLimitUpper, long finalLimitLower, Map<String, ResourcePoolEffect> effects) {
         this.id = id;
         this.type = type;
         this.value = value;
@@ -53,14 +72,27 @@ public class ResourcePool {
         this.normalLimitLower = normalLimitLower;
         this.finalLimitUpper = finalLimitUpper;
         this.finalLimitLower = finalLimitLower;
+        this.effects = effects;
     }
 
-    public String getId() {
+    public ResourcePoolRef getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(ResourcePoolRef id) {
         this.id = id;
+    }
+
+    @PartitionKey
+    @CqlName("id")
+    @JsonIgnore
+    public UUID getCqlId() {
+        return id.getId();
+    }
+
+    @JsonIgnore
+    public void setCqlId(UUID id) {
+        this.id = new ResourcePoolRef(id);
     }
 
     public ResourceType getType() {
@@ -69,6 +101,17 @@ public class ResourcePool {
 
     public void setType(ResourceType type) {
         this.type = type;
+    }
+
+    @CqlName("type")
+    @JsonIgnore
+    public int getCqlType() {
+        return type.ordinal();
+    }
+
+    @JsonIgnore
+    public void setCqlType(int type) {
+        this.type = ResourceType.values()[type];
     }
 
     public long getValue() {
@@ -109,5 +152,13 @@ public class ResourcePool {
 
     public void setFinalLimitLower(long finalLimitLower) {
         this.finalLimitLower = finalLimitLower;
+    }
+
+    public Map<String, ResourcePoolEffect> getEffects() {
+        return effects;
+    }
+
+    public void setEffects(Map<String, ResourcePoolEffect> effects) {
+        this.effects = effects;
     }
 }

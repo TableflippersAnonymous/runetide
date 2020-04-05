@@ -38,11 +38,14 @@ public class Constants {
     public static final String TIME_SERVICE_NAME = "time";
 
     public static final String ENTITY_LOADING_NAMESPACE = ENTITY_SERVICE_NAME;
+    public static final String RESOURCE_POOL_LOADING_NAMESPACE = RESOURCE_POOL_SERVICE_NAME;
 
     public static final String REGION_BLOBSTORE_NAMESPACE = REGION_SERVICE_NAME;
     public static final String REGION_TOPIC_PREFIX = REGION_SERVICE_NAME + ":";
     public static final String REGION_JOURNAL_PREFIX = REGION_SERVICE_NAME + ":journal:";
     public static final String REGION_LOADING_NAMESPACE = REGION_SERVICE_NAME;
+
+    public static final String RESOURCE_POOL_TOPIC_PREFIX = RESOURCE_POOL_SERVICE_NAME + ":";
 
     public static final String TIME_REDIS = "time:clock";
     public static final long TIME_TICK_RATE_MS = 50;

@@ -11,7 +11,7 @@ public class RegionService extends Service<RegionConfiguration> {
     }
 
     private RegionService() {
-        super(Constants.REGION_LOADING_NAMESPACE);
+        super(Constants.REGION_SERVICE_NAME);
     }
 
     @Override
