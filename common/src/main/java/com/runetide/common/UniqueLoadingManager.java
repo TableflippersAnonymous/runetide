@@ -117,13 +117,13 @@ public abstract class UniqueLoadingManager<K, V> {
         try {
             if(serviceRegistry.getFirst(objectName + ":" + key) != null)
                 return false;
-            if(!lockManager.tryAcquire(objectName + ":" + key))
+            if(!lockManager.tryAcquire("ulm:" + objectName + ":" + key))
                 return false;
             beginLoad(key);
             return true;
         } catch(final Exception e) {
             LOG.error("[{}] Exception caught requesting load key={}", objectName, key, e);
-            lockManager.release(objectName + ":" + key);
+            lockManager.release("ulm:" + objectName + ":" + key);
             throw new RuntimeException(e);
         }
     }
@@ -166,6 +166,18 @@ public abstract class UniqueLoadingManager<K, V> {
         }
     }
 
+    protected boolean hasInterest(final K key) {
+        return pathChildrenCache.getCurrentData(Constants.ZK_SVC_INTEREST + objectName + "/" + key) != null;
+    }
+
+    protected boolean anyLoaded(final K key) {
+        try {
+            return serviceRegistry.getFirst(objectName + ":" + key) != null;
+        } catch (final Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private void startAutoLoad() throws Exception {
         pathChildrenCache.getListenable().addListener((client, event) -> {
             switch(event.getType()) {
@@ -183,18 +195,19 @@ public abstract class UniqueLoadingManager<K, V> {
     private synchronized void shouldAutoLoad(final K key) {
         if(leaderSelectors.containsKey(key))
             return;
-        final LeaderSelector leaderSelector = new LeaderSelector(curatorFramework, Constants.ZK_SVC_LEADERS + objectName + "/" + key, new LeaderSelectorListener() {
+        final LeaderSelector leaderSelector = new LeaderSelector(curatorFramework,
+                Constants.ZK_SVC_LEADERS + objectName + "/" + key, new LeaderSelectorListener() {
             @Override
             public void takeLeadership(CuratorFramework client) throws Exception {
                 try {
                     // Need to wait for the older node to be evicted from the lock.
-                    if(lockManager.acquire(objectName + ":" + key) && shouldStillAutoLoad(key))
+                    if(lockManager.acquire("ulm:" + objectName + ":" + key) && hasInterest(key))
                         beginLoad(key);
                     else
-                        lockManager.release(objectName + ":" + key);
+                        lockManager.release("ulm:" + objectName + ":" + key);
                 } catch(final Exception e) {
                     LOG.error("[{}] Exception caught requesting load key={}", objectName, key, e);
-                    lockManager.release(objectName + ":" + key);
+                    lockManager.release("ulm:" + objectName + ":" + key);
                     throw e;
                 }
             }
@@ -206,10 +219,6 @@ public abstract class UniqueLoadingManager<K, V> {
         });
         leaderSelector.start();
         leaderSelectors.put(key, leaderSelector);
-    }
-
-    private boolean shouldStillAutoLoad(final K key) {
-        return pathChildrenCache.getCurrentData(Constants.ZK_SVC_INTEREST + objectName + "/" + key) != null;
     }
 
     private synchronized void noLongerAutoLoad(final K key) {
@@ -245,7 +254,7 @@ public abstract class UniqueLoadingManager<K, V> {
                 serviceRegistry.unregister(objectName + ":" + key);
             } catch(final Exception e2) {}
             try {
-                lockManager.release(objectName + ":" + key);
+                lockManager.release("ulm:" + objectName + ":" + key);
             } catch(final Exception e2) {}
             throw new RuntimeException(e);
         }
@@ -269,7 +278,7 @@ public abstract class UniqueLoadingManager<K, V> {
         } catch(final Exception e) {}
         clearState(key, UNLOADING);
         try {
-            lockManager.release(objectName + ":" + key);
+            lockManager.release("ulm:" + objectName + ":" + key);
         } catch(final Exception e) {}
         postUnload(key);
     }
@@ -283,7 +292,7 @@ public abstract class UniqueLoadingManager<K, V> {
                 serviceClaims.remove(key.toString(), myUrl);
             } catch(final Exception e) {}
             try {
-                lockManager.release(objectName + ":" + key);
+                lockManager.release("ulm:" + objectName + ":" + key);
             } catch(final Exception e) {}
         }
         loaded.clear();

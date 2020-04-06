@@ -53,6 +53,16 @@ public class LoadedResourcePool {
         dao.save(resourcePool);
     }
 
+    public synchronized void addEffect(String name, ResourcePoolEffect effect) {
+        resourcePool.getEffects().put(name, effect);
+        save();
+    }
+
+    public synchronized void deleteEffect(String name) {
+        resourcePool.getEffects().remove(name);
+        save();
+    }
+
     public synchronized boolean update(long delta, boolean ignoreNormal, boolean takePartial,
                                        Long overrideMin, Long overrideMax) {
         final long normalLow = Optional.ofNullable(overrideMin).orElse(resourcePool.getNormalLimitLower());

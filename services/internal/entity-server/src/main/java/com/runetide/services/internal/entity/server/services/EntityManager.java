@@ -36,6 +36,11 @@ public class EntityManager extends TickingSavingUniqueLoadingManager<EntityRef, 
     }
 
     @Override
+    protected void handleDelete(EntityRef key) throws Exception {
+
+    }
+
+    @Override
     protected LoadedEntity handleLoad(EntityRef key) throws Exception {
         return null;
     }

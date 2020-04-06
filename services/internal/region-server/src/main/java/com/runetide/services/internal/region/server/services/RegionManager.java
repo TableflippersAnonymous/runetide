@@ -72,6 +72,11 @@ public class RegionManager extends SavingUniqueLoadingManager<RegionRef, LoadedR
     }
 
     @Override
+    protected void handleDelete(RegionRef key) {
+        /* Never done */
+    }
+
+    @Override
     protected RegionRef keyFromString(String key) {
         return RegionRef.valueOf(key);
     }
