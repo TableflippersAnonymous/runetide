@@ -32,7 +32,7 @@ public abstract class SavingUniqueLoadingManager<K, V> extends UniqueLoadingMana
         super(myUrl, objectName, lockManager, serviceRegistry, executorService, redissonClient, curatorFramework);
         this.objectName = objectName;
         this.lockManager = lockManager;
-        this.toDelete = redissonClient.getList("sulm:" + objectName, ByteArrayCodec.INSTANCE);
+        this.toDelete = redissonClient.getList(Constants.QUEUE_DELETE_PREFIX + objectName, ByteArrayCodec.INSTANCE);
         executorService.scheduleAtFixedRate(this::save, saveInterval, saveInterval, saveTimeUnit);
         executorService.scheduleAtFixedRate(this::tryDelete, saveInterval, saveInterval, saveTimeUnit);
     }
@@ -63,7 +63,7 @@ public abstract class SavingUniqueLoadingManager<K, V> extends UniqueLoadingMana
     private void tryDelete() {
         awaitLive();
         try {
-            if (!lockManager.tryAcquire("sulm:" + objectName))
+            if (!lockManager.tryAcquire(Constants.LOCK_DELETE_PREFIX + objectName))
                 return;
             for(final byte[] bytes : toDelete) {
                 awaitLive();
@@ -72,7 +72,7 @@ public abstract class SavingUniqueLoadingManager<K, V> extends UniqueLoadingMana
                     toDelete.remove(bytes);
             }
         } finally {
-            lockManager.release("sulm:" + objectName);
+            lockManager.release(Constants.LOCK_DELETE_PREFIX + objectName);
         }
     }
 
@@ -84,14 +84,14 @@ public abstract class SavingUniqueLoadingManager<K, V> extends UniqueLoadingMana
         if(anyLoaded(key))
             return false;
         try {
-            if(!lockManager.tryAcquire("ulm:" + objectName + ":" + key))
+            if(!lockManager.tryAcquire(Constants.LOCK_SVC_PREFIX + objectName + ":" + key))
                 return false;
             handleDelete(key);
             return true;
         } catch (final Exception e) {
             LOG.error("Caught exception trying to delete key={}", key, e);
         } finally {
-            lockManager.release("ulm:" + objectName + ":" + key);
+            lockManager.release(Constants.LOCK_SVC_PREFIX + objectName + ":" + key);
         }
         return false;
     }

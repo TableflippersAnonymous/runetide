@@ -30,6 +30,11 @@ public class Constants {
     public static final String ZK_SVC_LEADERS = "/runetide/svcleaders/";
     public static final String ZK_LEADERS = "/runetide/leaders/";
 
+    public static final String QUEUE_DELETE_PREFIX = "sulm:";
+
+    public static final String LOCK_SVC_PREFIX = "ulm:";
+    public static final String LOCK_DELETE_PREFIX = "sulm:";
+
     public static final String ENTITY_SERVICE_NAME = "entity";
     public static final String ITEM_SERVICE_NAME = "item";
     public static final String LOADER_SERVICE_NAME = "loader";

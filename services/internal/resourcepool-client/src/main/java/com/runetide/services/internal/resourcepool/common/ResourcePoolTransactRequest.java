@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ResourcePoolUpdateRequest {
+public class ResourcePoolTransactRequest {
     @JsonProperty("d")
     private long delta;
     @JsonProperty("o")
@@ -16,11 +16,11 @@ public class ResourcePoolUpdateRequest {
     @JsonProperty("P")
     private boolean takePartial;
 
-    public ResourcePoolUpdateRequest() {
+    public ResourcePoolTransactRequest() {
     }
 
-    public ResourcePoolUpdateRequest(long delta, Long overrideMin, Long overrideMax, boolean ignoreNormalLimits,
-                                     boolean takePartial) {
+    public ResourcePoolTransactRequest(long delta, Long overrideMin, Long overrideMax, boolean ignoreNormalLimits,
+                                       boolean takePartial) {
         this.delta = delta;
         this.overrideMin = overrideMin;
         this.overrideMax = overrideMax;

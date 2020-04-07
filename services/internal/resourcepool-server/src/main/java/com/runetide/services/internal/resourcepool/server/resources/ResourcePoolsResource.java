@@ -4,8 +4,8 @@ import com.google.inject.Inject;
 import com.runetide.common.dto.ResourcePoolRef;
 import com.runetide.services.internal.resourcepool.common.ResourcePool;
 import com.runetide.services.internal.resourcepool.common.ResourcePoolEffect;
-import com.runetide.services.internal.resourcepool.common.ResourcePoolUpdateRequest;
-import com.runetide.services.internal.resourcepool.common.ResourcePoolUpdateResponse;
+import com.runetide.services.internal.resourcepool.common.ResourcePoolTransactRequest;
+import com.runetide.services.internal.resourcepool.common.ResourcePoolTransactResponse;
 import com.runetide.services.internal.resourcepool.server.domain.LoadedResourcePool;
 import com.runetide.services.internal.resourcepool.server.services.ResourcePoolManager;
 
@@ -13,7 +13,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Path("/resource-pools")
@@ -53,15 +52,15 @@ public class ResourcePoolsResource {
 
     @Path("{id}")
     @POST
-    public ResourcePoolUpdateResponse updateResourcePool(@PathParam("id") final ResourcePoolRef resourcePoolRef,
-                                                         final ResourcePoolUpdateRequest resourcePoolUpdateRequest) {
+    public ResourcePoolTransactResponse transactResourcePool(@PathParam("id") final ResourcePoolRef resourcePoolRef,
+                                                             final ResourcePoolTransactRequest resourcePoolTransactRequest) {
         final LoadedResourcePool loadedResourcePool = resourcePoolManager.getLoadedResourcePool(resourcePoolRef);
         if(loadedResourcePool == null)
             throw new WebApplicationException(Response.Status.NOT_FOUND);
-        final boolean updated = loadedResourcePool.update(resourcePoolUpdateRequest.getDelta(),
-                resourcePoolUpdateRequest.isIgnoreNormalLimits(), resourcePoolUpdateRequest.isTakePartial(),
-                resourcePoolUpdateRequest.getOverrideMin(), resourcePoolUpdateRequest.getOverrideMax());
-        return new ResourcePoolUpdateResponse(updated, loadedResourcePool.getResourcePool());
+        final boolean updated = loadedResourcePool.transact(resourcePoolTransactRequest.getDelta(),
+                resourcePoolTransactRequest.isIgnoreNormalLimits(), resourcePoolTransactRequest.isTakePartial(),
+                resourcePoolTransactRequest.getOverrideMin(), resourcePoolTransactRequest.getOverrideMax());
+        return new ResourcePoolTransactResponse(updated, loadedResourcePool.getResourcePool());
     }
 
     @Path("{id}")
@@ -75,14 +74,7 @@ public class ResourcePoolsResource {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
         if(resourcePool.getType() != null && !resourcePool.getType().equals(loadedResourcePool.getResourcePool().getType()))
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
-        loadedResourcePool.getResourcePool().setValue(resourcePool.getValue());
-        loadedResourcePool.getResourcePool().setNormalLimitLower(resourcePool.getNormalLimitLower());
-        loadedResourcePool.getResourcePool().setNormalLimitUpper(resourcePool.getNormalLimitUpper());
-        loadedResourcePool.getResourcePool().setFinalLimitLower(resourcePool.getFinalLimitLower());
-        loadedResourcePool.getResourcePool().setFinalLimitUpper(resourcePool.getFinalLimitUpper());
-        if(resourcePool.getEffects() != null)
-            loadedResourcePool.getResourcePool().setEffects(resourcePool.getEffects());
-        loadedResourcePool.save();
+        loadedResourcePool.update(resourcePool);
         return loadedResourcePool.getResourcePool();
     }
 
@@ -116,5 +108,18 @@ public class ResourcePoolsResource {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         loadedResourcePool.addEffect(effectName, effect);
         return loadedResourcePool.getResourcePool();
+    }
+
+    @Path("{id}/{effect}")
+    @DELETE
+    public Response deleteResourcePoolEffect(@PathParam("id") final ResourcePoolRef resourcePoolRef,
+                                             @PathParam("effect") final String effectName) {
+        final LoadedResourcePool loadedResourcePool = resourcePoolManager.getLoadedResourcePool(resourcePoolRef);
+        if(loadedResourcePool == null)
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        if(!loadedResourcePool.getResourcePool().getEffects().containsKey(effectName))
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        loadedResourcePool.deleteEffect(effectName);
+        return Response.noContent().build();
     }
 }

@@ -33,12 +33,6 @@ public class RegionsClient extends UniqueLoadingClient<RegionRef> {
         super(serviceRegistry, topicManager, Constants.REGION_LOADING_NAMESPACE, "regions", curatorFramework);
     }
 
-    public Response loadRegion(final LoadRegionRequest loadRegionRequest) {
-        return getTarget()
-                .request(ACCEPT)
-                .post(Entity.entity(loadRegionRequest, MediaType.APPLICATION_JSON), Response.class);
-    }
-
     public Region getRegion(final RegionRef regionRef) {
         return getTarget(regionRef)
                 .request(ACCEPT)
@@ -49,12 +43,6 @@ public class RegionsClient extends UniqueLoadingClient<RegionRef> {
         return getTarget(regionRef)
                 .request(ACCEPT)
                 .post(Entity.entity(bulkBlockUpdateRequest, MediaType.APPLICATION_JSON), RegionChunkData.class);
-    }
-
-    public Response unloadRegion(final RegionRef regionRef) {
-        return getTarget(regionRef)
-                .request(ACCEPT)
-                .delete(Response.class);
     }
 
     public Chunk getChunk(final ChunkRef chunkRef) {

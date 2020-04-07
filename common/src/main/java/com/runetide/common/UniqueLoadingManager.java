@@ -117,13 +117,13 @@ public abstract class UniqueLoadingManager<K, V> {
         try {
             if(serviceRegistry.getFirst(objectName + ":" + key) != null)
                 return false;
-            if(!lockManager.tryAcquire("ulm:" + objectName + ":" + key))
+            if(!lockManager.tryAcquire(Constants.LOCK_SVC_PREFIX + objectName + ":" + key))
                 return false;
             beginLoad(key);
             return true;
         } catch(final Exception e) {
             LOG.error("[{}] Exception caught requesting load key={}", objectName, key, e);
-            lockManager.release("ulm:" + objectName + ":" + key);
+            lockManager.release(Constants.LOCK_SVC_PREFIX + objectName + ":" + key);
             throw new RuntimeException(e);
         }
     }
@@ -201,13 +201,13 @@ public abstract class UniqueLoadingManager<K, V> {
             public void takeLeadership(CuratorFramework client) throws Exception {
                 try {
                     // Need to wait for the older node to be evicted from the lock.
-                    if(lockManager.acquire("ulm:" + objectName + ":" + key) && hasInterest(key))
+                    if(lockManager.acquire(Constants.LOCK_SVC_PREFIX + objectName + ":" + key) && hasInterest(key))
                         beginLoad(key);
                     else
-                        lockManager.release("ulm:" + objectName + ":" + key);
+                        lockManager.release(Constants.LOCK_SVC_PREFIX + objectName + ":" + key);
                 } catch(final Exception e) {
                     LOG.error("[{}] Exception caught requesting load key={}", objectName, key, e);
-                    lockManager.release("ulm:" + objectName + ":" + key);
+                    lockManager.release(Constants.LOCK_SVC_PREFIX + objectName + ":" + key);
                     throw e;
                 }
             }
@@ -254,7 +254,7 @@ public abstract class UniqueLoadingManager<K, V> {
                 serviceRegistry.unregister(objectName + ":" + key);
             } catch(final Exception e2) {}
             try {
-                lockManager.release("ulm:" + objectName + ":" + key);
+                lockManager.release(Constants.LOCK_SVC_PREFIX + objectName + ":" + key);
             } catch(final Exception e2) {}
             throw new RuntimeException(e);
         }
@@ -278,7 +278,7 @@ public abstract class UniqueLoadingManager<K, V> {
         } catch(final Exception e) {}
         clearState(key, UNLOADING);
         try {
-            lockManager.release("ulm:" + objectName + ":" + key);
+            lockManager.release(Constants.LOCK_SVC_PREFIX + objectName + ":" + key);
         } catch(final Exception e) {}
         postUnload(key);
     }
@@ -292,7 +292,7 @@ public abstract class UniqueLoadingManager<K, V> {
                 serviceClaims.remove(key.toString(), myUrl);
             } catch(final Exception e) {}
             try {
-                lockManager.release("ulm:" + objectName + ":" + key);
+                lockManager.release(Constants.LOCK_SVC_PREFIX + objectName + ":" + key);
             } catch(final Exception e) {}
         }
         loaded.clear();

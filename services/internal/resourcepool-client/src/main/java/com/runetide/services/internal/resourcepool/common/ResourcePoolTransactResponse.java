@@ -4,16 +4,16 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ResourcePoolUpdateResponse {
+public class ResourcePoolTransactResponse {
     @JsonProperty("s")
     private boolean success;
     @JsonProperty("p")
     private ResourcePool resourcePool;
 
-    public ResourcePoolUpdateResponse() {
+    public ResourcePoolTransactResponse() {
     }
 
-    public ResourcePoolUpdateResponse(boolean success, ResourcePool resourcePool) {
+    public ResourcePoolTransactResponse(boolean success, ResourcePool resourcePool) {
         this.success = success;
         this.resourcePool = resourcePool;
     }

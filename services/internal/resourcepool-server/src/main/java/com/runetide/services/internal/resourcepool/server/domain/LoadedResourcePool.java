@@ -4,6 +4,7 @@ import com.runetide.common.Constants;
 import com.runetide.common.TopicManager;
 import com.runetide.services.internal.resourcepool.common.ResourcePool;
 import com.runetide.services.internal.resourcepool.common.ResourcePoolEffect;
+import com.runetide.services.internal.resourcepool.common.ResourcePoolTransactMessage;
 import com.runetide.services.internal.resourcepool.common.ResourcePoolUpdateMessage;
 import com.runetide.services.internal.resourcepool.server.dao.ResourcePoolDao;
 
@@ -30,7 +31,7 @@ public class LoadedResourcePool {
             if(tick % effect.getInterval() != 0)
                 continue;
 
-            final boolean updated = update(effect.getDelta(), effect.isIgnoreNormalLimits(), effect.isTakePartial(),
+            final boolean updated = transact(effect.getDelta(), effect.isIgnoreNormalLimits(), effect.isTakePartial(),
                     effect.getOverrideMin(), effect.getOverrideMax());
 
             if(effect.getRepetitions() != -1)
@@ -63,8 +64,8 @@ public class LoadedResourcePool {
         save();
     }
 
-    public synchronized boolean update(long delta, boolean ignoreNormal, boolean takePartial,
-                                       Long overrideMin, Long overrideMax) {
+    public synchronized boolean transact(long delta, boolean ignoreNormal, boolean takePartial,
+                                         Long overrideMin, Long overrideMax) {
         final long normalLow = Optional.ofNullable(overrideMin).orElse(resourcePool.getNormalLimitLower());
         final long normalHigh = Optional.ofNullable(overrideMax).orElse(resourcePool.getNormalLimitUpper());
         final long lowLimit = ignoreNormal ? resourcePool.getFinalLimitLower() : normalLow;
@@ -78,12 +79,25 @@ public class LoadedResourcePool {
         final long newValue = Math.max(Math.min(newRawValue, highLimit), lowLimit);
         resourcePool.setValue(newValue);
         save();
-        topicManager.publish(Constants.RESOURCE_POOL_TOPIC_PREFIX + resourcePool.getId() + ":update",
-                new ResourcePoolUpdateMessage(resourcePool.getId(), oldValue, newValue));
+        topicManager.publish(Constants.RESOURCE_POOL_TOPIC_PREFIX + resourcePool.getId() + ":transact",
+                new ResourcePoolTransactMessage(resourcePool.getId(), oldValue, newValue));
         return newRawValue == newValue;
     }
 
     public ResourcePool getResourcePool() {
         return resourcePool;
+    }
+
+    public synchronized void update(ResourcePool resourcePool) {
+        this.resourcePool.setValue(resourcePool.getValue());
+        this.resourcePool.setNormalLimitLower(resourcePool.getNormalLimitLower());
+        this.resourcePool.setNormalLimitUpper(resourcePool.getNormalLimitUpper());
+        this.resourcePool.setFinalLimitLower(resourcePool.getFinalLimitLower());
+        this.resourcePool.setFinalLimitUpper(resourcePool.getFinalLimitUpper());
+        if(resourcePool.getEffects() != null)
+            this.resourcePool.setEffects(resourcePool.getEffects());
+        save();
+        topicManager.publish(Constants.RESOURCE_POOL_TOPIC_PREFIX + resourcePool.getId() + ":update",
+                new ResourcePoolUpdateMessage(resourcePool));
     }
 }
