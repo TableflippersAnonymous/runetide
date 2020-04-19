@@ -1,7 +1,7 @@
 package com.runetide.services.internal.resourcepool.server.resources;
 
 import com.google.inject.Inject;
-import com.runetide.common.dto.ResourcePoolRef;
+import com.runetide.services.internal.resourcepool.common.ResourcePoolRef;
 import com.runetide.services.internal.resourcepool.common.ResourcePool;
 import com.runetide.services.internal.resourcepool.common.ResourcePoolEffect;
 import com.runetide.services.internal.resourcepool.common.ResourcePoolTransactRequest;

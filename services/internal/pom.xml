@@ -84,6 +84,8 @@
         <module>world-server</module>
         <module>worldgen-client</module>
         <module>worldgen-server</module>
+        <module>xp-client</module>
+        <module>xp-server</module>
     </modules>
 
     <dependencies>

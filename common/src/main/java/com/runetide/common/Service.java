@@ -1,6 +1,7 @@
 package com.runetide.common;
 
 import com.hubspot.dropwizard.guice.GuiceBundle;
+import com.runetide.common.util.MigrationManager;
 import io.dropwizard.Application;
 import io.dropwizard.Configuration;
 import io.dropwizard.setup.Bootstrap;
@@ -27,6 +28,9 @@ public abstract class Service<T extends ServiceConfiguration> extends Applicatio
                 .enableAutoConfig("com.runetide")
                 .setConfigClass(getConfigurationClass())
                 .build();
+        guiceBundle.getInjector()
+                .getInstance(MigrationManager.class)
+                .runMigrations();
         bootstrap.addBundle(guiceBundle);
     }
 

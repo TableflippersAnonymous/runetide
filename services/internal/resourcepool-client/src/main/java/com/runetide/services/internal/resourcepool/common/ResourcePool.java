@@ -7,7 +7,6 @@ import com.datastax.oss.driver.api.mapper.annotations.Transient;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.runetide.common.dto.ResourcePoolRef;
 
 import java.util.Map;
 import java.util.UUID;

@@ -6,7 +6,7 @@ import com.runetide.common.Constants;
 import com.runetide.common.LockManager;
 import com.runetide.common.ServiceRegistry;
 import com.runetide.common.TopicManager;
-import com.runetide.common.dto.ResourcePoolRef;
+import com.runetide.services.internal.resourcepool.common.ResourcePoolRef;
 import com.runetide.services.internal.resourcepool.common.ResourcePool;
 import com.runetide.services.internal.resourcepool.common.ResourcePoolLoadMessage;
 import com.runetide.services.internal.resourcepool.server.dao.ResourcePoolDao;

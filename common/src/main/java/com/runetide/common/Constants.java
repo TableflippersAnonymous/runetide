@@ -32,6 +32,7 @@ public class Constants {
 
     public static final String QUEUE_DELETE_PREFIX = "sulm:";
 
+    public static final String LOCK_MIGRATION = "common:migration";
     public static final String LOCK_SVC_PREFIX = "ulm:";
     public static final String LOCK_DELETE_PREFIX = "sulm:";
 
@@ -41,9 +42,9 @@ public class Constants {
     public static final String REGION_SERVICE_NAME = "region";
     public static final String RESOURCE_POOL_SERVICE_NAME = "resourcepool";
     public static final String TIME_SERVICE_NAME = "time";
+    public static final String XP_SERVICE_NAME = "xp";
 
     public static final String ENTITY_LOADING_NAMESPACE = ENTITY_SERVICE_NAME;
-    public static final String RESOURCE_POOL_LOADING_NAMESPACE = RESOURCE_POOL_SERVICE_NAME;
 
     public static final String REGION_BLOBSTORE_NAMESPACE = REGION_SERVICE_NAME;
     public static final String REGION_TOPIC_PREFIX = REGION_SERVICE_NAME + ":";
@@ -51,6 +52,10 @@ public class Constants {
     public static final String REGION_LOADING_NAMESPACE = REGION_SERVICE_NAME;
 
     public static final String RESOURCE_POOL_TOPIC_PREFIX = RESOURCE_POOL_SERVICE_NAME + ":";
+    public static final String RESOURCE_POOL_LOADING_NAMESPACE = RESOURCE_POOL_SERVICE_NAME;
+
+    public static final String XP_TOPIC_PREFIX = XP_SERVICE_NAME + ":";
+    public static final String XP_LOADING_NAMESPACE = XP_SERVICE_NAME;
 
     public static final String TIME_REDIS = "time:clock";
     public static final long TIME_TICK_RATE_MS = 50;

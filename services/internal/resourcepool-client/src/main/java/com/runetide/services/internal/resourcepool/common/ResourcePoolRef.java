@@ -1,4 +1,6 @@
-package com.runetide.common.dto;
+package com.runetide.services.internal.resourcepool.common;
+
+import com.runetide.common.dto.UUIDRef;
 
 import java.io.DataInputStream;
 import java.io.IOException;

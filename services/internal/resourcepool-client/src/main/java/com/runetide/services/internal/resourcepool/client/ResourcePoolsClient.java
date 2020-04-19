@@ -3,7 +3,7 @@ package com.runetide.services.internal.resourcepool.client;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.runetide.common.*;
-import com.runetide.common.dto.ResourcePoolRef;
+import com.runetide.services.internal.resourcepool.common.ResourcePoolRef;
 import com.runetide.services.internal.resourcepool.common.*;
 import org.apache.curator.framework.CuratorFramework;
 
