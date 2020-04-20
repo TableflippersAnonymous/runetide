@@ -72,4 +72,8 @@ public enum XPType {
             return deathXpByLevel[deathXpByLevel.length - 1];
         return deathXpByLevel[idx];
     }
+
+    public int getLevelCap() {
+        return levelCap;
+    }
 }

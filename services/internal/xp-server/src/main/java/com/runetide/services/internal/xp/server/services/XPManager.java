@@ -3,14 +3,19 @@ package com.runetide.services.internal.xp.server.services;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.runetide.common.*;
+import com.runetide.services.internal.xp.client.XPClient;
+import com.runetide.services.internal.xp.common.XP;
 import com.runetide.services.internal.xp.common.XPLoadMessage;
 import com.runetide.services.internal.xp.common.XPRef;
 import com.runetide.services.internal.xp.server.dao.XPDao;
 import com.runetide.services.internal.xp.server.domain.LoadedXP;
+import com.runetide.services.internal.xp.server.dto.XPByParent;
 import org.apache.curator.framework.CuratorFramework;
 import org.redisson.api.RedissonClient;
 
 import javax.inject.Named;
+import java.util.Collection;
+import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -18,15 +23,40 @@ import java.util.concurrent.TimeUnit;
 public class XPManager extends SavingUniqueLoadingManager<XPRef, LoadedXP> {
     private final XPDao dao;
     private final TopicManager topicManager;
+    private final XPClient xpClient;
 
     @Inject
     public XPManager(@Named("myUrl") String myUrl, LockManager lockManager, ServiceRegistry serviceRegistry,
                      ScheduledExecutorService executorService, RedissonClient redissonClient,
-                     CuratorFramework curatorFramework, TopicManager topicManager, XPDao dao) throws Exception {
+                     CuratorFramework curatorFramework, TopicManager topicManager, XPDao dao,
+                     XPClient xpClient) throws Exception {
         super(myUrl, Constants.XP_LOADING_NAMESPACE, Constants.SAVE_RATE_MS, TimeUnit.MILLISECONDS, lockManager,
                 serviceRegistry, executorService, redissonClient, curatorFramework);
         this.topicManager = topicManager;
         this.dao = dao;
+        this.xpClient = xpClient;
+    }
+
+    public Collection<LoadedXP> getLoadedXPs() {
+        return loaded.values();
+    }
+
+    public LoadedXP getLoadedXP(XPRef xpRef) {
+        return loaded.get(xpRef);
+    }
+
+    public boolean isValid(XPRef xpRef) {
+        return dao.get(xpRef) != null;
+    }
+
+    public XPRef create(XP value) {
+        value.setCqlId(UUID.randomUUID());
+        dao.save(value);
+        return value.getId();
+    }
+
+    public void delete(XPRef key) {
+        enqueueDelete(key);
     }
 
     @Override
@@ -37,11 +67,13 @@ public class XPManager extends SavingUniqueLoadingManager<XPRef, LoadedXP> {
     @Override
     protected void handleDelete(XPRef key) {
         dao.delete(dao.get(key));
+        for(XPByParent xpByParent : dao.getByParent(key))
+            enqueueDelete(xpByParent.getId());
     }
 
     @Override
     protected LoadedXP handleLoad(XPRef key) {
-        return new LoadedXP(dao.get(key), dao, topicManager);
+        return new LoadedXP(dao.get(key), dao, topicManager, xpClient);
     }
 
     @Override
@@ -51,7 +83,7 @@ public class XPManager extends SavingUniqueLoadingManager<XPRef, LoadedXP> {
 
     @Override
     protected void handleUnload(XPRef key, LoadedXP value) {
-        value.save();
+        value.unload();
     }
 
     @Override

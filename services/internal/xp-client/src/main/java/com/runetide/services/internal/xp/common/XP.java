@@ -66,7 +66,6 @@ public class XP {
         this.parent = parent;
     }
 
-    @PartitionKey
     @CqlName("parent")
     @JsonIgnore
     public UUID getCqlParent() {
@@ -102,7 +101,9 @@ public class XP {
     }
 
     public void setXp(long xp) {
-        this.xp = xp;
+        this.xp = Math.max(0,
+                Math.min(xp,
+                        type.getXpByLevel(type.getLevelCap())));
     }
 
     @JsonIgnore
