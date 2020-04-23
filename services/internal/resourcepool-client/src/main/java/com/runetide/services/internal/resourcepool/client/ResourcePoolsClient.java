@@ -1,8 +1,11 @@
 package com.runetide.services.internal.resourcepool.client;
 
+import com.datastax.oss.driver.api.core.type.codec.TypeCodec;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.runetide.common.*;
+import com.runetide.common.services.cql.EnumOrdinalCodec;
+import com.runetide.common.services.cql.UUIDRefCodec;
 import com.runetide.services.internal.resourcepool.common.ResourcePoolRef;
 import com.runetide.services.internal.resourcepool.common.*;
 import org.apache.curator.framework.CuratorFramework;
@@ -10,8 +13,7 @@ import org.apache.curator.framework.CuratorFramework;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Singleton
 public class ResourcePoolsClient extends UniqueLoadingClient<ResourcePoolRef> {
@@ -20,6 +22,13 @@ public class ResourcePoolsClient extends UniqueLoadingClient<ResourcePoolRef> {
                                CuratorFramework curatorFramework) {
         super(serviceRegistry, topicManager, Constants.RESOURCE_POOL_LOADING_NAMESPACE, "resource-pools",
                 curatorFramework);
+    }
+
+    public static List<TypeCodec<?>> getCqlTypeCodecs() {
+        return Arrays.asList(
+                new EnumOrdinalCodec<>(ResourceType.class),
+                new UUIDRefCodec<>(ResourcePoolRef.class, ResourcePoolRef::new)
+        );
     }
 
     public ResourcePool create(ResourceType resourceType, long value,

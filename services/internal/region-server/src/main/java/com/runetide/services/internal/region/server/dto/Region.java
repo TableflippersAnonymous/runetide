@@ -14,7 +14,7 @@ import java.util.UUID;
 public class Region {
     @PartitionKey(0)
     @CqlName("world_id")
-    private UUID worldId;
+    private WorldRef worldId;
     @PartitionKey(1)
     private long x;
     @PartitionKey(2)
@@ -35,9 +35,9 @@ public class Region {
     public Region() {
     }
 
-    public Region(final UUID worldId, final long x, final long z, final UUID chunkDataId, final Set<UUID> instanceIds,
-                  final String newInstanceTemplate, final int difficultyLevel, final Set<UUID> settlementIds,
-                  final Set<UUID> dungeonIds) {
+    public Region(final WorldRef worldId, final long x, final long z, final UUID chunkDataId,
+                  final Set<UUID> instanceIds, final String newInstanceTemplate, final int difficultyLevel,
+                  final Set<UUID> settlementIds, final Set<UUID> dungeonIds) {
         this.worldId = worldId;
         this.x = x;
         this.z = z;
@@ -49,11 +49,11 @@ public class Region {
         this.dungeonIds = dungeonIds;
     }
 
-    public UUID getWorldId() {
+    public WorldRef getWorldId() {
         return worldId;
     }
 
-    public void setWorldId(final UUID worldId) {
+    public void setWorldId(final WorldRef worldId) {
         this.worldId = worldId;
     }
 
@@ -122,6 +122,6 @@ public class Region {
     }
 
     public RegionRef toRef() {
-        return new RegionRef(new WorldRef(worldId), x, z);
+        return new RegionRef(worldId, x, z);
     }
 }

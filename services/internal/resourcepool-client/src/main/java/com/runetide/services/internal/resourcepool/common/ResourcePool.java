@@ -37,10 +37,11 @@ import java.util.UUID;
 @CqlName("resource_pool")
 public class ResourcePool {
     @JsonProperty("$")
-    @Transient // See getCqlId/setCqlId below
+    @PartitionKey
+    @CqlName("id")
     private ResourcePoolRef id;
     @JsonProperty("t")
-    @Transient // Set getCqlType/setCqlType below
+    @CqlName("type")
     private ResourceType type;
     @JsonProperty("v")
     private long value;
@@ -82,35 +83,12 @@ public class ResourcePool {
         this.id = id;
     }
 
-    @PartitionKey
-    @CqlName("id")
-    @JsonIgnore
-    public UUID getCqlId() {
-        return id.getId();
-    }
-
-    @JsonIgnore
-    public void setCqlId(UUID id) {
-        this.id = new ResourcePoolRef(id);
-    }
-
     public ResourceType getType() {
         return type;
     }
 
     public void setType(ResourceType type) {
         this.type = type;
-    }
-
-    @CqlName("type")
-    @JsonIgnore
-    public int getCqlType() {
-        return type.ordinal();
-    }
-
-    @JsonIgnore
-    public void setCqlType(int type) {
-        this.type = ResourceType.values()[type];
     }
 
     public long getValue() {

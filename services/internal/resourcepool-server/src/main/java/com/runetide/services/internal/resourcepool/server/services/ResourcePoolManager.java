@@ -48,7 +48,7 @@ public class ResourcePoolManager extends TickingSavingUniqueLoadingManager<Resou
     }
 
     public void createResourcePool(ResourcePool resourcePool) {
-        resourcePool.setCqlId(UUID.randomUUID());
+        resourcePool.setId(new ResourcePoolRef(UUID.randomUUID()));
         resourcePoolDao.save(resourcePool);
     }
 

@@ -20,5 +20,15 @@
             <artifactId>character-client</artifactId>
             <version>${runetide.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.runetide</groupId>
+            <artifactId>resourcepool-client</artifactId>
+            <version>${runetide.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.runetide</groupId>
+            <artifactId>xp-client</artifactId>
+            <version>${runetide.version}</version>
+        </dependency>
     </dependencies>
 </project>

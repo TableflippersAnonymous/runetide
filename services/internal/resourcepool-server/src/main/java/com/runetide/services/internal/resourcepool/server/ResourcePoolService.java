@@ -1,8 +1,17 @@
 package com.runetide.services.internal.resourcepool.server;
 
+import com.datastax.oss.driver.api.core.type.codec.TypeCodec;
 import com.hubspot.dropwizard.guice.GuiceBundle;
 import com.runetide.common.Constants;
 import com.runetide.common.Service;
+import com.runetide.common.services.cql.EnumOrdinalCodec;
+import com.runetide.common.services.cql.UUIDRefCodec;
+import com.runetide.services.internal.resourcepool.client.ResourcePoolsClient;
+import com.runetide.services.internal.resourcepool.common.ResourcePoolRef;
+import com.runetide.services.internal.resourcepool.common.ResourceType;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class ResourcePoolService extends Service<ResourcePoolConfiguration> {
     public static void main(final String[] args) throws Exception {
@@ -17,5 +26,12 @@ public class ResourcePoolService extends Service<ResourcePoolConfiguration> {
     protected GuiceBundle.Builder<ResourcePoolConfiguration> addGuiceModules(GuiceBundle.Builder<ResourcePoolConfiguration> builder) {
         return super.addGuiceModules(builder)
                 .addModule(new ResourcePoolGuiceModule());
+    }
+
+    @Override
+    protected List<TypeCodec<?>> getCqlTypeCodecs() {
+        final List<TypeCodec<?>> list = super.getCqlTypeCodecs();
+        list.addAll(ResourcePoolsClient.getCqlTypeCodecs());
+        return list;
     }
 }

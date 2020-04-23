@@ -5,6 +5,7 @@ import com.datastax.oss.driver.api.core.config.DefaultDriverOption;
 import com.datastax.oss.driver.api.core.config.DriverConfig;
 import com.datastax.oss.driver.api.core.config.DriverConfigLoader;
 import com.datastax.oss.driver.api.core.context.DriverContext;
+import com.datastax.oss.driver.api.core.type.codec.TypeCodec;
 import com.datastax.oss.driver.api.core.type.codec.registry.CodecRegistry;
 import com.datastax.oss.driver.internal.core.auth.ProgrammaticPlainTextAuthProvider;
 import com.datastax.oss.driver.internal.core.loadbalancing.DefaultLoadBalancingPolicy;
@@ -122,6 +123,7 @@ public class GuiceModule<T extends ServiceConfiguration> extends AbstractModule 
                         .withBoolean(DefaultDriverOption.SOCKET_KEEP_ALIVE, cassandraConfig.isTcpKeepAlive())
                         .build())
                 .withKeyspace(cassandraConfig.getKeyspace())
+                .addTypeCodecs(service.getCqlTypeCodecs().toArray(new TypeCodec[] {}))
                 .build();
     }
 

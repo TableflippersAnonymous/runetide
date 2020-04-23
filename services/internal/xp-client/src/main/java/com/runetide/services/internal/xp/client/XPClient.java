@@ -1,14 +1,20 @@
 package com.runetide.services.internal.xp.client;
 
+import com.datastax.oss.driver.api.core.type.codec.TypeCodec;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.runetide.common.*;
+import com.runetide.common.services.cql.EnumOrdinalCodec;
+import com.runetide.common.services.cql.UUIDRefCodec;
 import com.runetide.services.internal.xp.common.*;
 import org.apache.curator.framework.CuratorFramework;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 @Singleton
@@ -17,6 +23,13 @@ public class XPClient extends UniqueLoadingClient<XPRef> {
     public XPClient(ServiceRegistry serviceRegistry, TopicManager topicManager, String objectName,
                     String basePath, CuratorFramework curatorFramework) {
         super(serviceRegistry, topicManager, objectName, basePath, curatorFramework);
+    }
+
+    public static List<TypeCodec<?>> getCqlTypeCodecs() {
+        return Arrays.asList(
+                new EnumOrdinalCodec<>(XPType.class),
+                new UUIDRefCodec<>(XPRef.class, XPRef::new)
+        );
     }
 
     public XPRef create(final XPType type, final Optional<XPRef> parent) {

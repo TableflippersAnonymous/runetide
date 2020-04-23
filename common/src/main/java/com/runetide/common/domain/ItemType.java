@@ -1,6 +1,8 @@
 package com.runetide.common.domain;
 
-public enum ItemType {
+import com.fasterxml.jackson.annotation.JsonValue;
+
+public enum ItemType implements IndexedEnum {
 /*    TALC(0, 5, BlockType.TALC, null, null),
     GYPSUM(1, 5, BlockType.GYPSUM, null, null),
     CALCITE(2, 5, BlockType.CALCITE, null, null),
@@ -273,6 +275,8 @@ public enum ItemType {
         this.damageType = damageType;
     }
 
+
+
     public int getId() {
         return id;
     }
@@ -291,5 +295,10 @@ public enum ItemType {
 
     public DamageType getDamageType() {
         return damageType;
+    }
+
+    @Override
+    public int toValue() {
+        return id;
     }
 }

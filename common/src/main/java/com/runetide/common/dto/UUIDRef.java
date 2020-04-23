@@ -7,7 +7,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.UUID;
 
-public abstract class UUIDRef<T extends UUIDRef> implements Comparable<T> {
+public abstract class UUIDRef<T extends UUIDRef<T>> implements Comparable<T> {
     private final UUID uuidRef;
 
     protected UUIDRef(final UUID uuidRef) {
@@ -32,7 +32,7 @@ public abstract class UUIDRef<T extends UUIDRef> implements Comparable<T> {
         return Objects.hashCode(uuidRef);
     }
 
-    protected UUID getUuidRef() {
+    public UUID getUuidRef() {
         return uuidRef;
     }
 

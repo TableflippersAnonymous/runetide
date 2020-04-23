@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.HashMap;
 import java.util.Map;
 
-public enum BlockType {
+public enum BlockType implements IndexedEnum {
     AIR(0, 0, 0, true, null, null),
 
     // Rocks
@@ -551,7 +551,6 @@ public enum BlockType {
         }
     }
 
-    @JsonCreator
     public static BlockType fromId(final int id) {
         return map.get(id);
     }
@@ -573,7 +572,7 @@ public enum BlockType {
         this.breakableBy = breakableBy;
     }
 
-    @JsonValue
+    @Override
     public int toValue() {
         return id;
     }

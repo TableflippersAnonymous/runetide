@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.UUID;
 
 public class ItemRef extends UUIDRef<ItemRef> {
-    protected ItemRef(final UUID uuidRef) {
+    public ItemRef(final UUID uuidRef) {
         super(uuidRef);
     }
 

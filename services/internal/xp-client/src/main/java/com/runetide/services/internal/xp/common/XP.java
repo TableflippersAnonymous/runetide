@@ -16,13 +16,14 @@ import java.util.UUID;
 @CqlName("xp")
 public class XP {
     @JsonProperty("$")
-    @Transient // See getCqlId/setCqlId below
+    @PartitionKey
+    @CqlName("id")
     private XPRef id;
     @JsonProperty("p")
-    @Transient // See getCqlParent/setCqlParent below
+    @CqlName("parent")
     private XPRef parent;
     @JsonProperty("t")
-    @Transient // See getCqlType/setCqlType below
+    @CqlName("type")
     private XPType type;
     @JsonProperty("v")
     @CqlName("xp")
@@ -46,18 +47,6 @@ public class XP {
         this.id = id;
     }
 
-    @PartitionKey
-    @CqlName("id")
-    @JsonIgnore
-    public UUID getCqlId() {
-        return id.getId();
-    }
-
-    @JsonIgnore
-    public void setCqlId(UUID id) {
-        this.id = new XPRef(id);
-    }
-
     public XPRef getParent() {
         return parent;
     }
@@ -66,34 +55,12 @@ public class XP {
         this.parent = parent;
     }
 
-    @CqlName("parent")
-    @JsonIgnore
-    public UUID getCqlParent() {
-        return parent.getId();
-    }
-
-    @JsonIgnore
-    public void setCqlParent(UUID parent) {
-        this.parent = Optional.ofNullable(parent).map(XPRef::new).orElse(null);
-    }
-
     public XPType getType() {
         return type;
     }
 
     public void setType(XPType type) {
         this.type = type;
-    }
-
-    @CqlName("type")
-    @JsonIgnore
-    public int getCqlType() {
-        return type.ordinal();
-    }
-
-    @JsonIgnore
-    public void setCqlType(int type) {
-        this.type = XPType.values()[type];
     }
 
     public long getXp() {
