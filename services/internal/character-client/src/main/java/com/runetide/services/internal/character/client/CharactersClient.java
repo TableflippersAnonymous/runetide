@@ -7,10 +7,9 @@ import com.runetide.common.Constants;
 import com.runetide.common.ServiceRegistry;
 import com.runetide.common.TopicManager;
 import com.runetide.common.UniqueLoadingClient;
-import com.runetide.common.services.cql.EnumOrdinalCodec;
+import com.runetide.common.services.cql.EnumIndexedCodec;
 import com.runetide.common.services.cql.UUIDRefCodec;
-import com.runetide.services.internal.character.common.CharacterRef;
-import com.runetide.services.internal.character.common.EquipmentSlot;
+import com.runetide.services.internal.character.common.*;
 import org.apache.curator.framework.CuratorFramework;
 
 import java.util.Arrays;
@@ -27,10 +26,13 @@ public class CharactersClient extends UniqueLoadingClient<CharacterRef> {
 
     public static List<TypeCodec<?>> getCqlTypeCodecs() {
         return Arrays.asList(
-                new EnumOrdinalCodec<>(RaceType.class),
-                new EnumOrdinalCodec<>(ClassType.class),
-                new EnumOrdinalCodec<>(EquipmentSlot.class),
-                new EnumOrdinalCodec<>(SpecialAbilityType.class),
+                new EnumIndexedCodec<>(RaceType.class),
+                new EnumIndexedCodec<>(Size.class),
+                new EnumIndexedCodec<>(Language.class),
+                new EnumIndexedCodec<>(Attribute.class),
+                new EnumIndexedCodec<>(ClassType.class),
+                new EnumIndexedCodec<>(EquipmentSlot.class),
+                new EnumIndexedCodec<>(SpecialAbilityType.class),
                 new UUIDRefCodec<>(CharacterRef.class, CharacterRef::new)
         );
     }

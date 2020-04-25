@@ -7,6 +7,7 @@ import com.runetide.common.dto.InstanceRef;
 import com.runetide.common.dto.ItemRef;
 import com.runetide.services.internal.character.common.CharacterRef;
 import com.runetide.services.internal.character.common.EquipmentSlot;
+import com.runetide.services.internal.character.common.RaceType;
 import com.runetide.services.internal.resourcepool.common.ResourcePoolRef;
 import com.runetide.services.internal.resourcepool.common.ResourceType;
 import com.runetide.services.internal.xp.common.XPRef;

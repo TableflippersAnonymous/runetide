@@ -3,12 +3,12 @@ package com.runetide.services.internal.character.common;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.runetide.common.domain.IndexedEnum;
 
-public enum Attribute implements IndexedEnum {
-    STRENGTH(0), DEXTERITY(1), CONSTITUTION(2), STAMINA(3), MAGICKA(4), CHARISMA(5);
+public enum ArmorType implements IndexedEnum {
+    NONE(0), LIGHT(1), MEDIUM(2), HEAVY(3);
 
     private final int id;
 
-    Attribute(int id) {
+    ArmorType(int id) {
         this.id = id;
     }
 

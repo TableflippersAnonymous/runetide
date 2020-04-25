@@ -3,14 +3,16 @@ package com.runetide.services.internal.character.common;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.runetide.common.domain.IndexedEnum;
 
-public enum Attribute implements IndexedEnum {
-    STRENGTH(0), DEXTERITY(1), CONSTITUTION(2), STAMINA(3), MAGICKA(4), CHARISMA(5);
+public enum Language implements IndexedEnum {
+    COMMON(0), ELVISH(1), DWARVISH(2), GNOMISH(3), DRACONIC(4),
+    GOBLINOID(5), ORCISH(6), FELINE(7);
 
     private final int id;
 
-    Attribute(int id) {
+    Language(int id) {
         this.id = id;
     }
+
 
     @Override
     @JsonValue

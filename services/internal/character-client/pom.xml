@@ -15,5 +15,10 @@
     <name>runetide-character-client</name>
 
     <dependencies>
+        <dependency>
+            <groupId>com.runetide</groupId>
+            <artifactId>xp-client</artifactId>
+            <version>${runetide.version}</version>
+        </dependency>
     </dependencies>
 </project>
