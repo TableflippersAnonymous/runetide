@@ -16,6 +16,27 @@ CREATE TABLE character (
     skills map<int, uuid>,
     special_abilities set<int>,
 
+    /* Character customization:
+     * - Base model on race
+     * - Color selectors for:
+     *   - Eyes
+     *   - Skin
+     *   - Hair
+     *   - Secondary (markings, etc)
+     * - Select one of each:
+     *   - Gender
+     *   - Head
+     *   - Face
+     *   - Eyes
+     *   - Nose
+     *   - Mouth
+     *   - Ears
+     *   - Horns
+     *   - Markings??
+     * - Slider for:
+     *   - Height
+     */
+
     PRIMARY KEY (id)
 ) WITH COMPACTION = { 'class': 'LeveledCompactionStrategy' };
 
