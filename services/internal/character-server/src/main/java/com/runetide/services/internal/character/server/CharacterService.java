@@ -1,15 +1,16 @@
 package com.runetide.services.internal.character.server;
 
 import com.datastax.oss.driver.api.core.type.codec.TypeCodec;
+import com.hubspot.dropwizard.guice.GuiceBundle;
 import com.runetide.common.Constants;
 import com.runetide.common.Service;
-import com.runetide.common.dto.EntityRef;
-import com.runetide.common.services.cql.UUIDRefCodec;
+import com.runetide.services.internal.account.client.AccountsClient;
 import com.runetide.services.internal.character.client.CharactersClient;
+import com.runetide.services.internal.entity.client.EntitiesClient;
+import com.runetide.services.internal.multiverse.client.MultiversesClient;
 import com.runetide.services.internal.resourcepool.client.ResourcePoolsClient;
 import com.runetide.services.internal.xp.client.XPClient;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class CharacterService extends Service<CharacterConfiguration> {
@@ -22,16 +23,20 @@ public class CharacterService extends Service<CharacterConfiguration> {
     }
 
     @Override
+    protected GuiceBundle.Builder<CharacterConfiguration> addGuiceModules(GuiceBundle.Builder<CharacterConfiguration> builder) {
+        return super.addGuiceModules(builder)
+                .addModule(new CharacterGuiceModule());
+    }
+
+    @Override
     protected List<TypeCodec<?>> getCqlTypeCodecs() {
         final List<TypeCodec<?>> list = super.getCqlTypeCodecs();
+        list.addAll(AccountsClient.getCqlTypeCodecs());
+        list.addAll(CharactersClient.getCqlTypeCodecs());
+        list.addAll(EntitiesClient.getCqlTypeCodecs());
+        list.addAll(MultiversesClient.getCqlTypeCodecs());
         list.addAll(ResourcePoolsClient.getCqlTypeCodecs());
         list.addAll(XPClient.getCqlTypeCodecs());
-        list.addAll(CharactersClient.getCqlTypeCodecs());
-        list.addAll(Arrays.asList(
-                new UUIDRefCodec<>(EntityRef.class, EntityRef::new),
-                new UUIDRefCodec<>(AccountRef.class, AccountRef::new),
-                new UUIDRefCodec<>(MultiverseRef.class, MultiverseRef::new)
-        ));
         return list;
     }
 }

@@ -1,6 +1,6 @@
 package com.runetide.services.internal.entity.server.resources;
 
-import com.runetide.common.dto.EntityRef;
+import com.runetide.services.internal.entity.common.dto.EntityRef;
 import com.runetide.common.dto.PositionLookRef;
 import com.runetide.services.internal.entity.common.dto.Entity;
 

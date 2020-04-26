@@ -4,7 +4,7 @@ import com.datastax.oss.driver.api.core.type.codec.TypeCodec;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.runetide.common.*;
-import com.runetide.common.services.cql.EnumOrdinalCodec;
+import com.runetide.common.services.cql.EnumIndexedCodec;
 import com.runetide.common.services.cql.UUIDRefCodec;
 import com.runetide.services.internal.resourcepool.common.ResourcePoolRef;
 import com.runetide.services.internal.resourcepool.common.*;
@@ -26,7 +26,7 @@ public class ResourcePoolsClient extends UniqueLoadingClient<ResourcePoolRef> {
 
     public static List<TypeCodec<?>> getCqlTypeCodecs() {
         return Arrays.asList(
-                new EnumOrdinalCodec<>(ResourceType.class),
+                new EnumIndexedCodec<>(ResourceType.class),
                 new UUIDRefCodec<>(ResourcePoolRef.class, ResourcePoolRef::new)
         );
     }

@@ -4,7 +4,7 @@ import com.datastax.oss.driver.api.core.type.codec.TypeCodec;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.runetide.common.*;
-import com.runetide.common.services.cql.EnumOrdinalCodec;
+import com.runetide.common.services.cql.EnumIndexedCodec;
 import com.runetide.common.services.cql.UUIDRefCodec;
 import com.runetide.services.internal.xp.common.*;
 import org.apache.curator.framework.CuratorFramework;
@@ -13,7 +13,6 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,7 +26,7 @@ public class XPClient extends UniqueLoadingClient<XPRef> {
 
     public static List<TypeCodec<?>> getCqlTypeCodecs() {
         return Arrays.asList(
-                new EnumOrdinalCodec<>(XPType.class),
+                new EnumIndexedCodec<>(XPType.class),
                 new UUIDRefCodec<>(XPRef.class, XPRef::new)
         );
     }

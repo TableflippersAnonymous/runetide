@@ -55,18 +55,24 @@ public class Constants {
     public static final String LOCK_SVC_PREFIX = "ulm:";
     public static final String LOCK_DELETE_PREFIX = "sulm:";
 
+    public static final String ACCOUNT_SERVICE_NAME = "account";
     public static final String CHARACTER_SERVICE_NAME = "character";
     public static final String ENTITY_SERVICE_NAME = "entity";
     public static final String ITEM_SERVICE_NAME = "item";
     public static final String LOADER_SERVICE_NAME = "loader";
+    public static final String MULTIVERSE_SERVICE_NAME = "multiverse";
     public static final String REGION_SERVICE_NAME = "region";
     public static final String RESOURCE_POOL_SERVICE_NAME = "resourcepool";
     public static final String TIME_SERVICE_NAME = "time";
     public static final String XP_SERVICE_NAME = "xp";
 
+    public static final String ACCOUNT_LOADING_NAMESPACE = ACCOUNT_SERVICE_NAME;
+
     public static final String CHARACTER_LOADING_NAMESPACE = CHARACTER_SERVICE_NAME;
 
     public static final String ENTITY_LOADING_NAMESPACE = ENTITY_SERVICE_NAME;
+
+    public static final String MULTIVERSE_LOADING_NAMESPACE = MULTIVERSE_SERVICE_NAME;
 
     public static final String REGION_BLOBSTORE_NAMESPACE = REGION_SERVICE_NAME;
     public static final String REGION_TOPIC_PREFIX = REGION_SERVICE_NAME + ":";

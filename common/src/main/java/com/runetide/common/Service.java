@@ -5,7 +5,7 @@ import com.hubspot.dropwizard.guice.GuiceBundle;
 import com.runetide.common.domain.*;
 import com.runetide.common.dto.*;
 import com.runetide.common.services.cql.EnumIndexedCodec;
-import com.runetide.common.services.cql.EnumOrdinalCodec;
+import com.runetide.common.services.cql.EnumNameCodec;
 import com.runetide.common.services.cql.UUIDRefCodec;
 import com.runetide.common.util.MigrationManager;
 import io.dropwizard.Application;
@@ -53,17 +53,16 @@ public abstract class Service<T extends ServiceConfiguration> extends Applicatio
 
     protected List<TypeCodec<?>> getCqlTypeCodecs() {
         return Arrays.asList(
-                new EnumOrdinalCodec<>(BiomeType.class),
+                new EnumIndexedCodec<>(BiomeType.class),
                 new EnumIndexedCodec<>(BlockType.class),
-                new EnumOrdinalCodec<>(CraftingRecipe.class),
-                new EnumOrdinalCodec<>(DamageType.class),
-                new EnumOrdinalCodec<>(EntityType.class),
-                new EnumOrdinalCodec<>(EquipmentType.class),
+                new EnumNameCodec<>(CraftingRecipe.class),
+                new EnumIndexedCodec<>(DamageType.class),
+                new EnumIndexedCodec<>(EntityType.class),
+                new EnumIndexedCodec<>(EquipmentType.class),
                 new EnumIndexedCodec<>(ItemType.class),
-                new EnumOrdinalCodec<>(RuneType.class),
+                new EnumIndexedCodec<>(RuneType.class),
                 new UUIDRefCodec<>(ChunkDataRef.class, ChunkDataRef::new),
                 new UUIDRefCodec<>(DungeonRef.class, DungeonRef::new),
-                new UUIDRefCodec<>(EntityRef.class, EntityRef::new),
                 new UUIDRefCodec<>(InstanceRef.class, InstanceRef::new),
                 new UUIDRefCodec<>(ItemRef.class, ItemRef::new),
                 new UUIDRefCodec<>(SettlementRef.class, SettlementRef::new),

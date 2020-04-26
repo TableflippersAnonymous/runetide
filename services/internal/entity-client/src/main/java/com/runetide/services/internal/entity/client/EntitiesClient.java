@@ -1,0 +1,30 @@
+package com.runetide.services.internal.entity.client;
+
+import com.datastax.oss.driver.api.core.type.codec.TypeCodec;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import com.runetide.common.Constants;
+import com.runetide.common.ServiceRegistry;
+import com.runetide.common.TopicManager;
+import com.runetide.common.UniqueLoadingClient;
+import com.runetide.services.internal.entity.common.dto.EntityRef;
+import com.runetide.common.services.cql.UUIDRefCodec;
+import org.apache.curator.framework.CuratorFramework;
+
+import java.util.Arrays;
+import java.util.List;
+
+@Singleton
+public class EntitiesClient extends UniqueLoadingClient<EntityRef> {
+    @Inject
+    public EntitiesClient(ServiceRegistry serviceRegistry, TopicManager topicManager,
+                          CuratorFramework curatorFramework) {
+        super(serviceRegistry, topicManager, Constants.ENTITY_LOADING_NAMESPACE, "entities", curatorFramework);
+    }
+
+    public static List<TypeCodec<?>> getCqlTypeCodecs() {
+        return Arrays.asList(
+                new UUIDRefCodec<>(EntityRef.class, EntityRef::new)
+        );
+    }
+}

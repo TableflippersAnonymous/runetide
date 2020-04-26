@@ -3,7 +3,7 @@ package com.runetide.services.internal.entity.server.services;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.runetide.common.*;
-import com.runetide.common.dto.EntityRef;
+import com.runetide.services.internal.entity.common.dto.EntityRef;
 import com.runetide.services.internal.entity.server.domain.LoadedEntity;
 import com.runetide.services.internal.time.client.TimeClient;
 import com.runetide.services.internal.time.common.TickingSavingUniqueLoadingManager;
