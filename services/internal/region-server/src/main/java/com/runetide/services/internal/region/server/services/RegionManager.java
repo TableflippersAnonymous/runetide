@@ -30,7 +30,7 @@ public class RegionManager extends SavingUniqueLoadingManager<RegionRef, LoadedR
                          final RegionLoader regionLoader, final TopicManager topicManager,
                          final Journaler journaler) throws Exception {
         super(myUrl, Constants.REGION_LOADING_NAMESPACE, Constants.SAVE_RATE_MS, TimeUnit.MILLISECONDS, lockManager,
-                serviceRegistry, executorService, redissonClient, curatorFramework);
+                serviceRegistry, executorService, redissonClient, curatorFramework, topicManager);
         this.regionLoader = regionLoader;
         this.topicManager = topicManager;
         this.journaler = journaler;
@@ -43,11 +43,6 @@ public class RegionManager extends SavingUniqueLoadingManager<RegionRef, LoadedR
 
     @Override
     protected void postLoad(RegionRef key, LoadedRegion value) {
-        topicManager.publish(Constants.REGION_TOPIC_PREFIX + key + ":load", new RegionLoadMessage(key));
-    }
-
-    @Override
-    protected void postUnload(RegionRef key) {
 
     }
 

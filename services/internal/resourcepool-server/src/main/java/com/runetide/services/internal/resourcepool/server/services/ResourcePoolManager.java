@@ -34,7 +34,8 @@ public class ResourcePoolManager extends TickingSavingUniqueLoadingManager<Resou
                                   TimeClient timeClient, ResourcePoolDao resourcePoolDao,
                                   TopicManager topicManager) throws Exception {
         super(myUrl, Constants.RESOURCE_POOL_LOADING_NAMESPACE, Constants.SAVE_RATE_MS, TimeUnit.MILLISECONDS,
-                lockManager, serviceRegistry, executorService, redissonClient, curatorFramework, timeClient);
+                lockManager, serviceRegistry, executorService, redissonClient, curatorFramework, timeClient,
+                topicManager);
         this.resourcePoolDao = resourcePoolDao;
         this.topicManager = topicManager;
     }
@@ -78,7 +79,7 @@ public class ResourcePoolManager extends TickingSavingUniqueLoadingManager<Resou
 
     @Override
     protected void postLoad(ResourcePoolRef key, LoadedResourcePool value) {
-        topicManager.publish(Constants.RESOURCE_POOL_TOPIC_PREFIX + key + ":load", new ResourcePoolLoadMessage(key));
+
     }
 
     @Override

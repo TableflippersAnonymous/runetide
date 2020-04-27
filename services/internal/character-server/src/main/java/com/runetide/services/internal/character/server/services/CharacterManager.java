@@ -1,14 +1,17 @@
 package com.runetide.services.internal.character.server.services;
 
+import com.datastax.oss.driver.api.core.CqlSession;
+import com.datastax.oss.driver.api.core.cql.BatchStatement;
+import com.datastax.oss.driver.api.core.cql.BatchType;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.runetide.common.Constants;
-import com.runetide.common.LockManager;
-import com.runetide.common.SavingUniqueLoadingManager;
-import com.runetide.common.ServiceRegistry;
+import com.runetide.common.*;
 import com.runetide.services.internal.character.common.CharacterRef;
 import com.runetide.services.internal.character.server.dao.CharacterDao;
 import com.runetide.services.internal.character.server.domain.LoadedCharacter;
+import com.runetide.services.internal.entity.client.EntitiesClient;
+import com.runetide.services.internal.resourcepool.client.ResourcePoolsClient;
+import com.runetide.services.internal.xp.client.XPClient;
 import org.apache.curator.framework.CuratorFramework;
 import org.redisson.api.RedissonClient;
 
@@ -19,29 +22,47 @@ import java.util.concurrent.TimeUnit;
 @Singleton
 public class CharacterManager extends SavingUniqueLoadingManager<CharacterRef, LoadedCharacter> {
     private final CharacterDao dao;
+    private final CqlSession cqlSession;
+    private final TopicManager topicManager;
+    private final EntitiesClient entitiesClient;
+    private final ResourcePoolsClient resourcePoolsClient;
+    private final XPClient xpClient;
 
     @Inject
     public CharacterManager(@Named("myUrl") String myUrl, LockManager lockManager, ServiceRegistry serviceRegistry,
                             ScheduledExecutorService executorService, RedissonClient redissonClient,
-                            CuratorFramework curatorFramework, CharacterDao dao) throws Exception {
+                            CuratorFramework curatorFramework, CharacterDao dao, TopicManager topicManager,
+                            CqlSession cqlSession, EntitiesClient entitiesClient,
+                            ResourcePoolsClient resourcePoolsClient, XPClient xpClient) throws Exception {
         super(myUrl, Constants.CHARACTER_LOADING_NAMESPACE, Constants.SAVE_RATE_MS, TimeUnit.MILLISECONDS, lockManager,
-                serviceRegistry, executorService, redissonClient, curatorFramework);
+                serviceRegistry, executorService, redissonClient, curatorFramework, topicManager);
         this.dao = dao;
+        this.cqlSession = cqlSession;
+        this.topicManager = topicManager;
+        this.entitiesClient = entitiesClient;
+        this.resourcePoolsClient = resourcePoolsClient;
+        this.xpClient = xpClient;
     }
 
     @Override
-    protected void handleSave(CharacterRef key, LoadedCharacter value) throws Exception {
-
+    protected void handleSave(CharacterRef key, LoadedCharacter value) {
+        value.save();
     }
 
     @Override
-    protected void handleDelete(CharacterRef key) throws Exception {
-
+    protected void handleDelete(CharacterRef key) {
+        final BatchStatement batch = BatchStatement.builder(BatchType.LOGGED)
+                .addStatement(dao.prepareDelete(key))
+                .addStatement(dao.prepareDeleteAssignments(key))
+                .build();
+        cqlSession.execute(batch);
+        //TODO Delete Entity, XP, ResourcePools
     }
 
     @Override
-    protected LoadedCharacter handleLoad(CharacterRef key) throws Exception {
-        return null;
+    protected LoadedCharacter handleLoad(CharacterRef key) {
+        return new LoadedCharacter(dao.getCharacter(key), dao, topicManager, entitiesClient, resourcePoolsClient,
+                xpClient);
     }
 
     @Override
@@ -50,13 +71,8 @@ public class CharacterManager extends SavingUniqueLoadingManager<CharacterRef, L
     }
 
     @Override
-    protected void handleUnload(CharacterRef key, LoadedCharacter value) throws Exception {
-
-    }
-
-    @Override
-    protected void postUnload(CharacterRef key) {
-
+    protected void handleUnload(CharacterRef key, LoadedCharacter value) {
+        value.unload();
     }
 
     @Override
@@ -76,6 +92,6 @@ public class CharacterManager extends SavingUniqueLoadingManager<CharacterRef, L
 
     @Override
     protected CharacterRef keyFromString(String key) {
-        return null;
+        return CharacterRef.valueOf(key);
     }
 }

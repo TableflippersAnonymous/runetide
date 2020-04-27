@@ -22,7 +22,7 @@ public class EntityManager extends TickingSavingUniqueLoadingManager<EntityRef, 
             final RedissonClient redissonClient, final CuratorFramework curatorFramework,
             final TopicManager topicManager, final TimeClient timeClient) throws Exception {
         super(myUrl, Constants.ENTITY_LOADING_NAMESPACE, Constants.SAVE_RATE_MS, TimeUnit.MILLISECONDS, lockManager,
-                serviceRegistry, executorService, redissonClient, curatorFramework, timeClient);
+                serviceRegistry, executorService, redissonClient, curatorFramework, timeClient, topicManager);
     }
 
     @Override

@@ -1,9 +1,6 @@
 package com.runetide.services.internal.time.common;
 
-import com.runetide.common.LockManager;
-import com.runetide.common.SavingUniqueLoadingManager;
-import com.runetide.common.ServiceRegistry;
-import com.runetide.common.TopicListener;
+import com.runetide.common.*;
 import com.runetide.services.internal.time.client.TimeClient;
 import org.apache.curator.framework.CuratorFramework;
 import org.redisson.api.RedissonClient;
@@ -30,9 +27,10 @@ public abstract class TickingSavingUniqueLoadingManager<K, V>
                                                 ScheduledExecutorService executorService,
                                                 RedissonClient redissonClient,
                                                 CuratorFramework curatorFramework,
-                                                TimeClient timeClient) throws Exception {
+                                                TimeClient timeClient,
+                                                TopicManager topicManager) throws Exception {
         super(myUrl, objectName, saveInterval, saveTimeUnit, lockManager, serviceRegistry, executorService,
-                redissonClient, curatorFramework);
+                redissonClient, curatorFramework, topicManager);
         this.executorService = executorService;
         timeClient.listen(this);
     }

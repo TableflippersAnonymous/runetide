@@ -28,8 +28,10 @@ public abstract class SavingUniqueLoadingManager<K, V> extends UniqueLoadingMana
                                          final ServiceRegistry serviceRegistry,
                                          final ScheduledExecutorService executorService,
                                          final RedissonClient redissonClient,
-                                         final CuratorFramework curatorFramework) throws Exception {
-        super(myUrl, objectName, lockManager, serviceRegistry, executorService, redissonClient, curatorFramework);
+                                         final CuratorFramework curatorFramework,
+                                         final TopicManager topicManager) throws Exception {
+        super(myUrl, objectName, lockManager, serviceRegistry, executorService, redissonClient, curatorFramework,
+                topicManager);
         this.objectName = objectName;
         this.lockManager = lockManager;
         this.toDelete = redissonClient.getList(Constants.QUEUE_DELETE_PREFIX + objectName, ByteArrayCodec.INSTANCE);
@@ -94,5 +96,11 @@ public abstract class SavingUniqueLoadingManager<K, V> extends UniqueLoadingMana
             lockManager.release(Constants.LOCK_SVC_PREFIX + objectName + ":" + key);
         }
         return false;
+    }
+
+    @Override
+    protected void postUnload(K key) {
+        if(toDelete.contains(key.toString().getBytes()))
+            tryDelete();
     }
 }

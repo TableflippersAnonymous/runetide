@@ -8,6 +8,7 @@ import com.runetide.common.services.cql.EnumIndexedCodec;
 import com.runetide.common.services.cql.UUIDRefCodec;
 import com.runetide.services.internal.xp.common.*;
 import org.apache.curator.framework.CuratorFramework;
+import org.redisson.api.RedissonClient;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
@@ -20,8 +21,8 @@ import java.util.Optional;
 public class XPClient extends UniqueLoadingClient<XPRef> {
     @Inject
     public XPClient(ServiceRegistry serviceRegistry, TopicManager topicManager, String objectName,
-                    String basePath, CuratorFramework curatorFramework) {
-        super(serviceRegistry, topicManager, objectName, basePath, curatorFramework);
+                    String basePath, CuratorFramework curatorFramework, RedissonClient redissonClient) {
+        super(serviceRegistry, topicManager, objectName, basePath, curatorFramework, redissonClient);
     }
 
     public static List<TypeCodec<?>> getCqlTypeCodecs() {
@@ -38,13 +39,13 @@ public class XPClient extends UniqueLoadingClient<XPRef> {
                         MediaType.APPLICATION_JSON), XPRef.class);
     }
 
-    public XP get(final XPRef xpRef) {
+    public XP get(final LoadingToken<XPRef> xpRef) {
         return getTarget(xpRef)
                 .request(ACCEPT)
                 .get(XP.class);
     }
 
-    public XPTransactResponse transact(final XPRef xpRef, long delta) {
+    public XPTransactResponse transact(final LoadingToken<XPRef> xpRef, long delta) {
         return getTarget(xpRef)
                 .request(ACCEPT)
                 .post(Entity.entity(new XPTransactRequest(delta), MediaType.APPLICATION_JSON),
@@ -56,12 +57,6 @@ public class XPClient extends UniqueLoadingClient<XPRef> {
                 .path(xpRef.toString())
                 .request(ACCEPT)
                 .delete();
-    }
-
-    public TopicListenerHandle<XPLoadMessage> listenLoad(final XPRef xpRef,
-                                                         TopicListener<XPLoadMessage> listener) {
-        return topicManager.addListener(Constants.XP_TOPIC_PREFIX + xpRef + ":load", listener,
-                XPLoadMessage.class);
     }
 
     public TopicListenerHandle<XPTransactMessage> listenTransact(final XPRef xpRef,
@@ -77,7 +72,7 @@ public class XPClient extends UniqueLoadingClient<XPRef> {
     }
 
     @Override
-    protected WebTarget getTarget(XPRef key) {
+    protected WebTarget getTarget(LoadingToken<XPRef> key) {
         return super.getTarget(key)
                 .path(key.toString());
     }

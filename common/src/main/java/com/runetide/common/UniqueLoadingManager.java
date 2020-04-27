@@ -16,9 +16,12 @@ import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.locks.*;
+
+import static com.runetide.common.ServiceState.*;
 
 /*
  * This provides a manager that only allows one instance to load a key at any given time.
@@ -57,12 +60,6 @@ import java.util.concurrent.locks.*;
 public abstract class UniqueLoadingManager<K, V> {
     private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    private static final String CLAIMED = "CLAIMED";
-    private static final String LOADING = "LOADING";
-    private static final String LOADED = "LOADED";
-    private static final String UNLOAD_REQUESTED = "UNLOAD_REQUESTED";
-    private static final String UNLOADING = "UNLOADING";
-
     private final String myUrl;
     private final String objectName;
     private final LockManager lockManager;
@@ -75,19 +72,22 @@ public abstract class UniqueLoadingManager<K, V> {
     private final Map<K, LeaderSelector> leaderSelectors = new HashMap<>();
     private final PathChildrenCache pathChildrenCache;
     private final CuratorFramework curatorFramework;
+    private final TopicManager topicManager;
     protected final Map<K, V> loaded = new ConcurrentHashMap<>();
     protected volatile boolean isLive;
     protected volatile boolean isLost;
 
     protected UniqueLoadingManager(final String myUrl, final String objectName, final LockManager lockManager,
                                    final ServiceRegistry serviceRegistry, final ExecutorService executorService,
-                                   final RedissonClient redissonClient, final CuratorFramework curatorFramework) throws Exception {
+                                   final RedissonClient redissonClient, final CuratorFramework curatorFramework,
+                                   final TopicManager topicManager) throws Exception {
         this.myUrl = myUrl;
         this.objectName = objectName;
         this.lockManager = lockManager;
         this.serviceRegistry = serviceRegistry;
         this.executorService = executorService;
         this.curatorFramework = curatorFramework;
+        this.topicManager = topicManager;
         this.pathChildrenCache = new PathChildrenCache(curatorFramework, Constants.ZK_SVC_INTEREST + objectName, false);
         this.serviceState = redissonClient.getMap("services:" + objectName + ":state", StringCodec.INSTANCE);
         this.serviceClaims = redissonClient.getMap("services:" + objectName + ":claims", StringCodec.INSTANCE);
@@ -329,22 +329,27 @@ public abstract class UniqueLoadingManager<K, V> {
         }
     }
 
-    private void setState(final K key, final String state) {
+    private void setState(final K key, final ServiceState state) {
         try {
-            final String oldState = serviceState.put(key.toString(), state);
+            final ServiceState oldState = Optional.ofNullable(serviceState.put(key.toString(), state.name()))
+                    .map(ServiceState::valueOf).orElse(null);
             LOG.info("[{}] State transition for key={} from {} to {}", objectName, key,
                     oldState == null ? "<NONE>" : oldState, state);
+            topicManager.publish(Constants.LOADING_TOPIC_PREFIX + objectName + ":" + key,
+                    new StateTransitionMessage(objectName, key.toString(), oldState, state));
         } catch (final Exception e) {
             LOG.error("[{}] State transition failed for key={} to {}", objectName, key, state, e);
             throw e;
         }
     }
 
-    private void clearState(final K key, final String oldState) {
+    private void clearState(final K key, final ServiceState oldState) {
         try {
-            serviceState.remove(key.toString(), oldState);
-            LOG.info("[{}] State transition for key={} from {} to <NONE>", objectName, key,
-                    oldState == null ? "<NONE>" : oldState);
+            if(serviceState.remove(key.toString(), oldState.name())) {
+                LOG.info("[{}] State transition for key={} from {} to <NONE>", objectName, key, oldState);
+                topicManager.publish(Constants.LOADING_TOPIC_PREFIX + objectName + ":" + key,
+                        new StateTransitionMessage(objectName, key.toString(), oldState, null));
+            }
         } catch (final Exception e) {
             LOG.error("[{}] State transition failed for key={} to <NONE>", objectName, key, e);
         }

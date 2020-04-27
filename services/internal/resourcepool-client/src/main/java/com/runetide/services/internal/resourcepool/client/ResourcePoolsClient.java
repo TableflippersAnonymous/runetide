@@ -9,6 +9,7 @@ import com.runetide.common.services.cql.UUIDRefCodec;
 import com.runetide.services.internal.resourcepool.common.ResourcePoolRef;
 import com.runetide.services.internal.resourcepool.common.*;
 import org.apache.curator.framework.CuratorFramework;
+import org.redisson.api.RedissonClient;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
@@ -19,9 +20,9 @@ import java.util.*;
 public class ResourcePoolsClient extends UniqueLoadingClient<ResourcePoolRef> {
     @Inject
     public ResourcePoolsClient(ServiceRegistry serviceRegistry, TopicManager topicManager,
-                               CuratorFramework curatorFramework) {
+                               CuratorFramework curatorFramework, RedissonClient redissonClient) {
         super(serviceRegistry, topicManager, Constants.RESOURCE_POOL_LOADING_NAMESPACE, "resource-pools",
-                curatorFramework);
+                curatorFramework, redissonClient);
     }
 
     public static List<TypeCodec<?>> getCqlTypeCodecs() {
@@ -41,13 +42,13 @@ public class ResourcePoolsClient extends UniqueLoadingClient<ResourcePoolRef> {
                         finalLimitUpper, finalLimitLower, effects), MediaType.APPLICATION_JSON), ResourcePool.class);
     }
 
-    public ResourcePool get(ResourcePoolRef resourcePoolRef) {
+    public ResourcePool get(LoadingToken<ResourcePoolRef> resourcePoolRef) {
         return getTarget(resourcePoolRef)
                 .request(ACCEPT)
                 .get(ResourcePool.class);
     }
 
-    public ResourcePoolTransactResponse transact(ResourcePoolRef resourcePoolRef, long delta,
+    public ResourcePoolTransactResponse transact(LoadingToken<ResourcePoolRef> resourcePoolRef, long delta,
                                                  Optional<Long> overrideMin, Optional<Long> overrideMax,
                                                  boolean ignoreNormalLimits, boolean takePartial) {
         return getTarget(resourcePoolRef)
@@ -57,7 +58,7 @@ public class ResourcePoolsClient extends UniqueLoadingClient<ResourcePoolRef> {
                         ignoreNormalLimits, takePartial), MediaType.APPLICATION_JSON), ResourcePoolTransactResponse.class);
     }
 
-    public ResourcePool update(ResourcePoolRef resourcePoolRef, long value,
+    public ResourcePool update(LoadingToken<ResourcePoolRef> resourcePoolRef, long value,
                                long normalLimitLower, long normalLimitUpper,
                                long finalLimitLower, long finalLimitUpper,
                                Optional<Map<String, ResourcePoolEffect>> effects) {
@@ -68,37 +69,32 @@ public class ResourcePoolsClient extends UniqueLoadingClient<ResourcePoolRef> {
                         ResourcePool.class);
     }
 
-    public void delete(ResourcePoolRef resourcePoolRef) {
+    public void delete(LoadingToken<ResourcePoolRef> resourcePoolRef) {
         getTarget(resourcePoolRef)
                 .request(ACCEPT)
                 .delete();
     }
 
-    public ResourcePool addEffect(ResourcePoolRef resourcePoolRef, String effectName, ResourcePoolEffect effect) {
+    public ResourcePool addEffect(LoadingToken<ResourcePoolRef> resourcePoolRef, String effectName,
+                                  ResourcePoolEffect effect) {
         return getTarget(resourcePoolRef)
                 .path(effectName)
                 .request(ACCEPT)
                 .put(Entity.entity(effect, MediaType.APPLICATION_JSON), ResourcePool.class);
     }
 
-    public ResourcePoolEffect getEffect(ResourcePoolRef resourcePoolRef, String effectName) {
+    public ResourcePoolEffect getEffect(LoadingToken<ResourcePoolRef> resourcePoolRef, String effectName) {
         return getTarget(resourcePoolRef)
                 .path(effectName)
                 .request(ACCEPT)
                 .get(ResourcePoolEffect.class);
     }
 
-    public void deleteEffect(ResourcePoolRef resourcePoolRef, String effectName) {
+    public void deleteEffect(LoadingToken<ResourcePoolRef> resourcePoolRef, String effectName) {
         getTarget(resourcePoolRef)
                 .path(effectName)
                 .request(ACCEPT)
                 .delete();
-    }
-
-    public TopicListenerHandle<ResourcePoolLoadMessage> listenLoad(ResourcePoolRef resourcePoolRef,
-                                                                   TopicListener<ResourcePoolLoadMessage> listener) {
-        return topicManager.addListener(Constants.RESOURCE_POOL_TOPIC_PREFIX + resourcePoolRef + ":load",
-                listener, ResourcePoolLoadMessage.class);
     }
 
     public TopicListenerHandle<ResourcePoolTransactMessage> listenTransact(ResourcePoolRef resourcePoolRef,
@@ -114,7 +110,7 @@ public class ResourcePoolsClient extends UniqueLoadingClient<ResourcePoolRef> {
     }
 
     @Override
-    protected WebTarget getTarget(ResourcePoolRef key) {
+    protected WebTarget getTarget(LoadingToken<ResourcePoolRef> key) {
         return super.getTarget(key)
                 .path(key.toString());
     }

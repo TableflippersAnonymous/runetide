@@ -1,6 +1,8 @@
 package com.runetide.common;
 
 import org.apache.curator.framework.CuratorFramework;
+import org.redisson.api.RedissonClient;
+import org.redisson.client.codec.StringCodec;
 
 import javax.ws.rs.client.WebTarget;
 
@@ -8,18 +10,21 @@ public abstract class UniqueLoadingClient<K> extends StatelessClient {
     private final String objectName;
     private final String basePath;
     private final CuratorFramework curatorFramework;
+    private final RedissonClient redissonClient;
 
     protected UniqueLoadingClient(final ServiceRegistry serviceRegistry, final TopicManager topicManager,
                                   final String objectName, final String basePath,
-                                  final CuratorFramework curatorFramework) {
+                                  final CuratorFramework curatorFramework, final RedissonClient redissonClient) {
         super(serviceRegistry, topicManager, objectName, basePath);
         this.objectName = objectName;
         this.basePath = basePath;
         this.curatorFramework = curatorFramework;
+        this.redissonClient = redissonClient;
     }
 
-    protected WebTarget getTarget(final K key) {
-        return client.target(serviceRegistry.getRandomUri(objectName + ":" + key)).path(basePath);
+    protected WebTarget getTarget(final LoadingToken<K> key) {
+        key.awaitServiceState(ServiceState.LOADED);
+        return client.target(serviceRegistry.getRandomUri(objectName + ":" + key.getKey())).path(basePath);
     }
 
     public boolean isLoaded(final K key) {
@@ -30,9 +35,16 @@ public abstract class UniqueLoadingClient<K> extends StatelessClient {
         }
     }
 
-    public LoadingToken requestLoad(final K key) {
-        final LoadingToken loadingToken = new LoadingToken(curatorFramework, objectName, key.toString());
+    public LoadingToken<K> requestLoad(final K key) {
+        final LoadingToken<K> loadingToken = new LoadingToken<>(curatorFramework, objectName, key,
+                this, redissonClient);
         loadingToken.start();
         return loadingToken;
+    }
+
+    public TopicListenerHandle<StateTransitionMessage> listenStateTransition(final K key,
+                                                                             final TopicListener<StateTransitionMessage> topicListener) {
+        return topicManager.addListener(Constants.LOADING_TOPIC_PREFIX + objectName + ":" + key,
+                topicListener, StateTransitionMessage.class);
     }
 }

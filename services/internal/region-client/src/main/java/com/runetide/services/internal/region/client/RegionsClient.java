@@ -2,71 +2,56 @@ package com.runetide.services.internal.region.client;
 
 import com.runetide.common.*;
 import com.runetide.common.dto.*;
-import com.runetide.common.services.servicediscovery.ServiceData;
 import com.runetide.services.internal.region.common.*;
 import org.apache.curator.framework.CuratorFramework;
-import org.apache.curator.x.discovery.ServiceDiscovery;
-import org.apache.curator.x.discovery.ServiceInstance;
-import org.apache.curator.x.discovery.ServiceProvider;
-import org.glassfish.jersey.jackson.JacksonFeature;
-import org.glassfish.jersey.logging.LoggingFeature;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.redisson.api.RedissonClient;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.lang.invoke.MethodHandles;
-import java.util.List;
 
 @Singleton
 public class RegionsClient extends UniqueLoadingClient<RegionRef> {
     @Inject
     public RegionsClient(final ServiceRegistry serviceRegistry, final TopicManager topicManager,
-                         final CuratorFramework curatorFramework) {
-        super(serviceRegistry, topicManager, Constants.REGION_LOADING_NAMESPACE, "regions", curatorFramework);
+                         final CuratorFramework curatorFramework, final RedissonClient redissonClient) {
+        super(serviceRegistry, topicManager, Constants.REGION_LOADING_NAMESPACE, "regions", curatorFramework,
+                redissonClient);
     }
 
-    public Region getRegion(final RegionRef regionRef) {
-        return getTarget(regionRef)
+    public Region getRegion(final LoadingToken<RegionRef> loadingToken) {
+        return getTarget(loadingToken)
                 .request(ACCEPT)
                 .get(Region.class);
     }
 
-    public RegionChunkData bulkUpdate(final RegionRef regionRef, final BulkBlockUpdateRequest bulkBlockUpdateRequest) {
-        return getTarget(regionRef)
+    public RegionChunkData bulkUpdate(final LoadingToken<RegionRef> loadingToken,
+                                      final BulkBlockUpdateRequest bulkBlockUpdateRequest) {
+        return getTarget(loadingToken)
                 .request(ACCEPT)
                 .post(Entity.entity(bulkBlockUpdateRequest, MediaType.APPLICATION_JSON), RegionChunkData.class);
     }
 
-    public Chunk getChunk(final ChunkRef chunkRef) {
-        return getTarget(chunkRef)
+    public Chunk getChunk(final LoadingToken<RegionRef> loadingToken) {
+        return getTarget(loadingToken)
                 .request(ACCEPT)
                 .get(Chunk.class);
     }
 
-    public ChunkSection getChunkSection(final ChunkSectionRef chunkSectionRef) {
-        return getTarget(chunkSectionRef)
+    public ChunkSection getChunkSection(final LoadingToken<RegionRef> loadingToken,
+                                        final ChunkSectionRef chunkSectionRef) {
+        return getTarget(loadingToken, chunkSectionRef)
                 .request(ACCEPT)
                 .get(ChunkSection.class);
     }
 
-    public ChunkSection putBlock(final BlockRef blockRef, final Block block) {
-        return getTarget(blockRef)
+    public ChunkSection putBlock(final LoadingToken<RegionRef> loadingToken, final BlockRef blockRef,
+                                 final Block block) {
+        return getTarget(loadingToken, blockRef)
                 .request(ACCEPT)
                 .put(Entity.entity(block, MediaType.APPLICATION_JSON), ChunkSection.class);
-    }
-
-    public TopicListenerHandle<RegionLoadMessage> listenLoad(final RegionRef regionRef,
-                                                             final TopicListener<RegionLoadMessage> listener) {
-        return topicManager.addListener(Constants.REGION_TOPIC_PREFIX + regionRef + ":load", listener,
-                RegionLoadMessage.class);
     }
 
     public TopicListenerHandle<BlockUpdateMessage> listenUpdate(final RegionRef regionRef,
@@ -76,24 +61,26 @@ public class RegionsClient extends UniqueLoadingClient<RegionRef> {
     }
 
     @Override
-    protected WebTarget getTarget(final RegionRef regionRef) {
+    protected WebTarget getTarget(final LoadingToken<RegionRef> regionRef) {
         return super.getTarget(regionRef)
-                .path(regionRef.getWorldRef().toString())
-                .path(String.valueOf(regionRef.getX())).path(String.valueOf(regionRef.getZ()));
+                .path(regionRef.getKey().getWorldRef().toString())
+                .path(String.valueOf(regionRef.getKey().getX())).path(String.valueOf(regionRef.getKey().getZ()));
     }
 
-    private WebTarget getTarget(final ChunkRef chunkRef) {
-        return getTarget(chunkRef.getRegionRef())
+    private WebTarget getTarget(final LoadingToken<RegionRef> loadingToken, final ChunkRef chunkRef) {
+        if(!loadingToken.getKey().equals(chunkRef.getRegionRef()))
+            throw new IllegalArgumentException("Invalid loading token");
+        return getTarget(loadingToken)
                 .path(String.valueOf(chunkRef.getX())).path(String.valueOf(chunkRef.getZ()));
     }
 
-    private WebTarget getTarget(final ChunkSectionRef chunkSectionRef) {
-        return getTarget(chunkSectionRef.getChunkRef())
+    private WebTarget getTarget(final LoadingToken<RegionRef> loadingToken, final ChunkSectionRef chunkSectionRef) {
+        return getTarget(loadingToken, chunkSectionRef.getChunkRef())
                 .path(String.valueOf(chunkSectionRef.getY()));
     }
 
-    private WebTarget getTarget(final BlockRef blockRef) {
-        return getTarget(blockRef.getChunkSectionRef())
+    private WebTarget getTarget(final LoadingToken<RegionRef> loadingToken, final BlockRef blockRef) {
+        return getTarget(loadingToken, blockRef.getChunkSectionRef())
                 .path(String.valueOf(blockRef.getX()))
                 .path(String.valueOf(blockRef.getY()))
                 .path(String.valueOf(blockRef.getZ()));

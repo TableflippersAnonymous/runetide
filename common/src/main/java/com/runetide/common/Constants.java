@@ -55,6 +55,8 @@ public class Constants {
     public static final String LOCK_SVC_PREFIX = "ulm:";
     public static final String LOCK_DELETE_PREFIX = "sulm:";
 
+    public static final String LOADING_TOPIC_PREFIX = "ulm:";
+
     public static final String ACCOUNT_SERVICE_NAME = "account";
     public static final String CHARACTER_SERVICE_NAME = "character";
     public static final String ENTITY_SERVICE_NAME = "entity";

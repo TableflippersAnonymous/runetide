@@ -10,6 +10,7 @@ import com.runetide.common.UniqueLoadingClient;
 import com.runetide.services.internal.entity.common.dto.EntityRef;
 import com.runetide.common.services.cql.UUIDRefCodec;
 import org.apache.curator.framework.CuratorFramework;
+import org.redisson.api.RedissonClient;
 
 import java.util.Arrays;
 import java.util.List;
@@ -18,8 +19,9 @@ import java.util.List;
 public class EntitiesClient extends UniqueLoadingClient<EntityRef> {
     @Inject
     public EntitiesClient(ServiceRegistry serviceRegistry, TopicManager topicManager,
-                          CuratorFramework curatorFramework) {
-        super(serviceRegistry, topicManager, Constants.ENTITY_LOADING_NAMESPACE, "entities", curatorFramework);
+                          CuratorFramework curatorFramework, RedissonClient redissonClient) {
+        super(serviceRegistry, topicManager, Constants.ENTITY_LOADING_NAMESPACE, "entities", curatorFramework,
+                redissonClient);
     }
 
     public static List<TypeCodec<?>> getCqlTypeCodecs() {

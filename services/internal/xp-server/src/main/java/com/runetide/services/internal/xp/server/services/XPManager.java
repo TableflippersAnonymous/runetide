@@ -31,7 +31,7 @@ public class XPManager extends SavingUniqueLoadingManager<XPRef, LoadedXP> {
                      CuratorFramework curatorFramework, TopicManager topicManager, XPDao dao,
                      XPClient xpClient) throws Exception {
         super(myUrl, Constants.XP_LOADING_NAMESPACE, Constants.SAVE_RATE_MS, TimeUnit.MILLISECONDS, lockManager,
-                serviceRegistry, executorService, redissonClient, curatorFramework);
+                serviceRegistry, executorService, redissonClient, curatorFramework, topicManager);
         this.topicManager = topicManager;
         this.dao = dao;
         this.xpClient = xpClient;
@@ -50,7 +50,7 @@ public class XPManager extends SavingUniqueLoadingManager<XPRef, LoadedXP> {
     }
 
     public XPRef create(XP value) {
-        value.setCqlId(UUID.randomUUID());
+        value.setId(new XPRef(UUID.randomUUID()));
         dao.save(value);
         return value.getId();
     }
@@ -78,17 +78,12 @@ public class XPManager extends SavingUniqueLoadingManager<XPRef, LoadedXP> {
 
     @Override
     protected void postLoad(XPRef key, LoadedXP value) {
-        topicManager.publish(Constants.XP_TOPIC_PREFIX + key + ":load", new XPLoadMessage(key));
+
     }
 
     @Override
     protected void handleUnload(XPRef key, LoadedXP value) {
         value.unload();
-    }
-
-    @Override
-    protected void postUnload(XPRef key) {
-
     }
 
     @Override

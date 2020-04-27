@@ -11,6 +11,7 @@ import com.runetide.common.services.cql.EnumIndexedCodec;
 import com.runetide.common.services.cql.UUIDRefCodec;
 import com.runetide.services.internal.character.common.*;
 import org.apache.curator.framework.CuratorFramework;
+import org.redisson.api.RedissonClient;
 
 import java.util.Arrays;
 import java.util.List;
@@ -19,9 +20,9 @@ import java.util.List;
 public class CharactersClient extends UniqueLoadingClient<CharacterRef> {
     @Inject
     public CharactersClient(ServiceRegistry serviceRegistry, TopicManager topicManager,
-                            CuratorFramework curatorFramework) {
+                            CuratorFramework curatorFramework, RedissonClient redissonClient) {
         super(serviceRegistry, topicManager, Constants.CHARACTER_LOADING_NAMESPACE, "characters",
-                curatorFramework);
+                curatorFramework, redissonClient);
     }
 
     public static List<TypeCodec<?>> getCqlTypeCodecs() {

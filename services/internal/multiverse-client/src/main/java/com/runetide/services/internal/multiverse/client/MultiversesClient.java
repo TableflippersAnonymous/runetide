@@ -10,6 +10,7 @@ import com.runetide.common.UniqueLoadingClient;
 import com.runetide.common.services.cql.UUIDRefCodec;
 import com.runetide.services.internal.multiverse.common.MultiverseRef;
 import org.apache.curator.framework.CuratorFramework;
+import org.redisson.api.RedissonClient;
 
 import java.util.Arrays;
 import java.util.List;
@@ -18,9 +19,9 @@ import java.util.List;
 public class MultiversesClient extends UniqueLoadingClient<MultiverseRef> {
     @Inject
     public MultiversesClient(ServiceRegistry serviceRegistry, TopicManager topicManager,
-                             CuratorFramework curatorFramework) {
+                             CuratorFramework curatorFramework, RedissonClient redissonClient) {
         super(serviceRegistry, topicManager, Constants.MULTIVERSE_LOADING_NAMESPACE, "multiverses",
-                curatorFramework);
+                curatorFramework, redissonClient);
     }
 
     public static List<TypeCodec<?>> getCqlTypeCodecs() {

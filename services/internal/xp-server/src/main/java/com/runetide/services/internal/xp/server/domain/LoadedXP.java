@@ -6,6 +6,7 @@ import com.runetide.common.TopicManager;
 import com.runetide.services.internal.xp.client.XPClient;
 import com.runetide.services.internal.xp.common.XP;
 import com.runetide.services.internal.xp.common.XPLevelMessage;
+import com.runetide.services.internal.xp.common.XPRef;
 import com.runetide.services.internal.xp.common.XPTransactMessage;
 import com.runetide.services.internal.xp.server.dao.XPDao;
 
@@ -16,7 +17,7 @@ public class LoadedXP {
     private final XPDao dao;
     private final TopicManager topicManager;
     private final XPClient xpClient;
-    private final Optional<LoadingToken> loadingToken;
+    private final Optional<LoadingToken<XPRef>> loadingToken;
 
     public LoadedXP(XP xp, XPDao dao, TopicManager topicManager, XPClient xpClient) {
         this.xp = xp;
@@ -34,9 +35,7 @@ public class LoadedXP {
     public synchronized boolean transact(long delta) {
         final int oldLevel = xp.getLevel();
         final long oldXp = xp.getXp();
-        if(xp.getParent() != null) {
-            xpClient.transact(xp.getParent(), delta);
-        }
+        loadingToken.ifPresent(token -> xpClient.transact(token, delta));
         xp.setXp(oldXp + delta);
         if(xp.getLevel() < oldLevel) {
             xp.setXp(oldXp);
