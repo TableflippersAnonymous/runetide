@@ -53,6 +53,10 @@ public class LoadedXP {
 
     public void unload() {
         save();
+        reset();
+    }
+
+    public void reset() {
         loadingToken.ifPresent(LoadingToken::close);
     }
 

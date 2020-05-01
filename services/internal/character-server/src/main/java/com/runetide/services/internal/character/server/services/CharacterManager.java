@@ -16,6 +16,7 @@ import org.apache.curator.framework.CuratorFramework;
 import org.redisson.api.RedissonClient;
 
 import javax.inject.Named;
+import java.util.Collection;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -42,6 +43,14 @@ public class CharacterManager extends SavingUniqueLoadingManager<CharacterRef, L
         this.entitiesClient = entitiesClient;
         this.resourcePoolsClient = resourcePoolsClient;
         this.xpClient = xpClient;
+    }
+
+    public Collection<LoadedCharacter> getLoaded() {
+        return loaded.values();
+    }
+
+    public LoadedCharacter getLoaded(CharacterRef key) {
+        return loaded.get(key);
     }
 
     @Override
@@ -77,7 +86,7 @@ public class CharacterManager extends SavingUniqueLoadingManager<CharacterRef, L
 
     @Override
     protected void handleReset() {
-
+        loaded.values().forEach(LoadedCharacter::reset);
     }
 
     @Override

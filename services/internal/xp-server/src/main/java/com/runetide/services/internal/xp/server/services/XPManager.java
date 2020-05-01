@@ -88,7 +88,7 @@ public class XPManager extends SavingUniqueLoadingManager<XPRef, LoadedXP> {
 
     @Override
     protected void handleReset() {
-
+        loaded.values().forEach(LoadedXP::reset);
     }
 
     @Override

@@ -17,6 +17,26 @@
     <dependencies>
         <dependency>
             <groupId>com.runetide</groupId>
+            <artifactId>account-client</artifactId>
+            <version>${runetide.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.runetide</groupId>
+            <artifactId>entity-client</artifactId>
+            <version>${runetide.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.runetide</groupId>
+            <artifactId>multiverse-client</artifactId>
+            <version>${runetide.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.runetide</groupId>
+            <artifactId>resourcepool-client</artifactId>
+            <version>${runetide.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.runetide</groupId>
             <artifactId>xp-client</artifactId>
             <version>${runetide.version}</version>
         </dependency>
