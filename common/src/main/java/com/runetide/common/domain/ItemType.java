@@ -275,8 +275,6 @@ public enum ItemType implements IndexedEnum {
         this.damageType = damageType;
     }
 
-
-
     public int getId() {
         return id;
     }
@@ -298,6 +296,7 @@ public enum ItemType implements IndexedEnum {
     }
 
     @Override
+    @JsonValue
     public int toValue() {
         return id;
     }

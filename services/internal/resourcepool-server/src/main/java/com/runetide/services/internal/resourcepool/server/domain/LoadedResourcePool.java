@@ -1,7 +1,7 @@
 package com.runetide.services.internal.resourcepool.server.domain;
 
 import com.runetide.common.Constants;
-import com.runetide.common.TopicManager;
+import com.runetide.common.services.topics.TopicManager;
 import com.runetide.services.internal.resourcepool.common.ResourcePool;
 import com.runetide.services.internal.resourcepool.common.ResourcePoolEffect;
 import com.runetide.services.internal.resourcepool.common.ResourcePoolTransactMessage;

@@ -3,7 +3,7 @@ package com.runetide.services.internal.xp.server.dao;
 import com.datastax.oss.driver.api.core.PagingIterable;
 import com.datastax.oss.driver.api.mapper.annotations.Dao;
 import com.datastax.oss.driver.api.mapper.annotations.Select;
-import com.runetide.common.BaseDao;
+import com.runetide.common.services.cql.BaseDao;
 import com.runetide.services.internal.xp.common.XP;
 import com.runetide.services.internal.xp.common.XPRef;
 import com.runetide.services.internal.xp.server.dto.XPByParent;

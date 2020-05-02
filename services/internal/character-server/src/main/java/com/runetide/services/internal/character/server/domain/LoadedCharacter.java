@@ -1,7 +1,7 @@
 package com.runetide.services.internal.character.server.domain;
 
-import com.runetide.common.LoadingToken;
-import com.runetide.common.TopicManager;
+import com.runetide.common.clients.LoadingToken;
+import com.runetide.common.services.topics.TopicManager;
 import com.runetide.services.internal.character.server.dao.CharacterDao;
 import com.runetide.services.internal.character.server.dto.Character;
 import com.runetide.services.internal.character.server.dto.CharacterAttributeAssignment;

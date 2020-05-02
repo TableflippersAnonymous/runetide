@@ -5,7 +5,7 @@ import com.datastax.oss.driver.api.core.cql.BoundStatement;
 import com.datastax.oss.driver.api.mapper.annotations.Dao;
 import com.datastax.oss.driver.api.mapper.annotations.Delete;
 import com.datastax.oss.driver.api.mapper.annotations.Select;
-import com.runetide.common.BaseDao;
+import com.runetide.common.services.cql.BaseDao;
 import com.runetide.services.internal.account.common.AccountRef;
 import com.runetide.services.internal.character.common.CharacterRef;
 import com.runetide.services.internal.character.server.dto.Character;

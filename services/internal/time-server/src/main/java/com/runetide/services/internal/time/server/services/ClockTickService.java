@@ -1,7 +1,7 @@
 package com.runetide.services.internal.time.server.services;
 
 import com.runetide.common.Constants;
-import com.runetide.common.TopicManager;
+import com.runetide.common.services.topics.TopicManager;
 import com.runetide.services.internal.time.common.TimeTickMessage;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.leader.LeaderSelector;

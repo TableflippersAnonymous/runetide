@@ -33,7 +33,8 @@ public class ChunkSection {
     }
 
     public Block blockAt(final int x, final int y, final int z) {
-        return new Block(blockTypeAt(x, y, z), blockVariantAt(x, y, z), blockDataAt(x, y, z), naturalLightAt(x, y, z), artificialLightAt(x, y, z));
+        return new Block(blockTypeAt(x, y, z), blockVariantAt(x, y, z), blockDataAt(x, y, z),
+                naturalLightAt(x, y, z), artificialLightAt(x, y, z));
     }
 
     public BlockType blockTypeAt(final int x, final int y, final int z) {

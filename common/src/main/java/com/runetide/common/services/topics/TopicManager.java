@@ -1,4 +1,4 @@
-package com.runetide.common;
+package com.runetide.common.services.topics;
 
 public interface TopicManager {
     void publish(String topic, TopicMessage topicMessage);

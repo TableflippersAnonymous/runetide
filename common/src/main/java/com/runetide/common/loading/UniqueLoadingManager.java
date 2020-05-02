@@ -1,5 +1,9 @@
-package com.runetide.common;
+package com.runetide.common.loading;
 
+import com.runetide.common.Constants;
+import com.runetide.common.services.servicediscovery.ServiceRegistry;
+import com.runetide.common.services.locking.LockManager;
+import com.runetide.common.services.topics.TopicManager;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.cache.PathChildrenCache;
 import org.apache.curator.framework.recipes.leader.LeaderSelector;
@@ -21,7 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.locks.*;
 
-import static com.runetide.common.ServiceState.*;
+import static com.runetide.common.loading.ServiceState.*;
 
 /*
  * This provides a manager that only allows one instance to load a key at any given time.

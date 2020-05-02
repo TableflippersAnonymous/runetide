@@ -1,4 +1,4 @@
-package com.runetide.common;
+package com.runetide.common.services.topics;
 
 import java.util.EventListener;
 

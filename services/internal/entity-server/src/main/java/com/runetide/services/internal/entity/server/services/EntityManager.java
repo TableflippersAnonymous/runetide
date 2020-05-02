@@ -3,6 +3,9 @@ package com.runetide.services.internal.entity.server.services;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.runetide.common.*;
+import com.runetide.common.services.locking.LockManager;
+import com.runetide.common.services.servicediscovery.ServiceRegistry;
+import com.runetide.common.services.topics.TopicManager;
 import com.runetide.services.internal.entity.common.dto.EntityRef;
 import com.runetide.services.internal.entity.server.domain.LoadedEntity;
 import com.runetide.services.internal.time.client.TimeClient;
@@ -18,9 +21,9 @@ import java.util.concurrent.TimeUnit;
 public class EntityManager extends TickingSavingUniqueLoadingManager<EntityRef, LoadedEntity> {
     @Inject
     public EntityManager(@Named("myUrl") final String myUrl, final LockManager lockManager,
-            final ServiceRegistry serviceRegistry, final ScheduledExecutorService executorService,
-            final RedissonClient redissonClient, final CuratorFramework curatorFramework,
-            final TopicManager topicManager, final TimeClient timeClient) throws Exception {
+                         final ServiceRegistry serviceRegistry, final ScheduledExecutorService executorService,
+                         final RedissonClient redissonClient, final CuratorFramework curatorFramework,
+                         final TopicManager topicManager, final TimeClient timeClient) throws Exception {
         super(myUrl, Constants.ENTITY_LOADING_NAMESPACE, Constants.SAVE_RATE_MS, TimeUnit.MILLISECONDS, lockManager,
                 serviceRegistry, executorService, redissonClient, curatorFramework, timeClient, topicManager);
     }

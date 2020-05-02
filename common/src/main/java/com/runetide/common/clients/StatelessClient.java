@@ -1,5 +1,7 @@
-package com.runetide.common;
+package com.runetide.common.clients;
 
+import com.runetide.common.services.servicediscovery.ServiceRegistry;
+import com.runetide.common.services.topics.TopicManager;
 import org.glassfish.jersey.jackson.JacksonFeature;
 
 import javax.ws.rs.client.Client;

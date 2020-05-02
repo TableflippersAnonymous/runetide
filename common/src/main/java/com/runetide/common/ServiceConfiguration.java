@@ -1,6 +1,7 @@
 package com.runetide.common;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.runetide.common.services.cql.CassandraConfig;
 import io.dropwizard.Configuration;
 import org.redisson.config.Config;
 

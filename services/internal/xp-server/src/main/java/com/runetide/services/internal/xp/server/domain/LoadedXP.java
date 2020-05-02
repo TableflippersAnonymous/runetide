@@ -1,8 +1,8 @@
 package com.runetide.services.internal.xp.server.domain;
 
 import com.runetide.common.Constants;
-import com.runetide.common.LoadingToken;
-import com.runetide.common.TopicManager;
+import com.runetide.common.clients.LoadingToken;
+import com.runetide.common.services.topics.TopicManager;
 import com.runetide.services.internal.xp.client.XPClient;
 import com.runetide.services.internal.xp.common.XP;
 import com.runetide.services.internal.xp.common.XPLevelMessage;

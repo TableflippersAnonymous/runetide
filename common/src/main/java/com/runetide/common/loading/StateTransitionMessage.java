@@ -1,6 +1,7 @@
-package com.runetide.common;
+package com.runetide.common.loading;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.runetide.common.services.topics.TopicMessage;
 
 public class StateTransitionMessage extends TopicMessage {
     @JsonProperty("_")

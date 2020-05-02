@@ -1,7 +1,7 @@
 package com.runetide.services.internal.region.common;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.runetide.common.TopicMessage;
+import com.runetide.common.services.topics.TopicMessage;
 import com.runetide.common.dto.RegionRef;
 
 public class RegionLoadMessage extends TopicMessage {

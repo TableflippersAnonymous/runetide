@@ -13,7 +13,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.runetide.common.Constants;
-import com.runetide.common.LockManager;
+import com.runetide.common.services.locking.LockManager;
 import org.eclipse.jetty.util.IO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

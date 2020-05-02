@@ -1,4 +1,4 @@
-package com.runetide.common;
+package com.runetide.common.services.cql;
 
 import com.datastax.oss.driver.api.core.PagingIterable;
 import com.datastax.oss.driver.api.core.cql.BoundStatementBuilder;

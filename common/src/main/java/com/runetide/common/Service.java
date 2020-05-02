@@ -7,6 +7,7 @@ import com.runetide.common.dto.*;
 import com.runetide.common.services.cql.EnumIndexedCodec;
 import com.runetide.common.services.cql.EnumNameCodec;
 import com.runetide.common.services.cql.UUIDRefCodec;
+import com.runetide.common.services.servicediscovery.ServiceRegistry;
 import com.runetide.common.util.MigrationManager;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;

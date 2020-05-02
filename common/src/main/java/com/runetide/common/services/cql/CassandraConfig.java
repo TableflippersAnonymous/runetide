@@ -1,4 +1,4 @@
-package com.runetide.common;
+package com.runetide.common.services.cql;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

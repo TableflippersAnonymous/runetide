@@ -2,7 +2,7 @@ package com.runetide.services.internal.region.server.dao;
 
 import com.datastax.oss.driver.api.mapper.annotations.Dao;
 import com.datastax.oss.driver.api.mapper.annotations.Select;
-import com.runetide.common.BaseDao;
+import com.runetide.common.services.cql.BaseDao;
 import com.runetide.common.dto.RegionRef;
 import com.runetide.services.internal.region.server.dto.Region;
 

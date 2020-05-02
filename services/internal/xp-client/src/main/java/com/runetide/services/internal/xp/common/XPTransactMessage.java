@@ -1,7 +1,7 @@
 package com.runetide.services.internal.xp.common;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.runetide.common.TopicMessage;
+import com.runetide.common.services.topics.TopicMessage;
 
 public class XPTransactMessage extends TopicMessage {
     @JsonProperty("xp")

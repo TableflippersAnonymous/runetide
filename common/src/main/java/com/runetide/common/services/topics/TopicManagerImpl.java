@@ -1,4 +1,4 @@
-package com.runetide.common;
+package com.runetide.common.services.topics;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -53,7 +53,11 @@ public class TopicManagerImpl implements TopicManager {
 
     @Override
     public void removeListener(final TopicListenerHandle<?> listenerHandle) {
-        final RTopic<byte[]> rTopic = redissonClient.getTopic(TOPIC_PREFIX + listenerHandle.getTopic(), ByteArrayCodec.INSTANCE);
-        rTopic.removeListener(listenerHandle.getListenerId());
+        listenerHandle.close();
+    }
+
+    void removeListener(final String topic, final int listenerId) {
+        final RTopic<byte[]> rTopic = redissonClient.getTopic(TOPIC_PREFIX + topic, ByteArrayCodec.INSTANCE);
+        rTopic.removeListener(listenerId);
     }
 }

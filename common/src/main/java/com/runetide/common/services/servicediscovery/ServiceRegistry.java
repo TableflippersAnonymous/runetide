@@ -1,4 +1,4 @@
-package com.runetide.common;
+package com.runetide.common.services.servicediscovery;
 
 import com.google.common.collect.Iterables;
 import com.runetide.common.services.servicediscovery.ServiceData;

@@ -1,4 +1,4 @@
-package com.runetide.common;
+package com.runetide.common.services.locking;
 
 public interface LockManager {
     boolean tryAcquire(final String name);
