@@ -1,5 +1,6 @@
 package com.runetide.services.internal.item.server.dto;
 
+import com.datastax.oss.driver.api.mapper.annotations.ClusteringColumn;
 import com.datastax.oss.driver.api.mapper.annotations.CqlName;
 import com.datastax.oss.driver.api.mapper.annotations.Entity;
 import com.datastax.oss.driver.api.mapper.annotations.PartitionKey;
@@ -13,15 +14,16 @@ import java.util.Map;
 import java.util.UUID;
 
 @Entity
-@CqlName("item")
-public class Item {
+@CqlName("item_by_parent_inventory")
+public class ItemByParentInventory {
     @PartitionKey
+    @CqlName("parent_inventory")
+    private InventoryRef parentInventory;
+    @ClusteringColumn
     @CqlName("id")
     private UUID id;
     @CqlName("kind")
     private ItemType kind;
-    @CqlName("parent_inventory")
-    private InventoryRef parentInventory;
     @CqlName("child_inventory")
     private InventoryRef childInventory;
     @CqlName("label")
@@ -31,18 +33,27 @@ public class Item {
     @CqlName("attachments")
     private List<ItemAttachment> attachments;
 
-    public Item() {
+    public ItemByParentInventory() {
     }
 
-    public Item(UUID id, ItemType kind, InventoryRef parentInventory, InventoryRef childInventory, String label,
-                Map<ResourceType, ResourcePoolRef> resourcePools, List<ItemAttachment> attachments) {
+    public ItemByParentInventory(InventoryRef parentInventory, UUID id, ItemType kind, InventoryRef childInventory,
+                                 String label, Map<ResourceType, ResourcePoolRef> resourcePools,
+                                 List<ItemAttachment> attachments) {
+        this.parentInventory = parentInventory;
         this.id = id;
         this.kind = kind;
-        this.parentInventory = parentInventory;
         this.childInventory = childInventory;
         this.label = label;
         this.resourcePools = resourcePools;
         this.attachments = attachments;
+    }
+
+    public InventoryRef getParentInventory() {
+        return parentInventory;
+    }
+
+    public void setParentInventory(InventoryRef parentInventory) {
+        this.parentInventory = parentInventory;
     }
 
     public UUID getId() {
@@ -59,14 +70,6 @@ public class Item {
 
     public void setKind(ItemType kind) {
         this.kind = kind;
-    }
-
-    public InventoryRef getParentInventory() {
-        return parentInventory;
-    }
-
-    public void setParentInventory(InventoryRef parentInventory) {
-        this.parentInventory = parentInventory;
     }
 
     public InventoryRef getChildInventory() {

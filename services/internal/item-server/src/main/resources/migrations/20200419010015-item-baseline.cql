@@ -7,16 +7,17 @@ CREATE TYPE item_attachment (
 CREATE TABLE item (
     id uuid,
     kind int,
-    inventory uuid,
-    capacity int,
-    name text,
+    parent_inventory uuid,
+    child_inventory uuid,
+    label text,
+    resource_pools map<int, uuid>,
     attachments frozen<list<item_attachment>>,
     PRIMARY KEY ((id))
 ) WITH COMPACTION = { 'class': 'LeveledCompactionStrategy' };
 
-CREATE MATERIALIZED VIEW item_by_inventory
-  AS SELECT inventory, id, kind, capacity, name, attachments
+CREATE MATERIALIZED VIEW item_by_parent_inventory
+  AS SELECT parent_inventory, id, kind, child_inventory, label, resource_pools, attachments
   FROM item
-  WHERE inventory IS NOT NULL AND id IS NOT NULL
-  PRIMARY KEY (inventory, id)
+  WHERE parent_inventory IS NOT NULL AND id IS NOT NULL
+  PRIMARY KEY (parent_inventory, id)
   WITH COMPACTION = { 'class': 'LeveledCompactionStrategy' };

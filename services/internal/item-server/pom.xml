@@ -20,5 +20,15 @@
             <artifactId>item-client</artifactId>
             <version>${runetide.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.runetide</groupId>
+            <artifactId>inventory-client</artifactId>
+            <version>${runetide.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.runetide</groupId>
+            <artifactId>resourcepool-client</artifactId>
+            <version>${runetide.version}</version>
+        </dependency>
     </dependencies>
 </project>
