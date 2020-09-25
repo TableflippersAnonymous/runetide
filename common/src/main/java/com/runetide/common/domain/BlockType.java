@@ -573,6 +573,7 @@ public enum BlockType implements IndexedEnum {
     }
 
     @Override
+    @JsonValue
     public int toValue() {
         return id;
     }

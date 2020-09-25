@@ -66,6 +66,8 @@ public class Constants {
     public static final String REGION_SERVICE_NAME = "region";
     public static final String RESOURCE_POOL_SERVICE_NAME = "resourcepool";
     public static final String TIME_SERVICE_NAME = "time";
+    public static final String WORLD_SERVICE_NAME = "world";
+    public static final String WORLDGEN_SERVICE_NAME = "worldgen";
     public static final String XP_SERVICE_NAME = "xp";
 
     public static final String ACCOUNT_LOADING_NAMESPACE = ACCOUNT_SERVICE_NAME;
@@ -83,6 +85,8 @@ public class Constants {
 
     public static final String RESOURCE_POOL_TOPIC_PREFIX = RESOURCE_POOL_SERVICE_NAME + ":";
     public static final String RESOURCE_POOL_LOADING_NAMESPACE = RESOURCE_POOL_SERVICE_NAME;
+
+    public static final String WORLD_LOADING_NAMESPACE = WORLD_SERVICE_NAME;
 
     public static final String XP_TOPIC_PREFIX = XP_SERVICE_NAME + ":";
     public static final String XP_LOADING_NAMESPACE = XP_SERVICE_NAME;

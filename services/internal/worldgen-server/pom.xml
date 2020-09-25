@@ -20,5 +20,14 @@
             <artifactId>worldgen-client</artifactId>
             <version>${runetide.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.runetide</groupId>
+            <artifactId>world-client</artifactId>
+            <version>${runetide.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-math3</artifactId>
+        </dependency>
     </dependencies>
 </project>
