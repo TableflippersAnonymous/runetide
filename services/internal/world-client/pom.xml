@@ -15,5 +15,10 @@
     <name>runetide-world-client</name>
 
     <dependencies>
+        <dependency>
+            <groupId>com.runetide</groupId>
+            <artifactId>multiverse-client</artifactId>
+            <version>${runetide.version}</version>
+        </dependency>
     </dependencies>
 </project>

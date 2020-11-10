@@ -27,7 +27,7 @@ import java.util.concurrent.locks.*;
 
 import static com.runetide.common.loading.ServiceState.*;
 
-/*
+/**
  * This provides a manager that only allows one instance to load a key at any given time.
  *
  * This is done using LockManager to acquire locks on the resources and ServiceRegistry to make
@@ -60,6 +60,9 @@ import static com.runetide.common.loading.ServiceState.*;
  *
  * Loss of lock results in handleReset being called, followed by attempted clean-up.
  * handleUnload is not called.
+ *
+ * @param <K> Type of keys used to load objects.
+ * @param <V> Type of objects loaded.
  */
 public abstract class UniqueLoadingManager<K, V> {
     private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -77,8 +80,21 @@ public abstract class UniqueLoadingManager<K, V> {
     private final PathChildrenCache pathChildrenCache;
     private final CuratorFramework curatorFramework;
     private final TopicManager topicManager;
+
+    /**
+     * A Map of all loaded objects in this instance.  Can be used to iterate over or to fetch, but adding/removing
+     * entries should be limited to this parent class.
+     */
     protected final Map<K, V> loaded = new ConcurrentHashMap<>();
+
+    /**
+     * Used to mark if this instance has a solid connection to ZooKeeper, and can thus write.  Prefer awaitLive().
+     */
     protected volatile boolean isLive;
+
+    /**
+     * Used to mark if this instance has permanently lost its connection to ZooKeeper.  Prefer awaitLive().
+     */
     protected volatile boolean isLost;
 
     protected UniqueLoadingManager(final String myUrl, final String objectName, final LockManager lockManager,
@@ -115,6 +131,11 @@ public abstract class UniqueLoadingManager<K, V> {
         startAutoLoad();
     }
 
+    /**
+     * Requests that this instance load a given key.  Alternative to using LoadingToken.
+     * @param key Key to load
+     * @return True if requested, false if already loaded elsewhere.
+     */
     public boolean requestLoad(final K key) {
         if(loaded.containsKey(key))
             return false;
@@ -132,6 +153,11 @@ public abstract class UniqueLoadingManager<K, V> {
         }
     }
 
+    /**
+     * Requests that this instance unload a given key.  Alternative to using LoadingToken.
+     * @param key Key to unload
+     * @return True if requested, false if not loaded.
+     */
     public boolean requestUnload(final K key) {
         if(!loaded.containsKey(key))
             return false;
@@ -149,15 +175,67 @@ public abstract class UniqueLoadingManager<K, V> {
         return URI.create(serviceClaims.get(key.toString()));
     }
 
+    /**
+     * Fetches an object for a given key.
+     * @param key The key to fetch.
+     * @return The object indexed by the key.
+     * @throws Exception An exception thrown by this method will abort the loading of a key.
+     */
     protected abstract V handleLoad(final K key) throws Exception;
+
+    /**
+     * Called on successful load.
+     * @param key Loaded key.
+     * @param value Loaded object.
+     */
     protected abstract void postLoad(final K key, final V value);
+
+    /**
+     * Called after object has been removed from the loaded map, but before locks and leader leases have been
+     * released.  Use to do any saving or last-minute clean-up.
+     * @param key Key being unloaded.
+     * @param value Object being unloaded.
+     * @throws Exception An exception thrown by this method will be ignored.
+     */
     protected abstract void handleUnload(final K key, final V value) throws Exception;
+
+    /**
+     * Called after successful unload.
+     * @param key Key that was unloaded.
+     */
     protected abstract void postUnload(final K key);
+
+    /**
+     * Called when our leadership lock has been lost.  All objects in the loaded map will be evicted after this call.
+     * This method should assume that it no longer has leadership over any of these objects, and should assume that any
+     * crash recovery has already occurred in another instance.
+     *
+     * No individual handleUnload/postUnload methods will be called before or after emptying the loaded map.
+     */
     protected abstract void handleReset();
+
+    /**
+     * Called when our leadership is contested.  A reset may be coming shortly.  Cease writing temporarily.  You can
+     * also use awaitLive() to block until it is safe to write.
+     */
     protected abstract void handleSuspend();
+
+    /**
+     * Called when our leadership is reconfirmed (after a prior handleSuspend()).  Normal operations may resume.  All
+     * awaitLive() calls should no longer block.
+     */
     protected abstract void handleResume();
+
+    /**
+     * Converts a String into a key.  Used when string-form keys are necessary.
+     * @param key The string-form of the key.
+     * @return The object form of the key.
+     */
     protected abstract K keyFromString(final String key);
 
+    /**
+     * Blocks until it is safe to perform write operations.  Throws a RuntimeException if a reset occurs.
+     */
     protected void awaitLive() {
         suspendLock.lock();
         try {
@@ -170,10 +248,20 @@ public abstract class UniqueLoadingManager<K, V> {
         }
     }
 
+    /**
+     * Checks if there are any requests to load a key.
+     * @param key Key to check.
+     * @return True if there is a request to load the specified key, false otherwise.
+     */
     protected boolean hasInterest(final K key) {
         return pathChildrenCache.getCurrentData(Constants.ZK_SVC_INTEREST + objectName + "/" + key) != null;
     }
 
+    /**
+     * Checks if a key is loaded on any instance (not just this one).
+     * @param key Key to check.
+     * @return True if the key is loaded on any instance, false otherwise.
+     */
     protected boolean anyLoaded(final K key) {
         try {
             return serviceRegistry.getFirst(objectName + ":" + key) != null;
@@ -259,6 +347,9 @@ public abstract class UniqueLoadingManager<K, V> {
             } catch(final Exception e2) {}
             try {
                 lockManager.release(Constants.LOCK_SVC_PREFIX + objectName + ":" + key);
+            } catch(final Exception e2) {}
+            try {
+                noLongerAutoLoad(key);
             } catch(final Exception e2) {}
             throw new RuntimeException(e);
         }

@@ -1,23 +1,32 @@
-package com.runetide.services.internal.world.server.dto;
+package com.runetide.services.internal.world.common;
 
 import com.datastax.oss.driver.api.mapper.annotations.CqlName;
 import com.datastax.oss.driver.api.mapper.annotations.Entity;
 import com.datastax.oss.driver.api.mapper.annotations.PartitionKey;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.runetide.common.dto.WorldRef;
+import com.runetide.services.internal.multiverse.common.MultiverseRef;
 
 @Entity
 @CqlName("world")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class World {
     @PartitionKey
     @CqlName("id")
+    @JsonProperty("$")
     private WorldRef id;
     @CqlName("kind")
+    @JsonProperty("k")
     private WorldType kind;
     @CqlName("name")
+    @JsonProperty("n")
     private String name;
     @CqlName("seed")
+    @JsonProperty("s")
     private long seed;
     @CqlName("multiverse")
+    @JsonProperty("m")
     private MultiverseRef multiverse;
 
     public World() {

@@ -16,7 +16,7 @@ import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-/*
+/**
  * This class is like UniqueLoadingManager, but also periodically calls handleSave() for loaded keys.
  */
 public abstract class SavingUniqueLoadingManager<K, V> extends UniqueLoadingManager<K, V> {
@@ -43,9 +43,25 @@ public abstract class SavingUniqueLoadingManager<K, V> extends UniqueLoadingMana
         executorService.scheduleAtFixedRate(this::tryDelete, saveInterval, saveInterval, saveTimeUnit);
     }
 
+    /**
+     * Saves a loaded key/object.  Called periodically.  Not called in handleUnload, automatically.
+     * @param key Key to save.
+     * @param value Object to save.
+     * @throws Exception If this method throws an Exception, it will be logged and then ignored.
+     */
     protected abstract void handleSave(final K key, final V value) throws Exception;
+
+    /**
+     * Deletes a key.
+     * @param key Key to delete.
+     * @throws Exception If this method throws an Exception, it will be logged, and retried later.
+     */
     protected abstract void handleDelete(final K key) throws Exception;
 
+    /**
+     * Request deletion of a key.  Deletion will occur after it has been unloaded and there is no more interest.
+     * @param key Key to delete.
+     */
     protected void enqueueDelete(final K key) {
         if(!tryDeleteOne(key))
             toDelete.add(key.toString().getBytes());

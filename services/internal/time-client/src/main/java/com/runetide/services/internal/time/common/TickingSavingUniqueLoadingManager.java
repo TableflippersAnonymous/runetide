@@ -11,12 +11,16 @@ import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Singleton;
 import java.lang.invoke.MethodHandles;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Like SavingUniqueLoadingManager, but also listens to the global tick rate.
+ */
 public abstract class TickingSavingUniqueLoadingManager<K, V>
         extends SavingUniqueLoadingManager<K, V>
         implements TopicListener<TimeTickMessage> {
@@ -47,6 +51,13 @@ public abstract class TickingSavingUniqueLoadingManager<K, V>
             executorService.submit(() -> tick(key, message.getCurrentTick()));
     }
 
+    /**
+     * Called once per tick per loaded object.
+     * @param key Key being ticked.
+     * @param value Object being ticked.
+     * @param tick Tick number.
+     * @throws Exception If this method throws an Exception, it will be logged and then ignored.
+     */
     protected abstract void handleTick(final K key, final V value, final long tick) throws Exception;
 
     private void tick(final K key, final long tick) {
