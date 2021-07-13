@@ -2,6 +2,7 @@ package com.runetide.services.internal.xp.server.domain;
 
 import com.runetide.common.Constants;
 import com.runetide.common.clients.LoadingToken;
+import com.runetide.common.loading.ServiceState;
 import com.runetide.common.services.topics.TopicManager;
 import com.runetide.services.internal.xp.client.XPClient;
 import com.runetide.services.internal.xp.common.XP;
@@ -26,6 +27,7 @@ public class LoadedXP {
         this.xpClient = xpClient;
         this.loadingToken = Optional.ofNullable(xp.getParent())
                 .map(xpClient::requestLoad);
+        loadingToken.ifPresent(t -> t.awaitServiceState(ServiceState.LOADED));
     }
 
     public void save() {

@@ -75,7 +75,7 @@ public class CharacterManager extends SavingUniqueLoadingManager<CharacterRef, L
     @Override
     protected LoadedCharacter handleLoad(CharacterRef key) {
         return new LoadedCharacter(dao.getCharacter(key), dao, topicManager, entitiesClient, resourcePoolsClient,
-                xpClient);
+                xpClient).awaitDependencies();
     }
 
     @Override

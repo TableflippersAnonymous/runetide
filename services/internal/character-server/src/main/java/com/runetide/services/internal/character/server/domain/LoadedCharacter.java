@@ -1,6 +1,7 @@
 package com.runetide.services.internal.character.server.domain;
 
 import com.runetide.common.clients.LoadingToken;
+import com.runetide.common.loading.ServiceState;
 import com.runetide.common.services.topics.TopicManager;
 import com.runetide.services.internal.character.server.dao.CharacterDao;
 import com.runetide.services.internal.character.server.dto.Character;
@@ -47,6 +48,14 @@ public class LoadedCharacter {
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> resourcePoolsClient.requestLoad(e.getValue())));
         skills = character.getSkills().entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> xpClient.requestLoad(e.getValue())));
+    }
+
+    public LoadedCharacter awaitDependencies() {
+        entity.awaitServiceState(ServiceState.LOADED);
+        xp.awaitServiceState(ServiceState.LOADED);
+        resources.values().forEach(t -> t.awaitServiceState(ServiceState.LOADED));
+        skills.values().forEach(t -> t.awaitServiceState(ServiceState.LOADED));
+        return this;
     }
 
     public void save() {

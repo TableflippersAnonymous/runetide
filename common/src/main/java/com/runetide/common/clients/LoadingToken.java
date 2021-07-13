@@ -91,12 +91,13 @@ public class LoadingToken<K> implements Closeable {
         cleanAction.opened = true;
     }
 
-    public void awaitServiceState(final ServiceState desiredServiceState) {
+    public LoadingToken<K> awaitServiceState(final ServiceState desiredServiceState) {
         if(!cleanAction.opened || cleanAction.closed)
             throw new IllegalStateException("Not started");
         while(getCurrentState() != desiredServiceState)
             //noinspection UnstableApiUsage
             Uninterruptibles.awaitUninterruptibly(updateCondition, 1, TimeUnit.SECONDS);
+        return this;
     }
 
     public ServiceState getCurrentState() {
