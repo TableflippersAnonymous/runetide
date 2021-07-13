@@ -1,21 +1,52 @@
 package com.runetide.common;
 
+import com.runetide.common.domain.Vec2D;
+import com.runetide.common.domain.Vec3D;
+
 import java.util.concurrent.TimeUnit;
 
 public class Constants {
+    /* A sector is 1 << 30 blocks, or roughly 1 billion blocks.  This is used to ensure that all generation
+     * algorithms that use ints for coordinates (I'm looking at you, OpenSimplex), continue to work.  Generation
+     * between sectors will need to be smoothed together, and things like difficulty maps may be disjoint at borders.
+     *
+     * Given the vast size of sectors, disjoint generation near the edges is, I think, acceptable.  Given the
+     * rectilinear alignment, this does have a 4-way meeting of sectors at (0,0), which will likely mean that
+     * generation smoothing will definitely need to happen near it, though this could be solved by moving the main
+     * starter areas to somewhere closer to (500,000,000; 500,000,000).
+     *
+     * Something to consider.
+     *
+     * This value can also be reasonably easily changed if worldgen needs it changed.  Sectors are calculated by taking
+     * regional coordinates and dividing, rather than having regional coordinates based off of sectors.
+     */
+    public static final int REGIONS_PER_SECTOR_X = 1 << 20;
+    public static final int REGIONS_PER_SECTOR_Z = 1 << 20;
+    public static final long REGIONS_PER_SECTOR = (long) REGIONS_PER_SECTOR_X * REGIONS_PER_SECTOR_Z;
+    public static final Vec2D REGIONS_PER_SECTOR_VEC = new Vec2D(REGIONS_PER_SECTOR_X, REGIONS_PER_SECTOR_Z);
+
     public static final int CHUNKS_PER_REGION_X = 64;
     public static final int CHUNKS_PER_REGION_Z = 64;
     public static final int CHUNKS_PER_REGION = CHUNKS_PER_REGION_X * CHUNKS_PER_REGION_Z;
+    public static final Vec2D CHUNKS_PER_REGION_VEC = new Vec2D(CHUNKS_PER_REGION_X, CHUNKS_PER_REGION_Z);
 
     public static final int CHUNK_SECTIONS_PER_CHUNK = 256;
+    public static final Vec3D CHUNK_SECTIONS_PER_CHUNK_VEC = new Vec3D(1, CHUNK_SECTIONS_PER_CHUNK, 1);
+
+    /* These are occasionally bit-packed into bytes.  Other locations in the source depend on these being 16 or less. */
     public static final int BLOCKS_PER_CHUNK_SECTION_X = 16;
     public static final int BLOCKS_PER_CHUNK_SECTION_Y = 16;
     public static final int BLOCKS_PER_CHUNK_SECTION_Z = 16;
     public static final int BLOCKS_PER_CHUNK_SECTION = BLOCKS_PER_CHUNK_SECTION_X * BLOCKS_PER_CHUNK_SECTION_Y
             * BLOCKS_PER_CHUNK_SECTION_Z;
+    public static final Vec3D BLOCKS_PER_CHUNK_SECTION_VEC = new Vec3D(BLOCKS_PER_CHUNK_SECTION_X,
+            BLOCKS_PER_CHUNK_SECTION_Y, BLOCKS_PER_CHUNK_SECTION_Z);
+
     public static final int COLUMNS_PER_CHUNK_X = BLOCKS_PER_CHUNK_SECTION_X;
     public static final int COLUMNS_PER_CHUNK_Z = BLOCKS_PER_CHUNK_SECTION_Z;
     public static final int COLUMNS_PER_CHUNK = COLUMNS_PER_CHUNK_X * COLUMNS_PER_CHUNK_Z;
+    public static final Vec2D COLUMNS_PER_CHUNK_VEC = BLOCKS_PER_CHUNK_SECTION_VEC;
+
     public static final int BLOCKS_PER_CHUNK_Y = BLOCKS_PER_CHUNK_SECTION_Y * CHUNK_SECTIONS_PER_CHUNK;
 
     public static final int BYTES_PER_BLOCK_ID = 2;
@@ -29,6 +60,9 @@ public class Constants {
     public static final int VOXELS_PER_BLOCK_Y = 32;
     public static final int VOXELS_PER_BLOCK_Z = 32;
     public static final int VOXELS_PER_BLOCK = VOXELS_PER_BLOCK_X * VOXELS_PER_BLOCK_Y * VOXELS_PER_BLOCK_Z;
+    public static final Vec3D VOXELS_PER_BLOCK_VEC = new Vec3D(VOXELS_PER_BLOCK_X, VOXELS_PER_BLOCK_Y,
+            VOXELS_PER_BLOCK_Z);
+
     /* An Offset is the smallest renderable resolution of an entity.  Offsets are 8-bit unsigned
      * integers specifying a fraction of a block -- thus, they are 1/256th of a block in each dimension.
      * This also means that they are 1/8th of a Voxel in each dimension.
@@ -37,10 +71,15 @@ public class Constants {
     public static final int OFFSETS_PER_VOXEL_Y = 8;
     public static final int OFFSETS_PER_VOXEL_Z = 8;
     public static final int OFFSETS_PER_VOXEL = OFFSETS_PER_VOXEL_X * OFFSETS_PER_VOXEL_Y * OFFSETS_PER_VOXEL_Z;
+    public static final Vec3D OFFSETS_PER_VOXEL_VEC = new Vec3D(OFFSETS_PER_VOXEL_X, OFFSETS_PER_VOXEL_Y,
+            OFFSETS_PER_VOXEL_Z);
+
     public static final int OFFSETS_PER_BLOCK_X = OFFSETS_PER_VOXEL_X * VOXELS_PER_BLOCK_X;
     public static final int OFFSETS_PER_BLOCK_Y = OFFSETS_PER_VOXEL_Y * VOXELS_PER_BLOCK_Y;
     public static final int OFFSETS_PER_BLOCK_Z = OFFSETS_PER_VOXEL_Z * VOXELS_PER_BLOCK_Z;
     public static final int OFFSETS_PER_BLOCK = OFFSETS_PER_VOXEL * VOXELS_PER_BLOCK;
+    public static final Vec3D OFFSETS_PER_BLOCK_VEC = OFFSETS_PER_VOXEL_VEC.scale(VOXELS_PER_BLOCK_VEC);
+
     public static final int S3_UPLOAD_PART_SIZE = 5 * 1024 * 1024;
 
     public static final String ZK_LOCKS = "/runetide/locks/";

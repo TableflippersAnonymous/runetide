@@ -1,16 +1,31 @@
 package com.runetide.common.dto;
 
+import com.runetide.common.Constants;
+import com.runetide.common.domain.Vec2D;
+import com.runetide.common.domain.Vec3D;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.Objects;
 
 public class ChunkRef {
+    public static final Comparator<ChunkRef> COMPARE_BY_X = Comparator
+            .comparing(ChunkRef::getRegionRef, RegionRef.COMPARE_BY_X)
+            .thenComparingInt(ChunkRef::getX);
+    public static final Comparator<ChunkRef> COMPARE_BY_Z = Comparator
+            .comparing(ChunkRef::getRegionRef, RegionRef.COMPARE_BY_Z)
+            .thenComparingInt(ChunkRef::getZ);
+
     private final RegionRef regionRef;
     private final int x;
     private final int z;
 
     public ChunkRef(RegionRef regionRef, int x, int z) {
+        if(x < 0 || x >= Constants.CHUNKS_PER_REGION_X
+                || z < 0 || z >= Constants.CHUNKS_PER_REGION_Z)
+            throw new IndexOutOfBoundsException("x/z out of range");
         this.regionRef = regionRef;
         this.x = x;
         this.z = z;
@@ -72,7 +87,43 @@ public class ChunkRef {
         return new ChunkRef(regionRef, x, z);
     }
 
+    public WorldRef getWorldRef() {
+        return regionRef.getWorldRef();
+    }
+
     public ChunkSectionRef section(final int y) {
         return new ChunkSectionRef(this, y);
+    }
+
+    public ColumnRef column(final int x, final int z) {
+        return new ColumnRef(this, x, z);
+    }
+
+    public BlockRef block(final int x, final int y, final int z) {
+        return section(y / Constants.CHUNK_SECTIONS_PER_CHUNK)
+                .block(x, y % Constants.BLOCKS_PER_CHUNK_SECTION_Y, z);
+    }
+
+    public ChunkRef add(final Vec2D vec) {
+        final Vec2D sum = vec.add(new Vec2D(x, z));
+        final Vec2D modulo = sum.modulo(Constants.CHUNKS_PER_REGION_VEC);
+        return regionRef.add(sum.divide(Constants.CHUNKS_PER_REGION_VEC))
+                .chunk((int) modulo.getX(), (int) modulo.getZ());
+    }
+
+    public ChunkRef withXFrom(final ChunkRef other) {
+        return regionRef.withXFrom(other.regionRef)
+                .chunk(other.x, z);
+    }
+
+    public ChunkRef withZFrom(final ChunkRef other) {
+        return regionRef.withZFrom(other.regionRef)
+                .chunk(x, other.z);
+    }
+
+    public Vec2D subtract(final ChunkRef other) {
+        return regionRef.subtract(other.regionRef)
+                .scale(Constants.CHUNKS_PER_REGION_VEC)
+                .add(new Vec2D(x - other.x, z - other.z));
     }
 }

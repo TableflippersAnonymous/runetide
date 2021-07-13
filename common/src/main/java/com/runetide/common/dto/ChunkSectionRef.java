@@ -1,15 +1,29 @@
 package com.runetide.common.dto;
 
+import com.runetide.common.Constants;
+import com.runetide.common.domain.Vec3D;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.Objects;
 
 public class ChunkSectionRef {
+    public static final Comparator<ChunkSectionRef> COMPARE_BY_X = Comparator
+            .comparing(ChunkSectionRef::getChunkRef, ChunkRef.COMPARE_BY_X);
+    public static final Comparator<ChunkSectionRef> COMPARE_BY_Y = Comparator
+            .comparing(ChunkSectionRef::getWorldRef)
+            .thenComparingInt(ChunkSectionRef::getY);
+    public static final Comparator<ChunkSectionRef> COMPARE_BY_Z = Comparator
+            .comparing(ChunkSectionRef::getChunkRef, ChunkRef.COMPARE_BY_Z);
+
     private final ChunkRef chunkRef;
     private final int y;
 
     public ChunkSectionRef(ChunkRef chunkRef, int y) {
+        if(y < 0 || y >= Constants.CHUNK_SECTIONS_PER_CHUNK)
+            throw new IndexOutOfBoundsException("y out of range");
         this.chunkRef = chunkRef;
         this.y = y;
     }
@@ -62,7 +76,40 @@ public class ChunkSectionRef {
         return new ChunkSectionRef(chunkRef, y);
     }
 
+    public WorldRef getWorldRef() {
+        return chunkRef.getWorldRef();
+    }
+
+    public ColumnRef column(final int x, final int z) {
+        return chunkRef.column(x, z);
+    }
+
     public BlockRef block(final int x, final int y, final int z) {
         return new BlockRef(this, x, y, z);
+    }
+
+    public ChunkSectionRef add(final Vec3D vec) {
+        final Vec3D sum = vec.add(new Vec3D(0, y, 0));
+        final Vec3D modulo = sum.modulo(Constants.CHUNK_SECTIONS_PER_CHUNK_VEC);
+        return chunkRef.add(sum.divide(Constants.CHUNK_SECTIONS_PER_CHUNK_VEC))
+                .section((int) modulo.getY());
+    }
+
+    public ChunkSectionRef withXFrom(final ChunkSectionRef other) {
+        return chunkRef.withXFrom(other.chunkRef).section(y);
+    }
+
+    public ChunkSectionRef withYFrom(final ChunkSectionRef other) {
+        return chunkRef.section(other.y);
+    }
+
+    public ChunkSectionRef withZFrom(final ChunkSectionRef other) {
+        return chunkRef.withZFrom(other.chunkRef).section(y);
+    }
+
+    public Vec3D subtract(final ChunkSectionRef other) {
+        return chunkRef.subtract(other.chunkRef)
+                .scale(Constants.CHUNK_SECTIONS_PER_CHUNK_VEC)
+                .add(new Vec3D(0, y - other.y, 0));
     }
 }

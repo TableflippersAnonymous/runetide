@@ -56,7 +56,7 @@ import static com.runetide.common.loading.ServiceState.*;
  * - The global lock on the key is released
  *
  * Failures during loading result in abandoning the load request and attempting clean-up.
- * Failures during unloading result are ignored.
+ * Failures during unloading are ignored.
  *
  * Loss of lock results in handleReset being called, followed by attempted clean-up.
  * handleUnload is not called.

@@ -17,6 +17,10 @@ public class WorldRef extends UUIDRef<WorldRef> {
         return new WorldRef(UUID.fromString(stringValue));
     }
 
+    public SectorRef sector(final long x, final long z) {
+        return new SectorRef(this, x, z);
+    }
+
     public RegionRef region(final long x, final long z) {
         return new RegionRef(this, x, z);
     }

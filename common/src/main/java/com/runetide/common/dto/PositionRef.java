@@ -1,17 +1,34 @@
 package com.runetide.common.dto;
 
+import com.runetide.common.Constants;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.Objects;
 
 public class PositionRef {
+    public static final Comparator<PositionRef> COMPARE_BY_X = Comparator
+            .comparing(PositionRef::getBlockRef, BlockRef.COMPARE_BY_X)
+            .thenComparingInt(PositionRef::getX);
+    public static final Comparator<PositionRef> COMPARE_BY_Y = Comparator
+            .comparing(PositionRef::getBlockRef, BlockRef.COMPARE_BY_Y)
+            .thenComparingInt(PositionRef::getY);
+    public static final Comparator<PositionRef> COMPARE_BY_Z = Comparator
+            .comparing(PositionRef::getBlockRef, BlockRef.COMPARE_BY_Z)
+            .thenComparingInt(PositionRef::getZ);
+
     private final BlockRef blockRef;
     private final int x;
     private final int y;
     private final int z;
 
     public PositionRef(BlockRef blockRef, int x, int y, int z) {
+        if(x < 0 || x >= Constants.OFFSETS_PER_BLOCK_X
+                || y < 0 || y >= Constants.OFFSETS_PER_BLOCK_Y
+                || z < 0 || z >= Constants.OFFSETS_PER_BLOCK_Z)
+            throw new IndexOutOfBoundsException("x/y/z out of range");
         this.blockRef = blockRef;
         this.x = x;
         this.y = y;

@@ -1,17 +1,35 @@
 package com.runetide.common.dto;
 
+import com.runetide.common.Constants;
+import com.runetide.common.domain.Vec3D;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.Objects;
 
 public class BlockRef {
+    public static final Comparator<BlockRef> COMPARE_BY_X = Comparator
+            .comparing(BlockRef::getChunkSectionRef, ChunkSectionRef.COMPARE_BY_X)
+            .thenComparingInt(BlockRef::getX);
+    public static final Comparator<BlockRef> COMPARE_BY_Y = Comparator
+            .comparing(BlockRef::getChunkSectionRef, ChunkSectionRef.COMPARE_BY_Y)
+            .thenComparingInt(BlockRef::getY);
+    public static final Comparator<BlockRef> COMPARE_BY_Z = Comparator
+            .comparing(BlockRef::getChunkSectionRef, ChunkSectionRef.COMPARE_BY_Z)
+            .thenComparingInt(BlockRef::getZ);
+
     private final ChunkSectionRef chunkSectionRef;
     private final int x;
     private final int y;
     private final int z;
 
     public BlockRef(ChunkSectionRef chunkSectionRef, int x, int y, int z) {
+        if(x < 0 || x >= Constants.BLOCKS_PER_CHUNK_SECTION_X
+                || y < 0 || y >= Constants.BLOCKS_PER_CHUNK_SECTION_Y
+                || z < 0 || z >= Constants.BLOCKS_PER_CHUNK_SECTION_Z)
+            throw new IndexOutOfBoundsException("x/y/z out of range");
         this.chunkSectionRef = chunkSectionRef;
         this.x = x;
         this.y = y;
@@ -81,5 +99,85 @@ public class BlockRef {
         final int y = yz >> 4;
         final int z = yz & 0xf;
         return new BlockRef(chunkSectionRef, x, y, z);
+    }
+
+    public ColumnRef column() {
+        return chunkSectionRef.column(x, z);
+    }
+
+    public BlockRef add(final Vec3D vec) {
+        final Vec3D sum = vec.add(new Vec3D(x, y, z));
+        final Vec3D modulo = sum.modulo(Constants.BLOCKS_PER_CHUNK_SECTION_VEC);
+        return chunkSectionRef.add(sum.divide(Constants.BLOCKS_PER_CHUNK_SECTION_VEC))
+                .block((int) modulo.getX(), (int) modulo.getY(), (int) modulo.getZ());
+    }
+
+    public BlockRef withXFrom(final BlockRef other) {
+        return chunkSectionRef.withXFrom(other.chunkSectionRef)
+                .block(other.x, y, z);
+    }
+
+    public BlockRef withYFrom(final BlockRef other) {
+        return chunkSectionRef.withYFrom(other.chunkSectionRef)
+                .block(x, other.y, z);
+    }
+
+    public BlockRef withZFrom(final BlockRef other) {
+        return chunkSectionRef.withZFrom(other.chunkSectionRef)
+                .block(x, y, other.z);
+    }
+
+    public BlockRef withMinXFrom(final BlockRef other) {
+        if(BlockRef.COMPARE_BY_X.compare(this, other) <= 0)
+            return this;
+        return withXFrom(other);
+    }
+
+    public BlockRef withMinYFrom(final BlockRef other) {
+        if(BlockRef.COMPARE_BY_Y.compare(this, other) <= 0)
+            return this;
+        return withYFrom(other);
+    }
+
+    public BlockRef withMinZFrom(final BlockRef other) {
+        if(BlockRef.COMPARE_BY_Z.compare(this, other) <= 0)
+            return this;
+        return withZFrom(other);
+    }
+
+    public BlockRef withMaxXFrom(final BlockRef other) {
+        if(BlockRef.COMPARE_BY_X.compare(this, other) >= 0)
+            return this;
+        return withXFrom(other);
+    }
+
+    public BlockRef withMaxYFrom(final BlockRef other) {
+        if(BlockRef.COMPARE_BY_Y.compare(this, other) >= 0)
+            return this;
+        return withYFrom(other);
+    }
+
+    public BlockRef withMaxZFrom(final BlockRef other) {
+        if(BlockRef.COMPARE_BY_Z.compare(this, other) >= 0)
+            return this;
+        return withZFrom(other);
+    }
+
+    public BlockRef minCoordinates(final BlockRef other) {
+        return withMinXFrom(other).withMinYFrom(other).withMinZFrom(other);
+    }
+
+    public BlockRef maxCoordinates(final BlockRef other) {
+        return withMaxXFrom(other).withMaxYFrom(other).withMaxZFrom(other);
+    }
+
+    public WorldRef getWorldRef() {
+        return chunkSectionRef.getWorldRef();
+    }
+
+    public Vec3D subtract(final BlockRef other) {
+        return chunkSectionRef.subtract(other.chunkSectionRef)
+                .scale(Constants.BLOCKS_PER_CHUNK_SECTION_VEC)
+                .add(new Vec3D(x - other.x, y - other.y, z - other.z));
     }
 }

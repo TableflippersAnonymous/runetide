@@ -1,12 +1,21 @@
 package com.runetide.common.dto;
 
 import com.google.common.base.Objects;
+import com.runetide.common.Constants;
+import com.runetide.common.domain.Vec2D;
+import com.runetide.common.domain.Vec3D;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Comparator;
 
 public class RegionRef {
+    public static final Comparator<RegionRef> COMPARE_BY_X = Comparator.comparing(RegionRef::getWorldRef)
+            .thenComparingLong(RegionRef::getX);
+    public static final Comparator<RegionRef> COMPARE_BY_Z = Comparator.comparing(RegionRef::getWorldRef)
+            .thenComparingLong(RegionRef::getZ);
+
     private final WorldRef worldRef;
     private final long x;
     private final long z;
@@ -19,6 +28,10 @@ public class RegionRef {
 
     public WorldRef getWorldRef() {
         return worldRef;
+    }
+
+    public SectorRef getSectorRef() {
+        return new SectorRef(worldRef, x / Constants.REGIONS_PER_SECTOR_X, z / Constants.REGIONS_PER_SECTOR_Z);
     }
 
     public long getX() {
@@ -74,5 +87,21 @@ public class RegionRef {
 
     public ChunkRef chunk(final int x, final int z) {
         return new ChunkRef(this, x, z);
+    }
+
+    public RegionRef add(final Vec2D vec) {
+        return new RegionRef(worldRef, x + vec.getX(), z + vec.getZ());
+    }
+
+    public RegionRef withXFrom(final RegionRef other) {
+        return new RegionRef(worldRef, other.x, z);
+    }
+
+    public RegionRef withZFrom(final RegionRef other) {
+        return new RegionRef(worldRef, x, other.z);
+    }
+
+    public Vec2D subtract(final RegionRef other) {
+        return new Vec2D(x - other.x, z - other.z);
     }
 }
