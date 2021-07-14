@@ -1,11 +1,11 @@
 package com.runetide.common.dto;
 
 import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Objects;
 
-public class PositionLookRef {
+public class PositionLookRef implements Ref<PositionLookRef> {
     final PositionRef positionRef;
     final int elevation;
     final int rotation;
@@ -61,10 +61,10 @@ public class PositionLookRef {
         return new PositionLookRef(positionRef, elevation, rotation);
     }
 
-    public void encode(final DataOutputStream dataOutputStream) throws IOException {
-        positionRef.encode(dataOutputStream);
-        dataOutputStream.writeInt(elevation);
-        dataOutputStream.writeInt(rotation);
+    public void encode(final DataOutput dataOutput) throws IOException {
+        positionRef.encode(dataOutput);
+        dataOutput.writeInt(elevation);
+        dataOutput.writeInt(rotation);
     }
 
     public static PositionLookRef decode(final DataInputStream dataInputStream) throws IOException {

@@ -2,15 +2,14 @@ package com.runetide.common.dto;
 
 import com.runetide.common.Constants;
 import com.runetide.common.domain.Vec2D;
-import com.runetide.common.domain.Vec3D;
 
 import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.Objects;
 
-public class ChunkRef {
+public class ChunkRef implements Ref<ChunkRef> {
     public static final Comparator<ChunkRef> COMPARE_BY_X = Comparator
             .comparing(ChunkRef::getRegionRef, RegionRef.COMPARE_BY_X)
             .thenComparingInt(ChunkRef::getX);
@@ -74,10 +73,10 @@ public class ChunkRef {
         return new ChunkRef(regionRef, x, z);
     }
 
-    public void encode(final DataOutputStream dataOutputStream) throws IOException {
-        regionRef.encode(dataOutputStream);
-        dataOutputStream.writeByte(x);
-        dataOutputStream.writeByte(z);
+    public void encode(final DataOutput dataOutput) throws IOException {
+        regionRef.encode(dataOutput);
+        dataOutput.writeByte(x);
+        dataOutput.writeByte(z);
     }
 
     public static ChunkRef decode(final DataInputStream dataInputStream) throws IOException {

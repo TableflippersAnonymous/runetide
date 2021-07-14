@@ -4,12 +4,12 @@ import com.runetide.common.Constants;
 import com.runetide.common.domain.Vec3D;
 
 import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.Objects;
 
-public class ChunkSectionRef {
+public class ChunkSectionRef implements Ref<ChunkSectionRef> {
     public static final Comparator<ChunkSectionRef> COMPARE_BY_X = Comparator
             .comparing(ChunkSectionRef::getChunkRef, ChunkRef.COMPARE_BY_X);
     public static final Comparator<ChunkSectionRef> COMPARE_BY_Y = Comparator
@@ -65,9 +65,9 @@ public class ChunkSectionRef {
         return new ChunkSectionRef(chunkRef, y);
     }
 
-    public void encode(final DataOutputStream dataOutputStream) throws IOException {
-        chunkRef.encode(dataOutputStream);
-        dataOutputStream.writeByte(y);
+    public void encode(final DataOutput dataOutput) throws IOException {
+        chunkRef.encode(dataOutput);
+        dataOutput.writeByte(y);
     }
 
     public static ChunkSectionRef decode(final DataInputStream dataInputStream) throws IOException {
@@ -78,6 +78,10 @@ public class ChunkSectionRef {
 
     public WorldRef getWorldRef() {
         return chunkRef.getWorldRef();
+    }
+
+    public RegionRef getRegionRef() {
+        return chunkRef.getRegionRef();
     }
 
     public ColumnRef column(final int x, final int z) {

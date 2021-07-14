@@ -4,12 +4,12 @@ import com.runetide.common.Constants;
 import com.runetide.common.domain.Vec2D;
 
 import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.Objects;
 
-public class ColumnRef {
+public class ColumnRef implements Ref<ColumnRef> {
     public static final Comparator<ColumnRef> COMPARE_BY_X = Comparator
             .comparing(ColumnRef::getChunkRef, ChunkRef.COMPARE_BY_X)
             .thenComparingInt(ColumnRef::getX);
@@ -71,9 +71,9 @@ public class ColumnRef {
         return new ColumnRef(chunkRef, x, z);
     }
 
-    public void encode(final DataOutputStream dataOutputStream) throws IOException {
-        chunkRef.encode(dataOutputStream);
-        dataOutputStream.writeByte(x << 4 | z);
+    public void encode(final DataOutput dataOutput) throws IOException {
+        chunkRef.encode(dataOutput);
+        dataOutput.writeByte(x << 4 | z);
     }
 
     public static ColumnRef decode(final DataInputStream dataInputStream) throws IOException {

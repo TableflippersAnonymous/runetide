@@ -4,10 +4,10 @@ import com.google.common.base.Objects;
 import com.runetide.common.Constants;
 
 import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.io.DataOutput;
 import java.io.IOException;
 
-public class SectorRef {
+public class SectorRef implements Ref<SectorRef> {
     private final WorldRef worldRef;
     private final long x;
     private final long z;
@@ -60,10 +60,10 @@ public class SectorRef {
         return new SectorRef(worldRef, x, z);
     }
 
-    public void encode(final DataOutputStream dataOutputStream) throws IOException {
-        worldRef.encode(dataOutputStream);
-        dataOutputStream.writeLong(x);
-        dataOutputStream.writeLong(z);
+    public void encode(final DataOutput dataOutput) throws IOException {
+        worldRef.encode(dataOutput);
+        dataOutput.writeLong(x);
+        dataOutput.writeLong(z);
     }
 
     public static SectorRef decode(final DataInputStream dataInputStream) throws IOException {

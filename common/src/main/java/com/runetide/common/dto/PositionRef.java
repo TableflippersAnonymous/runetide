@@ -3,12 +3,12 @@ package com.runetide.common.dto;
 import com.runetide.common.Constants;
 
 import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.Objects;
 
-public class PositionRef {
+public class PositionRef implements Ref<PositionRef> {
     public static final Comparator<PositionRef> COMPARE_BY_X = Comparator
             .comparing(PositionRef::getBlockRef, BlockRef.COMPARE_BY_X)
             .thenComparingInt(PositionRef::getX);
@@ -86,11 +86,11 @@ public class PositionRef {
         return new PositionRef(blockRef, x, y, z);
     }
 
-    public void encode(final DataOutputStream dataOutputStream) throws IOException {
-        blockRef.encode(dataOutputStream);
-        dataOutputStream.writeByte(x);
-        dataOutputStream.writeByte(y);
-        dataOutputStream.writeByte(z);
+    public void encode(final DataOutput dataOutput) throws IOException {
+        blockRef.encode(dataOutput);
+        dataOutput.writeByte(x);
+        dataOutput.writeByte(y);
+        dataOutput.writeByte(z);
     }
 
     public static PositionRef decode(final DataInputStream dataInputStream) throws IOException {

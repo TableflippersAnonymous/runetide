@@ -4,12 +4,12 @@ import com.runetide.common.Constants;
 import com.runetide.common.domain.Vec3D;
 
 import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.Objects;
 
-public class BlockRef {
+public class BlockRef implements Ref<BlockRef> {
     public static final Comparator<BlockRef> COMPARE_BY_X = Comparator
             .comparing(BlockRef::getChunkSectionRef, ChunkSectionRef.COMPARE_BY_X)
             .thenComparingInt(BlockRef::getX);
@@ -86,10 +86,10 @@ public class BlockRef {
         return new BlockRef(chunkSectionRef, x, y, z);
     }
 
-    public void encode(final DataOutputStream dataOutputStream) throws IOException {
-        chunkSectionRef.encode(dataOutputStream);
-        dataOutputStream.writeByte(x);
-        dataOutputStream.writeByte(y << 4 | z);
+    public void encode(final DataOutput dataOutput) throws IOException {
+        chunkSectionRef.encode(dataOutput);
+        dataOutput.writeByte(x);
+        dataOutput.writeByte(y << 4 | z);
     }
 
     public static BlockRef decode(final DataInputStream dataInputStream) throws IOException {
@@ -173,6 +173,14 @@ public class BlockRef {
 
     public WorldRef getWorldRef() {
         return chunkSectionRef.getWorldRef();
+    }
+
+    public ChunkRef getChunkRef() {
+        return chunkSectionRef.getChunkRef();
+    }
+
+    public RegionRef getRegionRef() {
+        return chunkSectionRef.getRegionRef();
     }
 
     public Vec3D subtract(final BlockRef other) {

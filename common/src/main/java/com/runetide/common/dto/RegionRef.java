@@ -3,14 +3,13 @@ package com.runetide.common.dto;
 import com.google.common.base.Objects;
 import com.runetide.common.Constants;
 import com.runetide.common.domain.Vec2D;
-import com.runetide.common.domain.Vec3D;
 
 import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Comparator;
 
-public class RegionRef {
+public class RegionRef implements Ref<RegionRef> {
     public static final Comparator<RegionRef> COMPARE_BY_X = Comparator.comparing(RegionRef::getWorldRef)
             .thenComparingLong(RegionRef::getX);
     public static final Comparator<RegionRef> COMPARE_BY_Z = Comparator.comparing(RegionRef::getWorldRef)
@@ -72,10 +71,10 @@ public class RegionRef {
         return new RegionRef(worldRef, x, z);
     }
 
-    public void encode(final DataOutputStream dataOutputStream) throws IOException {
-        worldRef.encode(dataOutputStream);
-        dataOutputStream.writeLong(x);
-        dataOutputStream.writeLong(z);
+    public void encode(final DataOutput dataOutput) throws IOException {
+        worldRef.encode(dataOutput);
+        dataOutput.writeLong(x);
+        dataOutput.writeLong(z);
     }
 
     public static RegionRef decode(final DataInputStream dataInputStream) throws IOException {

@@ -3,11 +3,11 @@ package com.runetide.common.dto;
 import com.google.common.base.Objects;
 
 import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.io.DataOutput;
 import java.io.IOException;
 import java.util.UUID;
 
-public abstract class UUIDRef<T extends UUIDRef<T>> implements Comparable<T> {
+public abstract class UUIDRef<T extends UUIDRef<T>> implements Comparable<T>, Ref<T> {
     private final UUID uuidRef;
 
     protected UUIDRef(final UUID uuidRef) {
@@ -41,9 +41,9 @@ public abstract class UUIDRef<T extends UUIDRef<T>> implements Comparable<T> {
         return uuidRef.compareTo(o.getUuidRef());
     }
 
-    public void encode(final DataOutputStream dataOutputStream) throws IOException {
-        dataOutputStream.writeLong(uuidRef.getLeastSignificantBits());
-        dataOutputStream.writeLong(uuidRef.getMostSignificantBits());
+    public void encode(final DataOutput dataOutput) throws IOException {
+        dataOutput.writeLong(uuidRef.getLeastSignificantBits());
+        dataOutput.writeLong(uuidRef.getMostSignificantBits());
     }
 
     protected static UUID decodeInternal(final DataInputStream dataInputStream) throws IOException {
