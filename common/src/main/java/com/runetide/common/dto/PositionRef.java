@@ -1,6 +1,7 @@
 package com.runetide.common.dto;
 
 import com.runetide.common.Constants;
+import com.runetide.common.domain.Vec3D;
 
 import java.io.DataInputStream;
 import java.io.DataOutput;
@@ -8,7 +9,7 @@ import java.io.IOException;
 import java.util.Comparator;
 import java.util.Objects;
 
-public class PositionRef implements Ref<PositionRef> {
+public class PositionRef implements Ref<PositionRef>, XYZCoordinates<PositionRef> {
     public static final Comparator<PositionRef> COMPARE_BY_X = Comparator
             .comparing(PositionRef::getBlockRef, BlockRef.COMPARE_BY_X)
             .thenComparingInt(PositionRef::getX);
@@ -99,5 +100,63 @@ public class PositionRef implements Ref<PositionRef> {
         final int y = dataInputStream.readUnsignedByte();
         final int z = dataInputStream.readUnsignedByte();
         return new PositionRef(blockRef, x, y, z);
+    }
+
+    @Override
+    public PositionRef withXFrom(final PositionRef other) {
+        return blockRef.withXFrom(other.blockRef)
+                .position(other.x, y, z);
+    }
+
+    @Override
+    public PositionRef withYFrom(final PositionRef other) {
+        return blockRef.withYFrom(other.blockRef)
+                .position(x, other.y, z);
+    }
+
+    @Override
+    public PositionRef withZFrom(final PositionRef other) {
+        return blockRef.withZFrom(other.blockRef)
+                .position(x, y, other.z);
+    }
+
+    @Override
+    public Comparator<PositionRef> getXComparator() {
+        return COMPARE_BY_X;
+    }
+
+    @Override
+    public Comparator<PositionRef> getYComparator() {
+        return COMPARE_BY_Y;
+    }
+
+    @Override
+    public Comparator<PositionRef> getZComparator() {
+        return COMPARE_BY_Z;
+    }
+
+    @Override
+    public PositionRef getSelf() {
+        return this;
+    }
+
+    @Override
+    public boolean isSameCoordinateSystem(final PositionRef other) {
+        return blockRef.isSameCoordinateSystem(other.blockRef);
+    }
+
+    @Override
+    public PositionRef add(final Vec3D other) {
+        final Vec3D sum = other.add(new Vec3D(x, y, z));
+        final Vec3D modulo = sum.modulo(Constants.OFFSETS_PER_BLOCK_VEC);
+        return blockRef.add(sum.divide(Constants.OFFSETS_PER_BLOCK_VEC))
+                .position((int) modulo.getX(), (int) modulo.getY(), (int) modulo.getZ());
+    }
+
+    @Override
+    public Vec3D subtract(final PositionRef other) {
+        return blockRef.subtract(other.blockRef)
+                .scale(Constants.OFFSETS_PER_BLOCK_VEC)
+                .add(new Vec3D(x - other.x, y - other.y, z - other.z));
     }
 }

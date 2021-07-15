@@ -7,9 +7,11 @@ import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Comparator;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 
-public class BlockRef implements Ref<BlockRef> {
+public class BlockRef implements Ref<BlockRef>, XYZCoordinates<BlockRef> {
     public static final Comparator<BlockRef> COMPARE_BY_X = Comparator
             .comparing(BlockRef::getChunkSectionRef, ChunkSectionRef.COMPARE_BY_X)
             .thenComparingInt(BlockRef::getX);
@@ -86,6 +88,7 @@ public class BlockRef implements Ref<BlockRef> {
         return new BlockRef(chunkSectionRef, x, y, z);
     }
 
+    @Override
     public void encode(final DataOutput dataOutput) throws IOException {
         chunkSectionRef.encode(dataOutput);
         dataOutput.writeByte(x);
@@ -105,6 +108,7 @@ public class BlockRef implements Ref<BlockRef> {
         return chunkSectionRef.column(x, z);
     }
 
+    @Override
     public BlockRef add(final Vec3D vec) {
         final Vec3D sum = vec.add(new Vec3D(x, y, z));
         final Vec3D modulo = sum.modulo(Constants.BLOCKS_PER_CHUNK_SECTION_VEC);
@@ -112,63 +116,47 @@ public class BlockRef implements Ref<BlockRef> {
                 .block((int) modulo.getX(), (int) modulo.getY(), (int) modulo.getZ());
     }
 
+    @Override
     public BlockRef withXFrom(final BlockRef other) {
         return chunkSectionRef.withXFrom(other.chunkSectionRef)
                 .block(other.x, y, z);
     }
 
+    @Override
     public BlockRef withYFrom(final BlockRef other) {
         return chunkSectionRef.withYFrom(other.chunkSectionRef)
                 .block(x, other.y, z);
     }
 
+    @Override
     public BlockRef withZFrom(final BlockRef other) {
         return chunkSectionRef.withZFrom(other.chunkSectionRef)
                 .block(x, y, other.z);
     }
 
-    public BlockRef withMinXFrom(final BlockRef other) {
-        if(BlockRef.COMPARE_BY_X.compare(this, other) <= 0)
-            return this;
-        return withXFrom(other);
+    @Override
+    public Comparator<BlockRef> getXComparator() {
+        return COMPARE_BY_X;
     }
 
-    public BlockRef withMinYFrom(final BlockRef other) {
-        if(BlockRef.COMPARE_BY_Y.compare(this, other) <= 0)
-            return this;
-        return withYFrom(other);
+    @Override
+    public Comparator<BlockRef> getYComparator() {
+        return COMPARE_BY_Y;
     }
 
-    public BlockRef withMinZFrom(final BlockRef other) {
-        if(BlockRef.COMPARE_BY_Z.compare(this, other) <= 0)
-            return this;
-        return withZFrom(other);
+    @Override
+    public Comparator<BlockRef> getZComparator() {
+        return COMPARE_BY_Z;
     }
 
-    public BlockRef withMaxXFrom(final BlockRef other) {
-        if(BlockRef.COMPARE_BY_X.compare(this, other) >= 0)
-            return this;
-        return withXFrom(other);
+    @Override
+    public BlockRef getSelf() {
+        return this;
     }
 
-    public BlockRef withMaxYFrom(final BlockRef other) {
-        if(BlockRef.COMPARE_BY_Y.compare(this, other) >= 0)
-            return this;
-        return withYFrom(other);
-    }
-
-    public BlockRef withMaxZFrom(final BlockRef other) {
-        if(BlockRef.COMPARE_BY_Z.compare(this, other) >= 0)
-            return this;
-        return withZFrom(other);
-    }
-
-    public BlockRef minCoordinates(final BlockRef other) {
-        return withMinXFrom(other).withMinYFrom(other).withMinZFrom(other);
-    }
-
-    public BlockRef maxCoordinates(final BlockRef other) {
-        return withMaxXFrom(other).withMaxYFrom(other).withMaxZFrom(other);
+    @Override
+    public boolean isSameCoordinateSystem(final BlockRef other) {
+        return chunkSectionRef.isSameCoordinateSystem(other.chunkSectionRef);
     }
 
     public WorldRef getWorldRef() {
@@ -183,9 +171,14 @@ public class BlockRef implements Ref<BlockRef> {
         return chunkSectionRef.getRegionRef();
     }
 
+    @Override
     public Vec3D subtract(final BlockRef other) {
         return chunkSectionRef.subtract(other.chunkSectionRef)
                 .scale(Constants.BLOCKS_PER_CHUNK_SECTION_VEC)
                 .add(new Vec3D(x - other.x, y - other.y, z - other.z));
+    }
+
+    public PositionRef position(final int x, final int y, final int z) {
+        return new PositionRef(this, x, y, z);
     }
 }

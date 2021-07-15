@@ -9,7 +9,7 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Comparator;
 
-public class RegionRef implements Ref<RegionRef> {
+public class RegionRef implements Ref<RegionRef>, XZCoordinates<RegionRef> {
     public static final Comparator<RegionRef> COMPARE_BY_X = Comparator.comparing(RegionRef::getWorldRef)
             .thenComparingLong(RegionRef::getX);
     public static final Comparator<RegionRef> COMPARE_BY_Z = Comparator.comparing(RegionRef::getWorldRef)
@@ -71,6 +71,7 @@ public class RegionRef implements Ref<RegionRef> {
         return new RegionRef(worldRef, x, z);
     }
 
+    @Override
     public void encode(final DataOutput dataOutput) throws IOException {
         worldRef.encode(dataOutput);
         dataOutput.writeLong(x);
@@ -88,18 +89,42 @@ public class RegionRef implements Ref<RegionRef> {
         return new ChunkRef(this, x, z);
     }
 
+    @Override
+    public boolean isSameCoordinateSystem(final RegionRef other) {
+        return worldRef.equals(other.worldRef);
+    }
+
+    @Override
     public RegionRef add(final Vec2D vec) {
         return new RegionRef(worldRef, x + vec.getX(), z + vec.getZ());
     }
 
+    @Override
     public RegionRef withXFrom(final RegionRef other) {
         return new RegionRef(worldRef, other.x, z);
     }
 
+    @Override
     public RegionRef withZFrom(final RegionRef other) {
         return new RegionRef(worldRef, x, other.z);
     }
 
+    @Override
+    public Comparator<RegionRef> getXComparator() {
+        return COMPARE_BY_X;
+    }
+
+    @Override
+    public Comparator<RegionRef> getZComparator() {
+        return COMPARE_BY_Z;
+    }
+
+    @Override
+    public RegionRef getSelf() {
+        return this;
+    }
+
+    @Override
     public Vec2D subtract(final RegionRef other) {
         return new Vec2D(x - other.x, z - other.z);
     }

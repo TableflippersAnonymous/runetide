@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.Comparator;
 import java.util.Objects;
 
-public class ColumnRef implements Ref<ColumnRef> {
+public class ColumnRef implements Ref<ColumnRef>, XZCoordinates<ColumnRef> {
     public static final Comparator<ColumnRef> COMPARE_BY_X = Comparator
             .comparing(ColumnRef::getChunkRef, ChunkRef.COMPARE_BY_X)
             .thenComparingInt(ColumnRef::getX);
@@ -71,6 +71,7 @@ public class ColumnRef implements Ref<ColumnRef> {
         return new ColumnRef(chunkRef, x, z);
     }
 
+    @Override
     public void encode(final DataOutput dataOutput) throws IOException {
         chunkRef.encode(dataOutput);
         dataOutput.writeByte(x << 4 | z);
@@ -92,6 +93,7 @@ public class ColumnRef implements Ref<ColumnRef> {
         return chunkRef.block(x, y, z);
     }
 
+    @Override
     public ColumnRef add(final Vec2D vec) {
         final Vec2D sum = vec.add(new Vec2D(x, z));
         final Vec2D modulo = sum.modulo(Constants.BLOCKS_PER_CHUNK_SECTION_VEC);
@@ -109,38 +111,27 @@ public class ColumnRef implements Ref<ColumnRef> {
                 .column(x, other.z);
     }
 
-    public ColumnRef withMinXFrom(final ColumnRef other) {
-        if(ColumnRef.COMPARE_BY_X.compare(this, other) <= 0)
-            return this;
-        return withXFrom(other);
+    @Override
+    public Comparator<ColumnRef> getXComparator() {
+        return COMPARE_BY_X;
     }
 
-    public ColumnRef withMinZFrom(final ColumnRef other) {
-        if(ColumnRef.COMPARE_BY_Z.compare(this, other) <= 0)
-            return this;
-        return withZFrom(other);
+    @Override
+    public Comparator<ColumnRef> getZComparator() {
+        return COMPARE_BY_Z;
     }
 
-    public ColumnRef withMaxXFrom(final ColumnRef other) {
-        if(ColumnRef.COMPARE_BY_X.compare(this, other) >= 0)
-            return this;
-        return withXFrom(other);
+    @Override
+    public ColumnRef getSelf() {
+        return this;
     }
 
-    public ColumnRef withMaxZFrom(final ColumnRef other) {
-        if(ColumnRef.COMPARE_BY_Z.compare(this, other) >= 0)
-            return this;
-        return withZFrom(other);
+    @Override
+    public boolean isSameCoordinateSystem(final ColumnRef other) {
+        return getWorldRef().equals(other.getWorldRef());
     }
 
-    public ColumnRef minCoordinates(final ColumnRef other) {
-        return withMinXFrom(other).withMinZFrom(other);
-    }
-
-    public ColumnRef maxCoordinates(final ColumnRef other) {
-        return withMaxXFrom(other).withMaxZFrom(other);
-    }
-
+    @Override
     public Vec2D subtract(final ColumnRef other) {
         return chunkRef.subtract(other.chunkRef)
                 .scale(Constants.COLUMNS_PER_CHUNK_VEC)

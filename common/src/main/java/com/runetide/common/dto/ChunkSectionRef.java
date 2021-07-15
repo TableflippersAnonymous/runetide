@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.Comparator;
 import java.util.Objects;
 
-public class ChunkSectionRef implements Ref<ChunkSectionRef> {
+public class ChunkSectionRef implements Ref<ChunkSectionRef>, XYZCoordinates<ChunkSectionRef> {
     public static final Comparator<ChunkSectionRef> COMPARE_BY_X = Comparator
             .comparing(ChunkSectionRef::getChunkRef, ChunkRef.COMPARE_BY_X);
     public static final Comparator<ChunkSectionRef> COMPARE_BY_Y = Comparator
@@ -65,6 +65,7 @@ public class ChunkSectionRef implements Ref<ChunkSectionRef> {
         return new ChunkSectionRef(chunkRef, y);
     }
 
+    @Override
     public void encode(final DataOutput dataOutput) throws IOException {
         chunkRef.encode(dataOutput);
         dataOutput.writeByte(y);
@@ -92,25 +93,55 @@ public class ChunkSectionRef implements Ref<ChunkSectionRef> {
         return new BlockRef(this, x, y, z);
     }
 
+    @Override
+    public boolean isSameCoordinateSystem(final ChunkSectionRef other) {
+        return chunkRef.isSameCoordinateSystem(other.chunkRef);
+    }
+
+    @Override
     public ChunkSectionRef add(final Vec3D vec) {
         final Vec3D sum = vec.add(new Vec3D(0, y, 0));
         final Vec3D modulo = sum.modulo(Constants.CHUNK_SECTIONS_PER_CHUNK_VEC);
-        return chunkRef.add(sum.divide(Constants.CHUNK_SECTIONS_PER_CHUNK_VEC))
+        return chunkRef.add(sum.divide(Constants.CHUNK_SECTIONS_PER_CHUNK_VEC).toVec2D())
                 .section((int) modulo.getY());
     }
 
+    @Override
     public ChunkSectionRef withXFrom(final ChunkSectionRef other) {
         return chunkRef.withXFrom(other.chunkRef).section(y);
     }
 
+    @Override
     public ChunkSectionRef withYFrom(final ChunkSectionRef other) {
         return chunkRef.section(other.y);
     }
 
+    @Override
     public ChunkSectionRef withZFrom(final ChunkSectionRef other) {
         return chunkRef.withZFrom(other.chunkRef).section(y);
     }
 
+    @Override
+    public Comparator<ChunkSectionRef> getXComparator() {
+        return COMPARE_BY_X;
+    }
+
+    @Override
+    public Comparator<ChunkSectionRef> getYComparator() {
+        return COMPARE_BY_Y;
+    }
+
+    @Override
+    public Comparator<ChunkSectionRef> getZComparator() {
+        return COMPARE_BY_Z;
+    }
+
+    @Override
+    public ChunkSectionRef getSelf() {
+        return this;
+    }
+
+    @Override
     public Vec3D subtract(final ChunkSectionRef other) {
         return chunkRef.subtract(other.chunkRef)
                 .scale(Constants.CHUNK_SECTIONS_PER_CHUNK_VEC)

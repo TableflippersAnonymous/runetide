@@ -7,9 +7,10 @@ import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.Objects;
 
-public class ChunkRef implements Ref<ChunkRef> {
+public class ChunkRef implements Ref<ChunkRef>, XZCoordinates<ChunkRef> {
     public static final Comparator<ChunkRef> COMPARE_BY_X = Comparator
             .comparing(ChunkRef::getRegionRef, RegionRef.COMPARE_BY_X)
             .thenComparingInt(ChunkRef::getX);
@@ -73,6 +74,7 @@ public class ChunkRef implements Ref<ChunkRef> {
         return new ChunkRef(regionRef, x, z);
     }
 
+    @Override
     public void encode(final DataOutput dataOutput) throws IOException {
         regionRef.encode(dataOutput);
         dataOutput.writeByte(x);
@@ -103,6 +105,12 @@ public class ChunkRef implements Ref<ChunkRef> {
                 .block(x, y % Constants.BLOCKS_PER_CHUNK_SECTION_Y, z);
     }
 
+    @Override
+    public boolean isSameCoordinateSystem(final ChunkRef other) {
+        return regionRef.isSameCoordinateSystem(other.regionRef);
+    }
+
+    @Override
     public ChunkRef add(final Vec2D vec) {
         final Vec2D sum = vec.add(new Vec2D(x, z));
         final Vec2D modulo = sum.modulo(Constants.CHUNKS_PER_REGION_VEC);
@@ -110,16 +118,34 @@ public class ChunkRef implements Ref<ChunkRef> {
                 .chunk((int) modulo.getX(), (int) modulo.getZ());
     }
 
+    @Override
     public ChunkRef withXFrom(final ChunkRef other) {
         return regionRef.withXFrom(other.regionRef)
                 .chunk(other.x, z);
     }
 
+    @Override
     public ChunkRef withZFrom(final ChunkRef other) {
         return regionRef.withZFrom(other.regionRef)
                 .chunk(x, other.z);
     }
 
+    @Override
+    public Comparator<ChunkRef> getXComparator() {
+        return COMPARE_BY_X;
+    }
+
+    @Override
+    public Comparator<ChunkRef> getZComparator() {
+        return COMPARE_BY_Z;
+    }
+
+    @Override
+    public ChunkRef getSelf() {
+        return this;
+    }
+
+    @Override
     public Vec2D subtract(final ChunkRef other) {
         return regionRef.subtract(other.regionRef)
                 .scale(Constants.CHUNKS_PER_REGION_VEC)

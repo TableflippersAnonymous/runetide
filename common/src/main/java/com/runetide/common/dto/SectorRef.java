@@ -2,12 +2,19 @@ package com.runetide.common.dto;
 
 import com.google.common.base.Objects;
 import com.runetide.common.Constants;
+import com.runetide.common.domain.Vec2D;
 
 import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.util.Comparator;
 
-public class SectorRef implements Ref<SectorRef> {
+public class SectorRef implements Ref<SectorRef>, XZCoordinates<SectorRef> {
+    public static final Comparator<SectorRef> COMPARE_BY_X = Comparator.comparing(SectorRef::getWorldRef)
+            .thenComparingLong(SectorRef::getX);
+    public static final Comparator<SectorRef> COMPARE_BY_Z = Comparator.comparing(SectorRef::getWorldRef)
+            .thenComparingLong(SectorRef::getZ);
+
     private final WorldRef worldRef;
     private final long x;
     private final long z;
@@ -60,6 +67,7 @@ public class SectorRef implements Ref<SectorRef> {
         return new SectorRef(worldRef, x, z);
     }
 
+    @Override
     public void encode(final DataOutput dataOutput) throws IOException {
         worldRef.encode(dataOutput);
         dataOutput.writeLong(x);
@@ -76,5 +84,45 @@ public class SectorRef implements Ref<SectorRef> {
     public RegionRef region(final int x, final int z) {
         return new RegionRef(worldRef, this.x * Constants.REGIONS_PER_SECTOR_X + x,
                 this.z * Constants.REGIONS_PER_SECTOR_Z + z);
+    }
+
+    @Override
+    public boolean isSameCoordinateSystem(final SectorRef other) {
+        return worldRef.equals(other.worldRef);
+    }
+
+    @Override
+    public SectorRef add(final Vec2D vec) {
+        return new SectorRef(worldRef, x + vec.getX(), z + vec.getZ());
+    }
+
+    @Override
+    public Vec2D subtract(final SectorRef other) {
+        return new Vec2D(x - other.x, z - other.z);
+    }
+
+    @Override
+    public SectorRef withXFrom(final SectorRef other) {
+        return new SectorRef(worldRef, other.x, z);
+    }
+
+    @Override
+    public SectorRef withZFrom(final SectorRef other) {
+        return new SectorRef(worldRef, x, other.z);
+    }
+
+    @Override
+    public Comparator<SectorRef> getXComparator() {
+        return COMPARE_BY_X;
+    }
+
+    @Override
+    public Comparator<SectorRef> getZComparator() {
+        return COMPARE_BY_Z;
+    }
+
+    @Override
+    public SectorRef getSelf() {
+        return this;
     }
 }
