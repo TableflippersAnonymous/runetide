@@ -23,6 +23,7 @@ public class InterpolatingGenerator2D extends BaseGenerator2D {
         this.sectorSize = Constants.REGIONS_PER_SECTOR_VEC.scale(Constants.CHUNKS_PER_REGION_VEC)
                 .scale(Constants.CHUNK_SECTIONS_PER_CHUNK_VEC).scale(Constants.BLOCKS_PER_CHUNK_SECTION_VEC)
                 .divide(scale);
+
     }
 
     @Override

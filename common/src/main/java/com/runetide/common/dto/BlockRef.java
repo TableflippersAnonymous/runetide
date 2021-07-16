@@ -7,8 +7,6 @@ import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Comparator;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
 import java.util.Objects;
 
 public class BlockRef implements Ref<BlockRef>, XYZCoordinates<BlockRef> {

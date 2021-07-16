@@ -4,11 +4,11 @@ import com.runetide.common.dto.Vec;
 import com.runetide.common.dto.VectorLike;
 
 import java.util.Iterator;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
-public class BoundingBox<T extends VectorLike<T, U>, U extends Vec<U>> implements Iterable<T> {
+public class BoundingBox<T extends VectorLike<T, U>, U extends Vec<U>> implements BoundingBoxLike<T, U> {
     private final T start;
     private final T end;
 
@@ -31,6 +31,7 @@ public class BoundingBox<T extends VectorLike<T, U>, U extends Vec<U>> implement
         return end;
     }
 
+    @Override
     public U getDimensions() {
         return end.subtract(start);
     }
@@ -43,8 +44,38 @@ public class BoundingBox<T extends VectorLike<T, U>, U extends Vec<U>> implement
         return new BoundingBox<>(start.add(direction.negate()), end.add(direction));
     }
 
-    public boolean contains(final T column) {
-        return column.isBetween(start, end);
+    @Override
+    public boolean contains(final T element) {
+        if(!element.isSameCoordinateSystem(start))
+            return false;
+        return element.isBetween(start, end);
+    }
+
+    @Override
+    public boolean intersectsWith(final BoundingBox<T, U> other) {
+        if(!other.start.isSameCoordinateSystem(start))
+            return false;
+        return !(start.anyCoordinateCompares(c -> c > 0, other.end)
+                || other.start.anyCoordinateCompares(c -> c > 0, end));
+    }
+
+    @Override
+    public Optional<BoundingBox<T, U>> intersect(final BoundingBox<T, U> other) {
+        if(!intersectsWith(other))
+            return Optional.empty();
+        return Optional.of(new BoundingBox<>(start.maxCoordinates(other.start), end.minCoordinates(other.end)));
+    }
+
+    @Override
+    public BoundingBoxSet<T, U> union(final BoundingBox<T, U> other) {
+        //FIXME
+        return new BoundingBoxSet<>();
+    }
+
+    @Override
+    public Optional<BoundingBoxSet<T, U>> subtract(final BoundingBox<T, U> other) {
+        //FIXME
+        return Optional.empty();
     }
 
     @Override
@@ -61,7 +92,16 @@ public class BoundingBox<T extends VectorLike<T, U>, U extends Vec<U>> implement
         return new BoundingBox<>(startMapper.apply(start), endMapper.apply(end));
     }
 
-    public Stream<T> stream() {
-        return StreamSupport.stream(spliterator(), false);
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        final BoundingBox<?, ?> that = (BoundingBox<?, ?>) o;
+        return Objects.equals(start, that.start) && Objects.equals(end, that.end);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(start, end);
     }
 }

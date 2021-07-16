@@ -1,0 +1,4 @@
+@ParametersAreNonnullByDefault
+package com.runetide.common.services.servicediscovery;
+
+import javax.annotation.ParametersAreNonnullByDefault;

@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.function.Predicate;
 
 public interface XZCoordinates<T extends XZCoordinates<T>> extends BaseXZCoordinates<T, Vec2D> {
 
@@ -20,13 +21,15 @@ public interface XZCoordinates<T extends XZCoordinates<T>> extends BaseXZCoordin
     }
 
     @Override
-    default boolean isBetween(final T start, final T end) {
-        final Comparator<T> compareByX = getXComparator();
-        final Comparator<T> compareByZ = getZComparator();
-        return compareByX.compare(start, getSelf()) <= 0
-                && compareByX.compare(getSelf(), end) <= 0
-                && compareByZ.compare(start, getSelf()) <= 0
-                && compareByZ.compare(getSelf(), end) <= 0;
+    default boolean anyCoordinateCompares(final Predicate<Integer> predicate, final T other) {
+        return predicate.test(getXComparator().compare(getSelf(), other))
+                || predicate.test(getZComparator().compare(getSelf(), other));
+    }
+
+    @Override
+    default boolean allCoordinatesCompare(final Predicate<Integer> predicate, final T other) {
+        return predicate.test(getXComparator().compare(getSelf(), other))
+                && predicate.test(getZComparator().compare(getSelf(), other));
     }
 
     @Override

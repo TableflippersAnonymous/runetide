@@ -290,6 +290,11 @@
                 <artifactId>xz</artifactId>
                 <version>1.8</version>
             </dependency>
+            <dependency>
+                <groupId>org.jetbrains</groupId>
+                <artifactId>annotations</artifactId>
+                <version>21.0.1</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

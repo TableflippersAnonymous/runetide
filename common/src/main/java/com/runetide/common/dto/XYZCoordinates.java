@@ -1,28 +1,34 @@
 package com.runetide.common.dto;
 
 import com.runetide.common.domain.Vec3D;
+import org.jetbrains.annotations.Contract;
 
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.function.Predicate;
 
 public interface XYZCoordinates<T extends XYZCoordinates<T>> extends BaseXZCoordinates<T, Vec3D> {
+    @Contract(pure = true)
     T withYFrom(final T other);
+    @Contract(pure = true)
     Comparator<T> getYComparator();
 
+    @Contract(pure = true)
     default T withMinYFrom(final T other) {
         if(getYComparator().compare(getSelf(), other) <= 0)
             return getSelf();
         return withYFrom(other);
     }
 
+    @Contract(pure = true)
     default T withMaxYFrom(final T other) {
         if(getYComparator().compare(getSelf(), other) >= 0)
             return getSelf();
         return withYFrom(other);
     }
-
+    
     @Override
     default T minCoordinates(final T other) {
         return withMinXFrom(other).withMinYFrom(other).withMinZFrom(other);
@@ -34,16 +40,17 @@ public interface XYZCoordinates<T extends XYZCoordinates<T>> extends BaseXZCoord
     }
 
     @Override
-    default boolean isBetween(final T start, final T end) {
-        final Comparator<T> compareByX = getXComparator();
-        final Comparator<T> compareByY = getYComparator();
-        final Comparator<T> compareByZ = getZComparator();
-        return compareByX.compare(start, getSelf()) <= 0
-                && compareByX.compare(getSelf(), end) <= 0
-                && compareByY.compare(start, getSelf()) <= 0
-                && compareByY.compare(getSelf(), end) <= 0
-                && compareByZ.compare(start, getSelf()) <= 0
-                && compareByZ.compare(getSelf(), end) <= 0;
+    default boolean anyCoordinateCompares(final Predicate<Integer> predicate, final T other) {
+        return predicate.test(getXComparator().compare(getSelf(), other))
+                || predicate.test(getYComparator().compare(getSelf(), other))
+                || predicate.test(getZComparator().compare(getSelf(), other));
+    }
+
+    @Override
+    default boolean allCoordinatesCompare(final Predicate<Integer> predicate, final T other) {
+        return predicate.test(getXComparator().compare(getSelf(), other))
+                && predicate.test(getYComparator().compare(getSelf(), other))
+                && predicate.test(getZComparator().compare(getSelf(), other));
     }
 
     @Override
