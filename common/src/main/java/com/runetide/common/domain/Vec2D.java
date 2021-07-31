@@ -1,11 +1,11 @@
 package com.runetide.common.domain;
 
+import com.google.common.collect.ImmutableList;
 import com.runetide.common.dto.Vec;
 import com.runetide.common.dto.XZCoordinates;
 
 import java.util.Comparator;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
+import java.util.List;
 import java.util.Objects;
 
 public class Vec2D implements Vec<Vec2D>, XZCoordinates<Vec2D> {
@@ -14,6 +14,9 @@ public class Vec2D implements Vec<Vec2D>, XZCoordinates<Vec2D> {
     public static final Vec2D UNIT_Z = new Vec2D(0, 1);
     public static final Vec2D UNIT_NEG_X = UNIT_X.negate();
     public static final Vec2D UNIT_NEG_Z = UNIT_Z.negate();
+    public static final List<Vec2D> AXIS = ImmutableList.of(UNIT_X, UNIT_Z);
+    public static final List<Comparator<Vec2D>> COMPARATORS = ImmutableList.of(Comparator.comparing(Vec2D::getX),
+            Comparator.comparing(Vec2D::getZ));
 
     protected final long x;
     protected final long z;
@@ -58,6 +61,11 @@ public class Vec2D implements Vec<Vec2D>, XZCoordinates<Vec2D> {
         return new Vec2D(x % vec.x, z % vec.z);
     }
 
+    @Override
+    public List<Vec2D> axisVectors() {
+        return AXIS;
+    }
+
     public Vec2D modulo(final Vec3D vec) {
         return new Vec2D(x % vec.getX(), z % vec.getZ());
     }
@@ -65,6 +73,30 @@ public class Vec2D implements Vec<Vec2D>, XZCoordinates<Vec2D> {
     @Override
     public Vec2D scale(final Vec2D vec) {
         return new Vec2D(x * vec.x, z * vec.z);
+    }
+
+    @Override
+    public Vec3D cross(final Vec2D vec) {
+        return new Vec3D(0, crossLongLength(vec), 0);
+    }
+
+    @Override
+    public long dot(final Vec2D vec) {
+        return x * vec.x + z * vec.z;
+    }
+
+    @Override
+    public long crossSquareLength(final Vec2D vec) {
+        return crossLongLength(vec) * crossLongLength(vec);
+    }
+
+    @Override
+    public double crossLength(final Vec2D vec) {
+        return crossLongLength(vec);
+    }
+
+    public long crossLongLength(final Vec2D vec) {
+        return z * vec.x - x * vec.z;
     }
 
     public Vec2D scale(final Vec3D vec) {
@@ -87,28 +119,13 @@ public class Vec2D implements Vec<Vec2D>, XZCoordinates<Vec2D> {
     }
 
     @Override
-    public Iterator<Vec2D> iteratorTo(final Vec2D end) {
-        return new Iterator<>() {
-            private Vec2D current = null;
+    public Comparator<Vec2D> compareByCoordinate(final int coordinate) {
+        return COMPARATORS.get(coordinate);
+    }
 
-            @Override
-            public boolean hasNext() {
-                return !Objects.equals(current, end);
-            }
-
-            @Override
-            public Vec2D next() {
-                if(!hasNext())
-                    throw new NoSuchElementException();
-                if(current == null)
-                    current = Vec2D.this;
-                else if(current.x < end.x)
-                    current = current.add(Vec2D.UNIT_X);
-                else
-                    current = new Vec2D(x, current.z + 1);
-                return current;
-            }
-        };
+    @Override
+    public Vec2D withCoordinateFrom(final Vec2D other, final int coordinate) {
+        return new Vec2D(coordinate == COORDINATE_X ? other.x : x, coordinate == COORDINATE_Z ? other.z : z);
     }
 
     public Vec3D add(final Vec3D vec) {
@@ -118,26 +135,6 @@ public class Vec2D implements Vec<Vec2D>, XZCoordinates<Vec2D> {
     @Override
     public Vec2D negate() {
         return new Vec2D(-x, -z);
-    }
-
-    @Override
-    public Vec2D withXFrom(final Vec2D other) {
-        return new Vec2D(other.x, z);
-    }
-
-    @Override
-    public Vec2D withZFrom(final Vec2D other) {
-        return new Vec2D(x, other.z);
-    }
-
-    @Override
-    public Comparator<Vec2D> getXComparator() {
-        return Comparator.comparing(Vec2D::getX);
-    }
-
-    @Override
-    public Comparator<Vec2D> getZComparator() {
-        return Comparator.comparing(Vec2D::getZ);
     }
 
     @Override

@@ -5,7 +5,7 @@ import org.jetbrains.annotations.Contract;
 import java.io.DataOutput;
 import java.io.IOException;
 
-public interface Ref<T extends Ref<T>> {
+public interface Ref<Self extends Ref<Self>> {
     @Contract(pure = true)
     void encode(final DataOutput dataOutput) throws IOException;
 }

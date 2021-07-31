@@ -1,5 +1,6 @@
 package com.runetide.common.dto;
 
+import com.google.common.collect.ImmutableList;
 import com.runetide.common.Constants;
 import com.runetide.common.domain.Vec2D;
 
@@ -7,6 +8,7 @@ import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Objects;
 
 public class ColumnRef implements Ref<ColumnRef>, XZCoordinates<ColumnRef> {
@@ -16,6 +18,7 @@ public class ColumnRef implements Ref<ColumnRef>, XZCoordinates<ColumnRef> {
     public static final Comparator<ColumnRef> COMPARE_BY_Z = Comparator
             .comparing(ColumnRef::getChunkRef, ChunkRef.COMPARE_BY_Z)
             .thenComparingInt(ColumnRef::getZ);
+    public static final List<Comparator<ColumnRef>> COMPARATORS = ImmutableList.of(COMPARE_BY_X, COMPARE_BY_Z);
 
     private final ChunkRef chunkRef;
     private final int x;
@@ -101,26 +104,6 @@ public class ColumnRef implements Ref<ColumnRef>, XZCoordinates<ColumnRef> {
                 .column((int) modulo.getX(), (int) modulo.getZ());
     }
 
-    public ColumnRef withXFrom(final ColumnRef other) {
-        return chunkRef.withXFrom(other.chunkRef)
-                .column(other.x, z);
-    }
-
-    public ColumnRef withZFrom(final ColumnRef other) {
-        return chunkRef.withZFrom(other.chunkRef)
-                .column(x, other.z);
-    }
-
-    @Override
-    public Comparator<ColumnRef> getXComparator() {
-        return COMPARE_BY_X;
-    }
-
-    @Override
-    public Comparator<ColumnRef> getZComparator() {
-        return COMPARE_BY_Z;
-    }
-
     @Override
     public ColumnRef getSelf() {
         return this;
@@ -136,5 +119,18 @@ public class ColumnRef implements Ref<ColumnRef>, XZCoordinates<ColumnRef> {
         return chunkRef.subtract(other.chunkRef)
                 .scale(Constants.COLUMNS_PER_CHUNK_VEC)
                 .add(new Vec2D(x - other.x, z - other.z));
+    }
+
+    @Override
+    public Comparator<ColumnRef> compareByCoordinate(final int coordinate) {
+        return COMPARATORS.get(coordinate);
+    }
+
+    @Override
+    public ColumnRef withCoordinateFrom(final ColumnRef other, final int coordinate) {
+        if(coordinate >= coordinateSize())
+            return this;
+        return chunkRef.withCoordinateFrom(other.chunkRef, coordinate)
+                .column(coordinate == COORDINATE_X ? other.x : x, coordinate == COORDINATE_Z ? other.z : z);
     }
 }

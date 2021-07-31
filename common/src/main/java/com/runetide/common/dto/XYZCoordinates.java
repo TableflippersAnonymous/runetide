@@ -7,59 +7,35 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Objects;
-import java.util.function.Predicate;
 
-public interface XYZCoordinates<T extends XYZCoordinates<T>> extends BaseXZCoordinates<T, Vec3D> {
-    @Contract(pure = true)
-    T withYFrom(final T other);
-    @Contract(pure = true)
-    Comparator<T> getYComparator();
-
-    @Contract(pure = true)
-    default T withMinYFrom(final T other) {
-        if(getYComparator().compare(getSelf(), other) <= 0)
-            return getSelf();
-        return withYFrom(other);
+public interface XYZCoordinates<Self extends XYZCoordinates<Self>> extends BaseXZCoordinates<Self, Vec3D> {
+    @Override
+    default Self add(final long val) {
+        return add(new Vec3D(val, val, val));
     }
 
     @Contract(pure = true)
-    default T withMaxYFrom(final T other) {
-        if(getYComparator().compare(getSelf(), other) >= 0)
-            return getSelf();
-        return withYFrom(other);
+    default Self withYFrom(final Self other) {
+        return withCoordinateFrom(other, COORDINATE_Y);
     }
-    
-    @Override
-    default T minCoordinates(final T other) {
-        return withMinXFrom(other).withMinYFrom(other).withMinZFrom(other);
+
+    @Contract(pure = true)
+    default Comparator<Self> getYComparator() {
+        return compareByCoordinate(COORDINATE_Y);
     }
 
     @Override
-    default T maxCoordinates(final T other) {
-        return withMaxXFrom(other).withMaxYFrom(other).withMaxZFrom(other);
+    default int coordinateSize() {
+        return 3;
     }
 
     @Override
-    default boolean anyCoordinateCompares(final Predicate<Integer> predicate, final T other) {
-        return predicate.test(getXComparator().compare(getSelf(), other))
-                || predicate.test(getYComparator().compare(getSelf(), other))
-                || predicate.test(getZComparator().compare(getSelf(), other));
-    }
-
-    @Override
-    default boolean allCoordinatesCompare(final Predicate<Integer> predicate, final T other) {
-        return predicate.test(getXComparator().compare(getSelf(), other))
-                && predicate.test(getYComparator().compare(getSelf(), other))
-                && predicate.test(getZComparator().compare(getSelf(), other));
-    }
-
-    @Override
-    default Iterator<T> iteratorTo(final T end) {
-        final Comparator<T> compareByX = getXComparator();
-        final Comparator<T> compareByZ = getZComparator();
-        final T start = getSelf();
+    default Iterator<Self> iteratorTo(final Self end) {
+        final Comparator<Self> compareByX = getXComparator();
+        final Comparator<Self> compareByZ = getZComparator();
+        final Self start = getSelf();
         return new Iterator<>() {
-            private T current = null;
+            private Self current = null;
 
             @Override
             public boolean hasNext() {
@@ -67,7 +43,7 @@ public interface XYZCoordinates<T extends XYZCoordinates<T>> extends BaseXZCoord
             }
 
             @Override
-            public T next() {
+            public Self next() {
                 if(!hasNext())
                     throw new NoSuchElementException();
                 if(current == null)
@@ -77,7 +53,7 @@ public interface XYZCoordinates<T extends XYZCoordinates<T>> extends BaseXZCoord
                 else if(compareByZ.compare(current, end) < 0)
                     current = current.withXFrom(start).add(Vec3D.UNIT_Z);
                 else
-                    current = current.withXFrom(start).withZFrom(start).add(Vec3D.UNIT_Y);
+                    current = start.withYFrom(current).add(Vec3D.UNIT_Y);
                 return current;
             }
         };

@@ -3,56 +3,84 @@ package com.runetide.common.domain;
 import com.runetide.common.dto.Vec;
 import com.runetide.common.dto.VectorLike;
 
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.OptionalInt;
+import java.util.Set;
 import java.util.function.Function;
 
-public class BoundingBox<T extends VectorLike<T, U>, U extends Vec<U>> implements BoundingBoxLike<T, U> {
-    private final T start;
-    private final T end;
+public class BoundingBox<PointType extends VectorLike<PointType, VecType>, VecType extends Vec<VecType>>
+        implements BoundingBoxLike<BoundingBox<PointType, VecType>, PointType, VecType> {
+    private final PointType start;
+    private final PointType end;
 
-    public BoundingBox(final T start, final T end) {
+    public BoundingBox(final PointType start, final PointType end) {
         if(!start.isSameCoordinateSystem(end))
             throw new IllegalArgumentException("start/end must exist in same coordinate system.");
         this.start = start.minCoordinates(end);
         this.end = end.maxCoordinates(start);
     }
 
-    public BoundingBox(final T start, final U vec) {
+    public BoundingBox(final PointType start, final VecType vec) {
         this(start, start.add(vec));
     }
 
-    public T getStart() {
+    public PointType getStart() {
         return start;
     }
 
-    public T getEnd() {
+    public PointType getEnd() {
         return end;
     }
 
     @Override
-    public U getDimensions() {
+    public VecType getDimensions() {
         return end.subtract(start);
     }
 
-    public BoundingBox<T, U> move(final U direction) {
-        return new BoundingBox<>(start.add(direction), end.add(direction));
+    public boolean canMerge(final BoundingBox<PointType, VecType> other) {
+        /* In order for two bounding boxes to be merged, they must share a face.  What this really means
+         * is at most one dimension may differ between the two start values, that only that same dimension may differ
+         * between the end values, and the difference between one box's end and the other's start in the selected
+         * dimension is 1.
+         */
+        if(!start.isSameCoordinateSystem(other.start))
+            return false;
+        final VecType starts = start.subtract(other.start);
+        final VecType ends = end.subtract(other.end);
+        final OptionalInt direction = starts.getAlignedAxis();
+        if(direction.isEmpty())
+            return false;
+        if(!direction.equals(ends.getAlignedAxis()))
+            return false;
+        final VecType endToStart = start.subtract(other.end);
+        final VecType directionVector = endToStart.axisVectors().get(direction.getAsInt());
+        return endToStart
+                .scale(directionVector)
+                .equals(directionVector);
     }
 
-    public BoundingBox<T, U> resize(final U direction) {
-        return new BoundingBox<>(start.add(direction.negate()), end.add(direction));
+    public Optional<BoundingBox<PointType, VecType>> merge(final BoundingBox<PointType, VecType> other) {
+        if(!canMerge(other))
+            return Optional.empty();
+        return Optional.of(new BoundingBox<>(other.start, end));
+    }
+
+    public BoundingBox<PointType, VecType> resize(final VecType direction) {
+        return map(e -> e.add(direction.negate()), e -> e.add(direction));
     }
 
     @Override
-    public boolean contains(final T element) {
+    public boolean contains(final PointType element) {
         if(!element.isSameCoordinateSystem(start))
             return false;
         return element.isBetween(start, end);
     }
 
     @Override
-    public boolean intersectsWith(final BoundingBox<T, U> other) {
+    public boolean intersectsWith(final BoundingBox<PointType, VecType> other) {
         if(!other.start.isSameCoordinateSystem(start))
             return false;
         return !(start.anyCoordinateCompares(c -> c > 0, other.end)
@@ -60,35 +88,86 @@ public class BoundingBox<T extends VectorLike<T, U>, U extends Vec<U>> implement
     }
 
     @Override
-    public Optional<BoundingBox<T, U>> intersect(final BoundingBox<T, U> other) {
+    public Optional<BoundingBox<PointType, VecType>> intersect(final BoundingBox<PointType, VecType> other) {
         if(!intersectsWith(other))
             return Optional.empty();
         return Optional.of(new BoundingBox<>(start.maxCoordinates(other.start), end.minCoordinates(other.end)));
     }
 
     @Override
-    public BoundingBoxSet<T, U> union(final BoundingBox<T, U> other) {
-        //FIXME
-        return new BoundingBoxSet<>();
+    public BoundingBoxSet<PointType, VecType> union(final BoundingBox<PointType, VecType> other) {
+        return new BoundingBoxSet<>(Set.of(this)).union(other);
     }
 
     @Override
-    public Optional<BoundingBoxSet<T, U>> subtract(final BoundingBox<T, U> other) {
-        //FIXME
-        return Optional.empty();
+    public Optional<BoundingBoxSet<PointType, VecType>> subtract(final BoundingBox<PointType, VecType> other) {
+        /* When subtracting one bounding box from another, we have a few different options:
+         * 1) There is no intersection between the two bounding boxes, in which case, we can just return the original
+         * 2) The subtracted box completely covers the original, and we need to return Optional.empty
+         * 3) There is an intersection, and if this is the case, we need to split the original bounding box into smaller
+         * bounding boxes so that we can have one bounding box that matches the subtracted one exactly, and then remove
+         * just that one from the set.
+         *
+         * The split parts should be:
+         * - {[orig.start, orig.end.withCoordinateFrom(sub.start - 1, c)] for c : coordinates}
+         * - {[orig.start.withCoordinateFrom(sub.end + 1, c)] for c : coordinates}
+         *
+         * For 2 dimensions, this looks like:
+         * +--------------+ <- orig.end
+         * |              |
+         * |  +------+    | <- sub.end
+         * |  |      |    |
+         * |  |      |    |
+         * |  +------+    |
+         * |              |
+         * +--------------+
+         * ^  ^- sub.start
+         * `- orig.start
+         *
+         * We want to convert it into:
+         * +--+------+----+
+         * |     2        |
+         * +  +------+    +
+         * |  |      |    |
+         * |1 |      | 3  |
+         * +  +------+    +
+         * |    4         |
+         * +--|------+----+
+         *
+         * 1) [orig.start, orig.end.withCoordinateFrom(sub.start - 1, 0)]
+         * 4) [orig.start, orig.end.withCoordinateFrom(sub.start - 1, 1)]
+         * 3) [orig.start.withCoordinateFrom(sub.end + 1, 0), orig.end]
+         * 2) [orig.start.withCoordinateFrom(sub.end + 1, 1), orig.end]
+         * Note: These intersect, and will need the de-intersecting logic from union().
+         */
+        if(!intersectsWith(other))
+            return Optional.of(new BoundingBoxSet<>(this));
+        Optional<BoundingBoxSet<PointType, VecType>> ret = Optional.empty();
+        for(int coordinate = 0; coordinate < start.coordinateSize(); coordinate++) {
+            final Comparator<PointType> coordinateComparator = start.compareByCoordinate(coordinate);
+            if(coordinateComparator.compare(start, other.start) < 0) {
+                final BoundingBox<PointType, VecType> bb = new BoundingBox<>(start,
+                        end.withCoordinateFrom(other.start.add(-1), coordinate));
+                ret = ret.map(bbs -> bbs.union(bb)).or(() -> Optional.of(new BoundingBoxSet<>(bb)));
+            }
+            if(coordinateComparator.compare(end, other.end) > 0) {
+                final BoundingBox<PointType, VecType> bb = new BoundingBox<>(
+                        start.withCoordinateFrom(other.end.add(1), coordinate), end);
+                ret = ret.map(bbs -> bbs.union(bb)).or(() -> Optional.of(new BoundingBoxSet<>(bb)));
+            }
+        }
+        return ret;
     }
 
     @Override
-    public Iterator<T> iterator() {
+    public Iterator<PointType> iterator() {
         return start.iteratorTo(end);
     }
 
-    public <W extends VectorLike<W, X>, X extends Vec<X>> BoundingBox<W, X> map(final Function<T, W> mapper) {
-        return map(mapper, mapper);
-    }
-
-    public <W extends VectorLike<W, X>, X extends Vec<X>> BoundingBox<W, X> map(final Function<T, W> startMapper,
-                                                                                final Function<T, W> endMapper) {
+    @Override
+    public <NewPointType extends VectorLike<NewPointType, NewVecType>, NewVecType extends Vec<NewVecType>>
+    BoundingBox<NewPointType, NewVecType> map(final Function<PointType, NewPointType> startMapper,
+                                              final Function<PointType, NewPointType> endMapper) {
         return new BoundingBox<>(startMapper.apply(start), endMapper.apply(end));
     }
 

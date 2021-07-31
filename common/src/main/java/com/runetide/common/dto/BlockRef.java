@@ -1,5 +1,6 @@
 package com.runetide.common.dto;
 
+import com.google.common.collect.ImmutableList;
 import com.runetide.common.Constants;
 import com.runetide.common.domain.Vec3D;
 
@@ -7,6 +8,7 @@ import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Objects;
 
 public class BlockRef implements Ref<BlockRef>, XYZCoordinates<BlockRef> {
@@ -19,6 +21,8 @@ public class BlockRef implements Ref<BlockRef>, XYZCoordinates<BlockRef> {
     public static final Comparator<BlockRef> COMPARE_BY_Z = Comparator
             .comparing(BlockRef::getChunkSectionRef, ChunkSectionRef.COMPARE_BY_Z)
             .thenComparingInt(BlockRef::getZ);
+    public static final List<Comparator<BlockRef>> COMPARATORS = ImmutableList.of(COMPARE_BY_X, COMPARE_BY_Z,
+            COMPARE_BY_Y);
 
     private final ChunkSectionRef chunkSectionRef;
     private final int x;
@@ -115,39 +119,6 @@ public class BlockRef implements Ref<BlockRef>, XYZCoordinates<BlockRef> {
     }
 
     @Override
-    public BlockRef withXFrom(final BlockRef other) {
-        return chunkSectionRef.withXFrom(other.chunkSectionRef)
-                .block(other.x, y, z);
-    }
-
-    @Override
-    public BlockRef withYFrom(final BlockRef other) {
-        return chunkSectionRef.withYFrom(other.chunkSectionRef)
-                .block(x, other.y, z);
-    }
-
-    @Override
-    public BlockRef withZFrom(final BlockRef other) {
-        return chunkSectionRef.withZFrom(other.chunkSectionRef)
-                .block(x, y, other.z);
-    }
-
-    @Override
-    public Comparator<BlockRef> getXComparator() {
-        return COMPARE_BY_X;
-    }
-
-    @Override
-    public Comparator<BlockRef> getYComparator() {
-        return COMPARE_BY_Y;
-    }
-
-    @Override
-    public Comparator<BlockRef> getZComparator() {
-        return COMPARE_BY_Z;
-    }
-
-    @Override
     public BlockRef getSelf() {
         return this;
     }
@@ -174,6 +145,20 @@ public class BlockRef implements Ref<BlockRef>, XYZCoordinates<BlockRef> {
         return chunkSectionRef.subtract(other.chunkSectionRef)
                 .scale(Constants.BLOCKS_PER_CHUNK_SECTION_VEC)
                 .add(new Vec3D(x - other.x, y - other.y, z - other.z));
+    }
+
+    @Override
+    public Comparator<BlockRef> compareByCoordinate(final int coordinate) {
+        return COMPARATORS.get(coordinate);
+    }
+
+    @Override
+    public BlockRef withCoordinateFrom(final BlockRef other, final int coordinate) {
+        if(coordinate >= coordinateSize())
+            return this;
+        return chunkSectionRef.withCoordinateFrom(other.chunkSectionRef, coordinate)
+                .block(coordinate == COORDINATE_X ? other.x : x, coordinate == COORDINATE_Y ? other.y : y,
+                        coordinate == COORDINATE_Z ? other.z : z);
     }
 
     public PositionRef position(final int x, final int y, final int z) {

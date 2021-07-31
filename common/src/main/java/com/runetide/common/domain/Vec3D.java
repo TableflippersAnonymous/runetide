@@ -1,11 +1,11 @@
 package com.runetide.common.domain;
 
+import com.google.common.collect.ImmutableList;
 import com.runetide.common.dto.Vec;
 import com.runetide.common.dto.XYZCoordinates;
 
 import java.util.Comparator;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
+import java.util.List;
 import java.util.Objects;
 
 public class Vec3D implements Vec<Vec3D>, XYZCoordinates<Vec3D> {
@@ -16,6 +16,9 @@ public class Vec3D implements Vec<Vec3D>, XYZCoordinates<Vec3D> {
     public static final Vec3D UNIT_NEG_X = UNIT_X.negate();
     public static final Vec3D UNIT_NEG_Y = UNIT_Y.negate();
     public static final Vec3D UNIT_NEG_Z = UNIT_Z.negate();
+    public static final List<Vec3D> AXIS = ImmutableList.of(UNIT_X, UNIT_Z, UNIT_Y);
+    public static final List<Comparator<Vec3D>> COMPARATORS = ImmutableList.of(Comparator.comparing(Vec3D::getX),
+            Comparator.comparing(Vec3D::getZ), Comparator.comparing(Vec3D::getY));
 
     private final long x;
     private final long y;
@@ -64,8 +67,23 @@ public class Vec3D implements Vec<Vec3D>, XYZCoordinates<Vec3D> {
     }
 
     @Override
+    public List<Vec3D> axisVectors() {
+        return AXIS;
+    }
+
+    @Override
     public Vec3D scale(final Vec3D vec) {
         return new Vec3D(x * vec.x, y * vec.y, z * vec.z);
+    }
+
+    @Override
+    public Vec3D cross(final Vec3D vec) {
+        return new Vec3D(y * vec.z - z * vec.y, z * vec.x - x * vec.z, x * vec.y - y * vec.x);
+    }
+
+    @Override
+    public long dot(final Vec3D vec) {
+        return x * vec.x + y * vec.y + z * vec.z;
     }
 
     @Override
@@ -89,64 +107,18 @@ public class Vec3D implements Vec<Vec3D>, XYZCoordinates<Vec3D> {
     }
 
     @Override
-    public Iterator<Vec3D> iteratorTo(final Vec3D end) {
-        return new Iterator<>() {
-            private Vec3D current = null;
+    public Comparator<Vec3D> compareByCoordinate(final int coordinate) {
+        return COMPARATORS.get(coordinate);
+    }
 
-            @Override
-            public boolean hasNext() {
-                return !Objects.equals(current, end);
-            }
-
-            @Override
-            public Vec3D next() {
-                if(!hasNext())
-                    throw new NoSuchElementException();
-                if(current == null)
-                    current = Vec3D.this;
-                else if(current.x < end.x)
-                    current = current.add(Vec3D.UNIT_X);
-                else if(current.z < end.z)
-                    current = new Vec3D(x, current.y, current.z + 1);
-                else
-                    current = new Vec3D(x, current.y + 1, z);
-                return current;
-            }
-        };
+    @Override
+    public Vec3D withCoordinateFrom(final Vec3D other, final int coordinate) {
+        return new Vec3D(coordinate == COORDINATE_X ? other.x : x, coordinate == COORDINATE_Y ? other.y : y,
+                coordinate == COORDINATE_Z ? other.z : z);
     }
 
     public Vec2D toVec2D() {
         return new Vec2D(x, z);
-    }
-
-    @Override
-    public Vec3D withXFrom(final Vec3D other) {
-        return new Vec3D(other.x, y, z);
-    }
-
-    @Override
-    public Vec3D withYFrom(final Vec3D other) {
-        return new Vec3D(x, other.y, z);
-    }
-
-    @Override
-    public Vec3D withZFrom(final Vec3D other) {
-        return new Vec3D(x, y, other.z);
-    }
-
-    @Override
-    public Comparator<Vec3D> getXComparator() {
-        return Comparator.comparing(Vec3D::getX);
-    }
-
-    @Override
-    public Comparator<Vec3D> getYComparator() {
-        return Comparator.comparing(Vec3D::getY);
-    }
-
-    @Override
-    public Comparator<Vec3D> getZComparator() {
-        return Comparator.comparing(Vec3D::getZ);
     }
 
     @Override

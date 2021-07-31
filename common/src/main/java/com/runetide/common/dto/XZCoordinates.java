@@ -6,38 +6,24 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Objects;
-import java.util.function.Predicate;
 
-public interface XZCoordinates<T extends XZCoordinates<T>> extends BaseXZCoordinates<T, Vec2D> {
-
+public interface XZCoordinates<Self extends XZCoordinates<Self>> extends BaseXZCoordinates<Self, Vec2D> {
     @Override
-    default T minCoordinates(final T other) {
-        return withMinXFrom(other).withMinZFrom(other);
+    default Self add(final long val) {
+        return add(new Vec2D(val, val));
     }
 
     @Override
-    default T maxCoordinates(final T other) {
-        return withMaxXFrom(other).withMaxZFrom(other);
+    default int coordinateSize() {
+        return 2;
     }
 
     @Override
-    default boolean anyCoordinateCompares(final Predicate<Integer> predicate, final T other) {
-        return predicate.test(getXComparator().compare(getSelf(), other))
-                || predicate.test(getZComparator().compare(getSelf(), other));
-    }
-
-    @Override
-    default boolean allCoordinatesCompare(final Predicate<Integer> predicate, final T other) {
-        return predicate.test(getXComparator().compare(getSelf(), other))
-                && predicate.test(getZComparator().compare(getSelf(), other));
-    }
-
-    @Override
-    default Iterator<T> iteratorTo(final T end) {
-        final Comparator<T> compareByX = getXComparator();
-        final T start = getSelf();
+    default Iterator<Self> iteratorTo(final Self end) {
+        final Comparator<Self> compareByX = getXComparator();
+        final Self start = getSelf();
         return new Iterator<>() {
-            private T current = null;
+            private Self current = null;
 
             @Override
             public boolean hasNext() {
@@ -45,7 +31,7 @@ public interface XZCoordinates<T extends XZCoordinates<T>> extends BaseXZCoordin
             }
 
             @Override
-            public T next() {
+            public Self next() {
                 if(!hasNext())
                     throw new NoSuchElementException();
                 if(current == null)

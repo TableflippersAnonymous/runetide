@@ -1,6 +1,7 @@
 package com.runetide.common.dto;
 
 import com.google.common.base.Objects;
+import com.google.common.collect.ImmutableList;
 import com.runetide.common.Constants;
 import com.runetide.common.domain.Vec2D;
 
@@ -8,12 +9,14 @@ import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Comparator;
+import java.util.List;
 
 public class RegionRef implements Ref<RegionRef>, XZCoordinates<RegionRef> {
     public static final Comparator<RegionRef> COMPARE_BY_X = Comparator.comparing(RegionRef::getWorldRef)
             .thenComparingLong(RegionRef::getX);
     public static final Comparator<RegionRef> COMPARE_BY_Z = Comparator.comparing(RegionRef::getWorldRef)
             .thenComparingLong(RegionRef::getZ);
+    public static final List<Comparator<RegionRef>> COMPARATORS = ImmutableList.of(COMPARE_BY_X, COMPARE_BY_Z);
 
     private final WorldRef worldRef;
     private final long x;
@@ -100,26 +103,6 @@ public class RegionRef implements Ref<RegionRef>, XZCoordinates<RegionRef> {
     }
 
     @Override
-    public RegionRef withXFrom(final RegionRef other) {
-        return new RegionRef(worldRef, other.x, z);
-    }
-
-    @Override
-    public RegionRef withZFrom(final RegionRef other) {
-        return new RegionRef(worldRef, x, other.z);
-    }
-
-    @Override
-    public Comparator<RegionRef> getXComparator() {
-        return COMPARE_BY_X;
-    }
-
-    @Override
-    public Comparator<RegionRef> getZComparator() {
-        return COMPARE_BY_Z;
-    }
-
-    @Override
     public RegionRef getSelf() {
         return this;
     }
@@ -127,5 +110,18 @@ public class RegionRef implements Ref<RegionRef>, XZCoordinates<RegionRef> {
     @Override
     public Vec2D subtract(final RegionRef other) {
         return new Vec2D(x - other.x, z - other.z);
+    }
+
+    @Override
+    public Comparator<RegionRef> compareByCoordinate(final int coordinate) {
+        return COMPARATORS.get(coordinate);
+    }
+
+    @Override
+    public RegionRef withCoordinateFrom(final RegionRef other, final int coordinate) {
+        if(coordinate >= coordinateSize())
+            return this;
+        return new RegionRef(worldRef, coordinate == COORDINATE_X ? other.x : x,
+                coordinate == COORDINATE_Z ? other.z : z);
     }
 }

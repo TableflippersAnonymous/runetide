@@ -1,5 +1,6 @@
 package com.runetide.common.dto;
 
+import com.google.common.collect.ImmutableList;
 import com.runetide.common.Constants;
 import com.runetide.common.domain.Vec2D;
 
@@ -7,6 +8,7 @@ import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Objects;
 
 public class ChunkRef implements Ref<ChunkRef>, XZCoordinates<ChunkRef> {
@@ -16,6 +18,7 @@ public class ChunkRef implements Ref<ChunkRef>, XZCoordinates<ChunkRef> {
     public static final Comparator<ChunkRef> COMPARE_BY_Z = Comparator
             .comparing(ChunkRef::getRegionRef, RegionRef.COMPARE_BY_Z)
             .thenComparingInt(ChunkRef::getZ);
+    public static final List<Comparator<ChunkRef>> COMPARATORS = ImmutableList.of(COMPARE_BY_X, COMPARE_BY_Z);
 
     private final RegionRef regionRef;
     private final int x;
@@ -118,28 +121,6 @@ public class ChunkRef implements Ref<ChunkRef>, XZCoordinates<ChunkRef> {
     }
 
     @Override
-    public ChunkRef withXFrom(final ChunkRef other) {
-        return regionRef.withXFrom(other.regionRef)
-                .chunk(other.x, z);
-    }
-
-    @Override
-    public ChunkRef withZFrom(final ChunkRef other) {
-        return regionRef.withZFrom(other.regionRef)
-                .chunk(x, other.z);
-    }
-
-    @Override
-    public Comparator<ChunkRef> getXComparator() {
-        return COMPARE_BY_X;
-    }
-
-    @Override
-    public Comparator<ChunkRef> getZComparator() {
-        return COMPARE_BY_Z;
-    }
-
-    @Override
     public ChunkRef getSelf() {
         return this;
     }
@@ -149,5 +130,18 @@ public class ChunkRef implements Ref<ChunkRef>, XZCoordinates<ChunkRef> {
         return regionRef.subtract(other.regionRef)
                 .scale(Constants.CHUNKS_PER_REGION_VEC)
                 .add(new Vec2D(x - other.x, z - other.z));
+    }
+
+    @Override
+    public Comparator<ChunkRef> compareByCoordinate(final int coordinate) {
+        return COMPARATORS.get(coordinate);
+    }
+
+    @Override
+    public ChunkRef withCoordinateFrom(final ChunkRef other, final int coordinate) {
+        if(coordinate >= coordinateSize())
+            return this;
+        return regionRef.withCoordinateFrom(other.regionRef, coordinate)
+                .chunk(coordinate == COORDINATE_X ? other.x : x, coordinate == COORDINATE_Z ? other.z : z);
     }
 }

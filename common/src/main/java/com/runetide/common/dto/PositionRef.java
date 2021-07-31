@@ -1,5 +1,6 @@
 package com.runetide.common.dto;
 
+import com.google.common.collect.ImmutableList;
 import com.runetide.common.Constants;
 import com.runetide.common.domain.Vec3D;
 
@@ -7,6 +8,7 @@ import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Objects;
 
 public class PositionRef implements Ref<PositionRef>, XYZCoordinates<PositionRef> {
@@ -19,6 +21,8 @@ public class PositionRef implements Ref<PositionRef>, XYZCoordinates<PositionRef
     public static final Comparator<PositionRef> COMPARE_BY_Z = Comparator
             .comparing(PositionRef::getBlockRef, BlockRef.COMPARE_BY_Z)
             .thenComparingInt(PositionRef::getZ);
+    public static final List<Comparator<PositionRef>> COMPARATORS = ImmutableList.of(COMPARE_BY_X, COMPARE_BY_Z,
+            COMPARE_BY_Y);
 
     private final BlockRef blockRef;
     private final int x;
@@ -103,39 +107,6 @@ public class PositionRef implements Ref<PositionRef>, XYZCoordinates<PositionRef
     }
 
     @Override
-    public PositionRef withXFrom(final PositionRef other) {
-        return blockRef.withXFrom(other.blockRef)
-                .position(other.x, y, z);
-    }
-
-    @Override
-    public PositionRef withYFrom(final PositionRef other) {
-        return blockRef.withYFrom(other.blockRef)
-                .position(x, other.y, z);
-    }
-
-    @Override
-    public PositionRef withZFrom(final PositionRef other) {
-        return blockRef.withZFrom(other.blockRef)
-                .position(x, y, other.z);
-    }
-
-    @Override
-    public Comparator<PositionRef> getXComparator() {
-        return COMPARE_BY_X;
-    }
-
-    @Override
-    public Comparator<PositionRef> getYComparator() {
-        return COMPARE_BY_Y;
-    }
-
-    @Override
-    public Comparator<PositionRef> getZComparator() {
-        return COMPARE_BY_Z;
-    }
-
-    @Override
     public PositionRef getSelf() {
         return this;
     }
@@ -158,5 +129,19 @@ public class PositionRef implements Ref<PositionRef>, XYZCoordinates<PositionRef
         return blockRef.subtract(other.blockRef)
                 .scale(Constants.OFFSETS_PER_BLOCK_VEC)
                 .add(new Vec3D(x - other.x, y - other.y, z - other.z));
+    }
+
+    @Override
+    public Comparator<PositionRef> compareByCoordinate(final int coordinate) {
+        return COMPARATORS.get(coordinate);
+    }
+
+    @Override
+    public PositionRef withCoordinateFrom(final PositionRef other, final int coordinate) {
+        if(coordinate >= coordinateSize())
+            return this;
+        return blockRef.withCoordinateFrom(other.blockRef, coordinate)
+                .position(coordinate == COORDINATE_X ? other.x : x, coordinate == COORDINATE_Y ? other.y : y,
+                        coordinate == COORDINATE_Z ? other.z : z);
     }
 }

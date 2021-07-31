@@ -1,5 +1,6 @@
 package com.runetide.common.dto;
 
+import com.google.common.collect.ImmutableList;
 import com.runetide.common.Constants;
 import com.runetide.common.domain.Vec3D;
 
@@ -7,6 +8,7 @@ import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Objects;
 
 public class ChunkSectionRef implements Ref<ChunkSectionRef>, XYZCoordinates<ChunkSectionRef> {
@@ -17,6 +19,8 @@ public class ChunkSectionRef implements Ref<ChunkSectionRef>, XYZCoordinates<Chu
             .thenComparingInt(ChunkSectionRef::getY);
     public static final Comparator<ChunkSectionRef> COMPARE_BY_Z = Comparator
             .comparing(ChunkSectionRef::getChunkRef, ChunkRef.COMPARE_BY_Z);
+    public static final List<Comparator<ChunkSectionRef>> COMPARATORS = ImmutableList.of(COMPARE_BY_X, COMPARE_BY_Z,
+            COMPARE_BY_Y);
 
     private final ChunkRef chunkRef;
     private final int y;
@@ -107,36 +111,6 @@ public class ChunkSectionRef implements Ref<ChunkSectionRef>, XYZCoordinates<Chu
     }
 
     @Override
-    public ChunkSectionRef withXFrom(final ChunkSectionRef other) {
-        return chunkRef.withXFrom(other.chunkRef).section(y);
-    }
-
-    @Override
-    public ChunkSectionRef withYFrom(final ChunkSectionRef other) {
-        return chunkRef.section(other.y);
-    }
-
-    @Override
-    public ChunkSectionRef withZFrom(final ChunkSectionRef other) {
-        return chunkRef.withZFrom(other.chunkRef).section(y);
-    }
-
-    @Override
-    public Comparator<ChunkSectionRef> getXComparator() {
-        return COMPARE_BY_X;
-    }
-
-    @Override
-    public Comparator<ChunkSectionRef> getYComparator() {
-        return COMPARE_BY_Y;
-    }
-
-    @Override
-    public Comparator<ChunkSectionRef> getZComparator() {
-        return COMPARE_BY_Z;
-    }
-
-    @Override
     public ChunkSectionRef getSelf() {
         return this;
     }
@@ -146,5 +120,18 @@ public class ChunkSectionRef implements Ref<ChunkSectionRef>, XYZCoordinates<Chu
         return chunkRef.subtract(other.chunkRef)
                 .scale(Constants.CHUNK_SECTIONS_PER_CHUNK_VEC)
                 .add(new Vec3D(0, y - other.y, 0));
+    }
+
+    @Override
+    public Comparator<ChunkSectionRef> compareByCoordinate(final int coordinate) {
+        return COMPARATORS.get(coordinate);
+    }
+
+    @Override
+    public ChunkSectionRef withCoordinateFrom(final ChunkSectionRef other, final int coordinate) {
+        if(coordinate >= coordinateSize())
+            return this;
+        return chunkRef.withCoordinateFrom(other.chunkRef, coordinate)
+                .section(coordinate == COORDINATE_Y ? other.y : y);
     }
 }
