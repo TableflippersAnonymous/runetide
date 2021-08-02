@@ -22,7 +22,7 @@ public class SectorRef implements Ref<SectorRef>, XZCoordinates<SectorRef> {
     private final long x;
     private final long z;
 
-    public SectorRef(final WorldRef worldRef, final long x, final long z) {
+    SectorRef(final WorldRef worldRef, final long x, final long z) {
         this.worldRef = worldRef;
         this.x = x;
         this.z = z;

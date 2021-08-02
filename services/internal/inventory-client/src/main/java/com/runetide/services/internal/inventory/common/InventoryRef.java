@@ -1,13 +1,16 @@
 package com.runetide.services.internal.inventory.common;
 
 import com.runetide.common.dto.UUIDRef;
+import com.runetide.common.services.cql.UUIDRefCodec;
 
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.UUID;
 
 public class InventoryRef extends UUIDRef<InventoryRef> {
-    public InventoryRef(final UUID uuidRef) {
+    public static final UUIDRefCodec<InventoryRef> CODEC = new UUIDRefCodec<>(InventoryRef.class, InventoryRef::new);
+
+    InventoryRef(final UUID uuidRef) {
         super(uuidRef);
     }
 

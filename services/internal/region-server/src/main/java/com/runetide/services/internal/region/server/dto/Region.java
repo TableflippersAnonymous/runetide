@@ -3,11 +3,14 @@ package com.runetide.services.internal.region.server.dto;
 import com.datastax.oss.driver.api.mapper.annotations.CqlName;
 import com.datastax.oss.driver.api.mapper.annotations.Entity;
 import com.datastax.oss.driver.api.mapper.annotations.PartitionKey;
+import com.runetide.common.dto.ChunkDataRef;
+import com.runetide.common.dto.DungeonRef;
+import com.runetide.common.dto.InstanceRef;
 import com.runetide.common.dto.RegionRef;
+import com.runetide.common.dto.SettlementRef;
 import com.runetide.common.dto.WorldRef;
 
 import java.util.Set;
-import java.util.UUID;
 
 @Entity
 @CqlName("region")
@@ -20,24 +23,24 @@ public class Region {
     @PartitionKey(2)
     private long z;
     @CqlName("chunk_data_id")
-    private UUID chunkDataId;
+    private ChunkDataRef chunkDataId;
     @CqlName("instance_ids")
-    private Set<UUID> instanceIds;
+    private Set<InstanceRef> instanceIds;
     @CqlName("new_instance_template")
     private String newInstanceTemplate;
     @CqlName("difficulty_level")
     private int difficultyLevel;
     @CqlName("settlement_ids")
-    private Set<UUID> settlementIds;
+    private Set<SettlementRef> settlementIds;
     @CqlName("dungeon_ids")
-    private Set<UUID> dungeonIds;
+    private Set<DungeonRef> dungeonIds;
 
     public Region() {
     }
 
-    public Region(final WorldRef worldId, final long x, final long z, final UUID chunkDataId,
-                  final Set<UUID> instanceIds, final String newInstanceTemplate, final int difficultyLevel,
-                  final Set<UUID> settlementIds, final Set<UUID> dungeonIds) {
+    public Region(final WorldRef worldId, final long x, final long z, final ChunkDataRef chunkDataId,
+                  final Set<InstanceRef> instanceIds, final String newInstanceTemplate, final int difficultyLevel,
+                  final Set<SettlementRef> settlementIds, final Set<DungeonRef> dungeonIds) {
         this.worldId = worldId;
         this.x = x;
         this.z = z;
@@ -73,19 +76,19 @@ public class Region {
         this.z = z;
     }
 
-    public UUID getChunkDataId() {
+    public ChunkDataRef getChunkDataId() {
         return chunkDataId;
     }
 
-    public void setChunkDataId(final UUID chunkDataId) {
+    public void setChunkDataId(final ChunkDataRef chunkDataId) {
         this.chunkDataId = chunkDataId;
     }
 
-    public Set<UUID> getInstanceIds() {
+    public Set<InstanceRef> getInstanceIds() {
         return instanceIds;
     }
 
-    public void setInstanceIds(final Set<UUID> instanceIds) {
+    public void setInstanceIds(final Set<InstanceRef> instanceIds) {
         this.instanceIds = instanceIds;
     }
 
@@ -105,23 +108,23 @@ public class Region {
         this.difficultyLevel = difficultyLevel;
     }
 
-    public Set<UUID> getSettlementIds() {
+    public Set<SettlementRef> getSettlementIds() {
         return settlementIds;
     }
 
-    public void setSettlementIds(final Set<UUID> settlementIds) {
+    public void setSettlementIds(final Set<SettlementRef> settlementIds) {
         this.settlementIds = settlementIds;
     }
 
-    public Set<UUID> getDungeonIds() {
+    public Set<DungeonRef> getDungeonIds() {
         return dungeonIds;
     }
 
-    public void setDungeonIds(final Set<UUID> dungeonIds) {
+    public void setDungeonIds(final Set<DungeonRef> dungeonIds) {
         this.dungeonIds = dungeonIds;
     }
 
     public RegionRef toRef() {
-        return new RegionRef(worldId, x, z);
+        return worldId.region(x, z);
     }
 }

@@ -7,7 +7,6 @@ import com.runetide.common.*;
 import com.runetide.common.clients.LoadingToken;
 import com.runetide.common.clients.UniqueLoadingClient;
 import com.runetide.common.services.cql.EnumIndexedCodec;
-import com.runetide.common.services.cql.UUIDRefCodec;
 import com.runetide.common.services.servicediscovery.ServiceRegistry;
 import com.runetide.common.services.topics.TopicListener;
 import com.runetide.common.services.topics.TopicListenerHandle;
@@ -34,7 +33,7 @@ public class XPClient extends UniqueLoadingClient<XPRef> {
     public static List<TypeCodec<?>> getCqlTypeCodecs() {
         return Arrays.asList(
                 new EnumIndexedCodec<>(XPType.class),
-                new UUIDRefCodec<>(XPRef.class, XPRef::new)
+                XPRef.CODEC
         );
     }
 

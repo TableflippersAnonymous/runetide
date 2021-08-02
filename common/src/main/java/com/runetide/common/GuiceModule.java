@@ -1,10 +1,10 @@
 package com.runetide.common;
 
 import com.datastax.oss.driver.api.core.CqlSession;
+import com.datastax.oss.driver.api.core.auth.ProgrammaticPlainTextAuthProvider;
 import com.datastax.oss.driver.api.core.config.DefaultDriverOption;
 import com.datastax.oss.driver.api.core.config.DriverConfigLoader;
 import com.datastax.oss.driver.api.core.type.codec.TypeCodec;
-import com.datastax.oss.driver.internal.core.auth.ProgrammaticPlainTextAuthProvider;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;

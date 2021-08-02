@@ -16,8 +16,6 @@ import com.runetide.services.internal.region.server.dto.RegionData;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 
 public class LoadedRegion {
@@ -55,10 +53,10 @@ public class LoadedRegion {
     public com.runetide.services.internal.region.common.Region toClientRegion() {
         return new com.runetide.services.internal.region.common.Region(
                 region.toRef().getWorldRef(), region.getX(), region.getZ(), regionData.toRef(),
-                region.getInstanceIds().stream().map(InstanceRef::new).collect(Collectors.toList()),
+                new ArrayList<>(region.getInstanceIds()),
                 new InstanceTemplate(/* FIXME */), region.getDifficultyLevel(),
-                region.getSettlementIds().stream().map(SettlementRef::new).collect(Collectors.toList()),
-                region.getDungeonIds().stream().map(DungeonRef::new).collect(Collectors.toList())
+                new ArrayList<>(region.getSettlementIds()),
+                new ArrayList<>(region.getDungeonIds())
         );
     }
 
@@ -103,7 +101,7 @@ public class LoadedRegion {
         return x * Constants.CHUNKS_PER_REGION_Z + z;
     }
 
-    public void setChunkDataId(final UUID newId) {
+    public void setChunkDataId(final ChunkDataRef newId) {
         regionData.setId(newId);
     }
 }

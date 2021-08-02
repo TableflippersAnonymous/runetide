@@ -4,17 +4,16 @@ import com.datastax.oss.driver.api.mapper.annotations.*;
 import com.runetide.services.internal.xp.common.XPRef;
 import com.runetide.services.internal.xp.common.XPType;
 
-import java.util.Optional;
-import java.util.UUID;
-
 @Entity
 @CqlName("xp_by_parent")
 public class XPByParent {
-    @Transient // See getCqlParent/setCqlParent below
+    @PartitionKey
+    @CqlName("parent")
     private XPRef parent;
-    @Transient // See getCqlId/setCqlId below
+    @ClusteringColumn
+    @CqlName("id")
     private XPRef id;
-    @Transient // See getCqlType/setCqlType below
+    @CqlName("type")
     private XPType type;
     @CqlName("xp")
     private long xp;
@@ -37,16 +36,6 @@ public class XPByParent {
         this.parent = parent;
     }
 
-    @PartitionKey
-    @CqlName("parent")
-    public UUID getCqlParent() {
-        return parent.getId();
-    }
-
-    public void setCqlParent(UUID parent) {
-        this.parent = Optional.ofNullable(parent).map(XPRef::new).orElse(null);
-    }
-
     public XPRef getId() {
         return id;
     }
@@ -55,31 +44,12 @@ public class XPByParent {
         this.id = id;
     }
 
-    @ClusteringColumn
-    @CqlName("id")
-    public UUID getCqlId() {
-        return id.getId();
-    }
-
-    public void setCqlId(UUID id) {
-        this.id = new XPRef(id);
-    }
-
     public XPType getType() {
         return type;
     }
 
     public void setType(XPType type) {
         this.type = type;
-    }
-
-    @CqlName("type")
-    public int getCqlType() {
-        return type.ordinal();
-    }
-
-    public void setCqlType(int type) {
-        this.type = XPType.values()[type];
     }
 
     public long getXp() {

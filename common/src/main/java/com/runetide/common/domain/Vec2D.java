@@ -141,4 +141,9 @@ public class Vec2D implements Vec<Vec2D>, XZCoordinates<Vec2D> {
     public Vec2D getSelf() {
         return this;
     }
+
+    @Override
+    public String toString() {
+        return "<Vec2D:" + x + "," + z + ">";
+    }
 }

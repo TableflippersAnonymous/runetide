@@ -1,11 +1,17 @@
 package com.runetide.common.dto;
 
+import com.runetide.common.services.cql.UUIDRefCodec;
+
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.UUID;
 
 public class WorldRef extends UUIDRef<WorldRef> {
-    public WorldRef(final UUID uuidRef) {
+    public static final UUIDRefCodec<WorldRef> CODEC = new UUIDRefCodec<>(WorldRef.class, WorldRef::new);
+    public static final String PATH_REGEX = UUIDRef.PATH_REGEX;
+    public static final int PATH_PARTS = UUIDRef.PATH_PARTS;
+
+    WorldRef(final UUID uuidRef) {
         super(uuidRef);
     }
 

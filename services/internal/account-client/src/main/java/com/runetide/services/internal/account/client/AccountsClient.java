@@ -7,7 +7,6 @@ import com.runetide.common.Constants;
 import com.runetide.common.services.servicediscovery.ServiceRegistry;
 import com.runetide.common.clients.StatelessClient;
 import com.runetide.common.services.topics.TopicManager;
-import com.runetide.common.services.cql.UUIDRefCodec;
 import com.runetide.services.internal.account.common.AccountRef;
 
 import java.util.Arrays;
@@ -21,8 +20,6 @@ public class AccountsClient extends StatelessClient {
     }
 
     public static List<TypeCodec<?>> getCqlTypeCodecs() {
-        return Arrays.asList(
-                new UUIDRefCodec<>(AccountRef.class, AccountRef::new)
-        );
+        return Arrays.asList(AccountRef.CODEC);
     }
 }

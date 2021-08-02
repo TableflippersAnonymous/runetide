@@ -1,5 +1,6 @@
 package com.runetide.common.dto;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.runetide.common.Constants;
 import com.runetide.common.domain.Vec3D;
@@ -7,6 +8,7 @@ import com.runetide.common.domain.Vec3D;
 import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -21,11 +23,13 @@ public class ChunkSectionRef implements Ref<ChunkSectionRef>, XYZCoordinates<Chu
             .comparing(ChunkSectionRef::getChunkRef, ChunkRef.COMPARE_BY_Z);
     public static final List<Comparator<ChunkSectionRef>> COMPARATORS = ImmutableList.of(COMPARE_BY_X, COMPARE_BY_Z,
             COMPARE_BY_Y);
+    public static final String PATH_REGEX = ChunkRef.PATH_REGEX + ":[0-9a-f]+";
+    public static final int PATH_PARTS = ChunkRef.PATH_PARTS + 1;
 
     private final ChunkRef chunkRef;
     private final int y;
 
-    public ChunkSectionRef(ChunkRef chunkRef, int y) {
+    ChunkSectionRef(final ChunkRef chunkRef, final int y) {
         if(y < 0 || y >= Constants.CHUNK_SECTIONS_PER_CHUNK)
             throw new IndexOutOfBoundsException("y out of range");
         this.chunkRef = chunkRef;
@@ -56,16 +60,15 @@ public class ChunkSectionRef implements Ref<ChunkSectionRef>, XYZCoordinates<Chu
 
     @Override
     public String toString() {
-        return chunkRef + ":" + y;
+        return chunkRef + ":" + Integer.toString(y, 16);
     }
 
     public static ChunkSectionRef valueOf(final String stringValue) {
-        final String[] parts = stringValue.split(":", 6);
-        if(parts.length != 6)
+        final String[] parts = stringValue.split(":", PATH_PARTS);
+        if(parts.length != PATH_PARTS)
             throw new IllegalArgumentException("Invalid ChunkSectionRef: " + stringValue);
-        final String encodedChunk = parts[0] + ":" + parts[1] + ":" + parts[2] + ":" + parts[3] + ":" + parts[4];
-        final ChunkRef chunkRef = ChunkRef.valueOf(encodedChunk);
-        final int y = Integer.parseInt(parts[5]);
+        final ChunkRef chunkRef = ChunkRef.valueOf(Joiner.on(":").join(Arrays.copyOf(parts, ChunkRef.PATH_PARTS)));
+        final int y = Integer.parseInt(parts[PATH_PARTS - 1], 16);
         return new ChunkSectionRef(chunkRef, y);
     }
 

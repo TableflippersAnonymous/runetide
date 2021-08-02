@@ -18,7 +18,6 @@ import org.redisson.api.RedissonClient;
 
 import javax.inject.Named;
 import java.util.Collection;
-import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -53,7 +52,7 @@ public class XPManager extends SavingUniqueLoadingManager<XPRef, LoadedXP> {
     }
 
     public XPRef create(XP value) {
-        value.setId(new XPRef(UUID.randomUUID()));
+        value.setId(XPRef.random());
         dao.save(value);
         return value.getId();
     }

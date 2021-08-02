@@ -1,5 +1,6 @@
 package com.runetide.common.dto;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.runetide.common.Constants;
@@ -8,6 +9,7 @@ import com.runetide.common.domain.Vec2D;
 import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
@@ -17,12 +19,14 @@ public class RegionRef implements Ref<RegionRef>, XZCoordinates<RegionRef> {
     public static final Comparator<RegionRef> COMPARE_BY_Z = Comparator.comparing(RegionRef::getWorldRef)
             .thenComparingLong(RegionRef::getZ);
     public static final List<Comparator<RegionRef>> COMPARATORS = ImmutableList.of(COMPARE_BY_X, COMPARE_BY_Z);
+    public static final String PATH_REGEX = WorldRef.PATH_REGEX + ":-?[0-9a-z]+:-?[0-9a-z]+";
+    public static final int PATH_PARTS = WorldRef.PATH_PARTS + 2;
 
     private final WorldRef worldRef;
     private final long x;
     private final long z;
 
-    public RegionRef(final WorldRef worldRef, final long x, final long z) {
+    RegionRef(final WorldRef worldRef, final long x, final long z) {
         this.worldRef = worldRef;
         this.x = x;
         this.z = z;
@@ -61,16 +65,16 @@ public class RegionRef implements Ref<RegionRef>, XZCoordinates<RegionRef> {
 
     @Override
     public String toString() {
-        return worldRef + ":" + x + ":" + z;
+        return worldRef + ":" + Long.toString(x, 36) + ":" + Long.toString(z, 36);
     }
 
     public static RegionRef valueOf(final String stringValue) {
-        final String[] parts = stringValue.split(":", 3);
-        if(parts.length != 3)
+        final String[] parts = stringValue.split(":", PATH_PARTS);
+        if(parts.length != PATH_PARTS)
             throw new IllegalArgumentException("Invalid RegionRef: " + stringValue);
-        final WorldRef worldRef = WorldRef.valueOf(parts[0]);
-        final long x = Long.parseLong(parts[1]);
-        final long z = Long.parseLong(parts[2]);
+        final WorldRef worldRef = WorldRef.valueOf(Joiner.on(":").join(Arrays.copyOf(parts, WorldRef.PATH_PARTS)));
+        final long x = Long.parseLong(parts[PATH_PARTS - 2], 36);
+        final long z = Long.parseLong(parts[PATH_PARTS - 1], 36);
         return new RegionRef(worldRef, x, z);
     }
 

@@ -8,6 +8,9 @@ import java.io.IOException;
 import java.util.UUID;
 
 public abstract class UUIDRef<T extends UUIDRef<T>> implements Comparable<T>, Ref<T> {
+    protected static final String PATH_REGEX = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
+    protected static final int PATH_PARTS = 1;
+
     private final UUID uuidRef;
 
     protected UUIDRef(final UUID uuidRef) {

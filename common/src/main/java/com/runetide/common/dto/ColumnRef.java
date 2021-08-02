@@ -1,5 +1,6 @@
 package com.runetide.common.dto;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.runetide.common.Constants;
 import com.runetide.common.domain.Vec2D;
@@ -7,6 +8,7 @@ import com.runetide.common.domain.Vec2D;
 import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -19,12 +21,14 @@ public class ColumnRef implements Ref<ColumnRef>, XZCoordinates<ColumnRef> {
             .comparing(ColumnRef::getChunkRef, ChunkRef.COMPARE_BY_Z)
             .thenComparingInt(ColumnRef::getZ);
     public static final List<Comparator<ColumnRef>> COMPARATORS = ImmutableList.of(COMPARE_BY_X, COMPARE_BY_Z);
+    public static final String PATH_REGEX = ChunkRef.PATH_REGEX + ":[0-9a-f]+";
+    public static final int PATH_PARTS = ChunkRef.PATH_PARTS + 1;
 
     private final ChunkRef chunkRef;
     private final int x;
     private final int z;
 
-    public ColumnRef(final ChunkRef chunkRef, final int x, final int z) {
+    ColumnRef(final ChunkRef chunkRef, final int x, final int z) {
         if(x < 0 || x >= Constants.BLOCKS_PER_CHUNK_SECTION_X
                 || z < 0 || z >= Constants.BLOCKS_PER_CHUNK_SECTION_Z)
             throw new IndexOutOfBoundsException("x/z out of range");
@@ -60,17 +64,17 @@ public class ColumnRef implements Ref<ColumnRef>, XZCoordinates<ColumnRef> {
 
     @Override
     public String toString() {
-        return chunkRef + ":" + x + ":" + z;
+        return chunkRef + ":" + Integer.toString(x * Constants.BLOCKS_PER_CHUNK_SECTION_Z + z, 16);
     }
 
     public static ColumnRef valueOf(final String stringValue) {
-        final String[] parts = stringValue.split(":", 7);
-        if(parts.length != 7)
+        final String[] parts = stringValue.split(":", PATH_PARTS);
+        if(parts.length != PATH_PARTS)
             throw new IllegalArgumentException("Invalid ColumnRef: " + stringValue);
-        final String encodedChunk = parts[0] + ":" + parts[1] + ":" + parts[2] + ":" + parts[3] + ":" + parts[4];
-        final ChunkRef chunkRef = ChunkRef.valueOf(encodedChunk);
-        final int x = Integer.parseInt(parts[5]);
-        final int z = Integer.parseInt(parts[6]);
+        final ChunkRef chunkRef = ChunkRef.valueOf(Joiner.on(":").join(Arrays.copyOf(parts, ChunkRef.PATH_PARTS)));
+        final int xz = Integer.parseInt(parts[PATH_PARTS - 1], 16);
+        final int x = xz / Constants.BLOCKS_PER_CHUNK_SECTION_Z;
+        final int z = xz % Constants.BLOCKS_PER_CHUNK_SECTION_Z;
         return new ColumnRef(chunkRef, x, z);
     }
 

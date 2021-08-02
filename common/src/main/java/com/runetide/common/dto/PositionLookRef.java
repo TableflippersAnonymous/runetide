@@ -1,16 +1,22 @@
 package com.runetide.common.dto;
 
+import com.google.common.base.Joiner;
+
 import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Objects;
 
 public class PositionLookRef implements Ref<PositionLookRef> {
-    final PositionRef positionRef;
-    final int elevation;
-    final int rotation;
+    public static final String PATH_REGEX = PositionRef.PATH_REGEX + ":[0-9a-z]+:[0-9a-z]+";
+    public static final int PATH_PARTS = PositionRef.PATH_PARTS + 2;
 
-    public PositionLookRef(PositionRef positionRef, int elevation, int rotation) {
+    private final PositionRef positionRef;
+    private final int elevation;
+    private final int rotation;
+
+    PositionLookRef(PositionRef positionRef, int elevation, int rotation) {
         this.positionRef = positionRef;
         this.elevation = elevation;
         this.rotation = rotation;
@@ -45,19 +51,17 @@ public class PositionLookRef implements Ref<PositionLookRef> {
 
     @Override
     public String toString() {
-        return positionRef + "," + elevation + ":" + rotation;
+        return positionRef + ":" + Integer.toString(elevation, 36) + ":" + Integer.toString(rotation, 36);
     }
 
     public static PositionLookRef valueOf(final String stringValue) {
-        final String[] parts = stringValue.split(",", 3);
-        if(parts.length != 3)
+        final String[] parts = stringValue.split(":", PATH_PARTS);
+        if(parts.length != PATH_PARTS)
             throw new IllegalArgumentException("Invalid PositionLookRef: " + stringValue);
-        final PositionRef positionRef = PositionRef.valueOf(parts[0] + "," + parts[1]);
-        final String[] coordinates = parts[2].split(":", 2);
-        if(coordinates.length != 2)
-            throw new IllegalArgumentException("Invalid PositionLookRef: " + stringValue);
-        final int elevation = Integer.parseInt(coordinates[0]);
-        final int rotation = Integer.parseInt(coordinates[1]);
+        final PositionRef positionRef = PositionRef.valueOf(Joiner.on(":")
+                .join(Arrays.copyOf(parts, PositionRef.PATH_PARTS)));
+        final int elevation = Integer.parseInt(parts[PATH_PARTS - 2], 36);
+        final int rotation = Integer.parseInt(parts[PATH_PARTS - 1], 36);
         return new PositionLookRef(positionRef, elevation, rotation);
     }
 

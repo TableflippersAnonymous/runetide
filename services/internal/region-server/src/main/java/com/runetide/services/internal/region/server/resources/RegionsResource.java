@@ -1,14 +1,15 @@
 package com.runetide.services.internal.region.server.resources;
 
 import com.google.common.collect.ImmutableList;
+import com.runetide.common.dto.BlockRef;
+import com.runetide.common.dto.ChunkRef;
+import com.runetide.common.dto.ChunkSectionRef;
 import com.runetide.common.dto.RegionRef;
-import com.runetide.common.dto.WorldRef;
 import com.runetide.services.internal.region.common.Block;
 import com.runetide.services.internal.region.common.BulkBlockUpdateEntry;
 import com.runetide.services.internal.region.common.BulkBlockUpdateRequest;
 import com.runetide.services.internal.region.common.Chunk;
 import com.runetide.services.internal.region.common.ChunkSection;
-import com.runetide.services.internal.region.common.LoadRegionRequest;
 import com.runetide.services.internal.region.common.Region;
 import com.runetide.services.internal.region.common.RegionChunkData;
 import com.runetide.services.internal.region.server.domain.LoadedRegion;
@@ -18,7 +19,6 @@ import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,62 +38,52 @@ public class RegionsResource {
         return regionManager.getLoadedRegions().stream().map(LoadedRegion::toClientRegion).collect(Collectors.toList());
     }
 
-    @Path("{worldId}/{rx}/{rz}")
+    @Path("{regionRef: " + RegionRef.PATH_REGEX + "}")
     @GET
-    public Region getRegion(@PathParam("worldId") final WorldRef worldId, @PathParam("rx") final long rx,
-                            @PathParam("rz") final long rz) {
-        final LoadedRegion region = regionManager.getLoadedRegion(new RegionRef(worldId, rx, rz));
+    public Region getRegion(@PathParam("regionRef") final RegionRef regionRef) {
+        final LoadedRegion region = regionManager.getLoadedRegion(regionRef);
         if(region == null)
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         return region.toClientRegion();
     }
 
-    @Path("{worldId}/{rx}/{rz}")
+    @Path("{regionRef: " + RegionRef.PATH_REGEX + "}")
     @POST
-    public RegionChunkData bulkUpdate(@PathParam("worldId") final WorldRef worldId, @PathParam("rx") final long rx,
-                                      @PathParam("rz") final long rz,
+    public RegionChunkData bulkUpdate(@PathParam("regionRef") final RegionRef regionRef,
                                       final BulkBlockUpdateRequest bulkBlockUpdateRequest) {
-        final RegionRef regionRef = new RegionRef(worldId, rx, rz);
         if(regionManager.getLoadedRegion(regionRef) == null)
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         regionManager.update(regionRef, bulkBlockUpdateRequest);
         return regionManager.getRegionData(regionRef);
     }
 
-    @Path("{worldId}/{rx}/{rz}/{cx}/{cz}")
+    @Path("{chunkRef: " + ChunkRef.PATH_REGEX + "}")
     @GET
-    public Chunk getChunk(@PathParam("worldId") final WorldRef worldId, @PathParam("rx") final long rx,
-                          @PathParam("rz") final long rz, @PathParam("cx") final int cx, @PathParam("cz") final int cz) {
-        final RegionRef regionRef = new RegionRef(worldId, rx, rz);
+    public Chunk getChunk(@PathParam("chunkRef") final ChunkRef chunkRef) {
+        final RegionRef regionRef = chunkRef.getRegionRef();
         if(regionManager.getLoadedRegion(regionRef) == null)
             throw new WebApplicationException(Response.Status.NOT_FOUND);
-        return regionManager.getChunk(regionRef, cx, cz);
+        return regionManager.getChunk(chunkRef);
     }
 
-    @Path("{worldId}/{rx}/{rz}/{cx}/{cz}/{sy}")
+    @Path("{chunkSectionRef: " + ChunkSectionRef.PATH_REGEX + "}")
     @GET
-    public ChunkSection getChunkSection(@PathParam("worldId") final WorldRef worldId, @PathParam("rx") final long rx,
-                                        @PathParam("rz") final long rz, @PathParam("cx") final int cx,
-                                        @PathParam("cz") final int cz, @PathParam("sy") final int sy) {
-        final RegionRef regionRef = new RegionRef(worldId, rx, rz);
+    public ChunkSection getChunkSection(@PathParam("chunkSectionRef") final ChunkSectionRef chunkSectionRef) {
+        final RegionRef regionRef = chunkSectionRef.getRegionRef();
         if(regionManager.getLoadedRegion(regionRef) == null)
             throw new WebApplicationException(Response.Status.NOT_FOUND);
-        return regionManager.getChunkSection(regionRef, cx, cz, sy);
+        return regionManager.getChunkSection(chunkSectionRef);
     }
 
-    @Path("{worldId}/{rx}/{rz}/{cx}/{cz}/{sy}/{bx}/{by}/{bz}")
+    @Path("{blockRef: " + BlockRef.PATH_REGEX + "}")
     @PUT
-    public ChunkSection putBlock(@PathParam("worldId") final WorldRef worldId, @PathParam("rx") final long rx,
-                                 @PathParam("rz") final long rz, @PathParam("cx") final int cx,
-                                 @PathParam("cz") final int cz, @PathParam("sy") final int sy,
-                                 @PathParam("bx") final int bx, @PathParam("by") final int by,
-                                 @PathParam("bz") final int bz, final Block block) {
-        final RegionRef regionRef = new RegionRef(worldId, rx, rz);
+    public ChunkSection putBlock(@PathParam("blockRef") final BlockRef blockRef, final Block block) {
+        final RegionRef regionRef = blockRef.getRegionRef();
         if(regionManager.getLoadedRegion(regionRef) == null)
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         final BulkBlockUpdateRequest bulkBlockUpdateRequest = new BulkBlockUpdateRequest(ImmutableList.of(
-                new BulkBlockUpdateEntry(cx, cz, sy, bx, by, bz, block)));
+                new BulkBlockUpdateEntry(blockRef, block)));
         regionManager.update(regionRef, bulkBlockUpdateRequest);
-        return regionManager.getChunkSection(regionRef, cx, cz, sy);
+        return regionManager.getChunkSection(blockRef.getChunkSectionRef());
     }
 }

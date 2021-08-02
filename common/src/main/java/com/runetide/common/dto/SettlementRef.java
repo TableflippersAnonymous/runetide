@@ -1,11 +1,15 @@
 package com.runetide.common.dto;
 
+import com.runetide.common.services.cql.UUIDRefCodec;
+
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.UUID;
 
 public class SettlementRef extends UUIDRef<SettlementRef> {
-    public SettlementRef(final UUID uuidRef) {
+    public static final UUIDRefCodec<SettlementRef> CODEC = new UUIDRefCodec<>(SettlementRef.class, SettlementRef::new);
+
+    SettlementRef(final UUID uuidRef) {
         super(uuidRef);
     }
 

@@ -46,14 +46,13 @@ public class Vec3D implements Vec<Vec3D>, XYZCoordinates<Vec3D> {
     public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
         final Vec3D vec3D = (Vec3D) o;
-        return y == vec3D.y;
+        return x == vec3D.x && y == vec3D.y && z == vec3D.z;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), y);
+        return Objects.hash(x, y, z);
     }
 
     @Override
@@ -124,5 +123,10 @@ public class Vec3D implements Vec<Vec3D>, XYZCoordinates<Vec3D> {
     @Override
     public Vec3D getSelf() {
         return this;
+    }
+
+    @Override
+    public String toString() {
+        return "<Vec3D:" + x + "," + y + "," + z + ">";
     }
 }

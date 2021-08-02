@@ -6,24 +6,23 @@ import com.runetide.common.dto.RegionRef;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
-import java.util.UUID;
 
 public class RegionData {
     public static final long CURRENT_VERSION = 0;
     private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private final long version;
-    private UUID id;
+    private ChunkDataRef id;
     private final RegionRef regionId;
     private final long timestamp;
     private final byte[][] compressedChunks;
 
-    public RegionData(final long version, final UUID id, final RegionRef regionId, final long timestamp, final byte[][] compressedChunks) {
+    public RegionData(final long version, final ChunkDataRef id, final RegionRef regionId, final long timestamp,
+                      final byte[][] compressedChunks) {
         this.version = version;
         this.id = id;
         this.regionId = regionId;
@@ -33,9 +32,7 @@ public class RegionData {
 
     public static RegionData decode(final DataInputStream dataInputStream) throws IOException {
         final long version = dataInputStream.readLong();
-        final long idLo = dataInputStream.readLong();
-        final long idHi = dataInputStream.readLong();
-        final UUID id = new UUID(idHi, idLo);
+        final ChunkDataRef id = ChunkDataRef.decode(dataInputStream);
         final RegionRef regionRef = RegionRef.decode(dataInputStream);
         final long timestamp = dataInputStream.readLong();
         final byte[][] compressedChunks = new byte[Constants.CHUNKS_PER_REGION][];
@@ -51,11 +48,11 @@ public class RegionData {
         return version;
     }
 
-    public UUID getId() {
+    public ChunkDataRef getId() {
         return id;
     }
 
-    public void setId(final UUID newId) {
+    public void setId(final ChunkDataRef newId) {
         id = newId;
     }
 
@@ -74,8 +71,7 @@ public class RegionData {
     public void encode(final DataOutputStream dataOutputStream) {
         try {
             dataOutputStream.writeLong(version);
-            dataOutputStream.writeLong(id.getLeastSignificantBits());
-            dataOutputStream.writeLong(id.getMostSignificantBits());
+            id.encode(dataOutputStream);
             regionId.encode(dataOutputStream);
             dataOutputStream.writeLong(timestamp);
             for (final byte[] compressedChunk : compressedChunks) {
@@ -88,6 +84,6 @@ public class RegionData {
     }
 
     public ChunkDataRef toRef() {
-        return new ChunkDataRef(id);
+        return id;
     }
 }

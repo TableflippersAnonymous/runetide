@@ -23,7 +23,7 @@ public class BoundingBox<PointType extends VectorLike<PointType, VecType>, VecTy
         this.end = end.maxCoordinates(start);
     }
 
-    public BoundingBox(final PointType start, final VecType vec) {
+    public BoundingBox(final PointType start, final VecType vec, final boolean _ignored) {
         this(start, start.add(vec));
     }
 
@@ -182,5 +182,10 @@ public class BoundingBox<PointType extends VectorLike<PointType, VecType>, VecTy
     @Override
     public int hashCode() {
         return Objects.hash(start, end);
+    }
+
+    @Override
+    public String toString() {
+        return "<BB:" + start + "-" + end + ">";
     }
 }

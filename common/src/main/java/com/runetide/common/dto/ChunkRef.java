@@ -1,5 +1,6 @@
 package com.runetide.common.dto;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.runetide.common.Constants;
 import com.runetide.common.domain.Vec2D;
@@ -7,6 +8,7 @@ import com.runetide.common.domain.Vec2D;
 import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -19,12 +21,14 @@ public class ChunkRef implements Ref<ChunkRef>, XZCoordinates<ChunkRef> {
             .comparing(ChunkRef::getRegionRef, RegionRef.COMPARE_BY_Z)
             .thenComparingInt(ChunkRef::getZ);
     public static final List<Comparator<ChunkRef>> COMPARATORS = ImmutableList.of(COMPARE_BY_X, COMPARE_BY_Z);
+    public static final String PATH_REGEX = RegionRef.PATH_REGEX + ":[0-9a-f]+";
+    public static final int PATH_PARTS = RegionRef.PATH_PARTS + 1;
 
     private final RegionRef regionRef;
     private final int x;
     private final int z;
 
-    public ChunkRef(RegionRef regionRef, int x, int z) {
+    ChunkRef(final RegionRef regionRef, final int x, final int z) {
         if(x < 0 || x >= Constants.CHUNKS_PER_REGION_X
                 || z < 0 || z >= Constants.CHUNKS_PER_REGION_Z)
             throw new IndexOutOfBoundsException("x/z out of range");
@@ -62,17 +66,17 @@ public class ChunkRef implements Ref<ChunkRef>, XZCoordinates<ChunkRef> {
 
     @Override
     public String toString() {
-        return regionRef + ":" + x + ":" + z;
+        return regionRef + ":" + Integer.toString(x * Constants.CHUNKS_PER_REGION_Z + z, 16);
     }
 
     public static ChunkRef valueOf(final String stringValue) {
-        final String[] parts = stringValue.split(":", 5);
-        if(parts.length != 5)
+        final String[] parts = stringValue.split(":", PATH_PARTS);
+        if(parts.length != PATH_PARTS)
             throw new IllegalArgumentException("Invalid ChunkRef: " + stringValue);
-        final String encodedRegion = parts[0] + ":" + parts[1] + ":" + parts[2];
-        final RegionRef regionRef = RegionRef.valueOf(encodedRegion);
-        final int x = Integer.parseInt(parts[3]);
-        final int z = Integer.parseInt(parts[4]);
+        final RegionRef regionRef = RegionRef.valueOf(Joiner.on(":").join(Arrays.copyOf(parts, RegionRef.PATH_PARTS)));
+        final int xz = Integer.parseInt(parts[PATH_PARTS - 1], 16);
+        final int x = xz / Constants.CHUNKS_PER_REGION_Z;
+        final int z = xz % Constants.CHUNKS_PER_REGION_Z;
         return new ChunkRef(regionRef, x, z);
     }
 

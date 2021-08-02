@@ -1,13 +1,16 @@
 package com.runetide.services.internal.account.common;
 
 import com.runetide.common.dto.UUIDRef;
+import com.runetide.common.services.cql.UUIDRefCodec;
 
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.UUID;
 
 public class AccountRef extends UUIDRef<AccountRef> {
-    public AccountRef(UUID uuidRef) {
+    public static final UUIDRefCodec<AccountRef> CODEC = new UUIDRefCodec<>(AccountRef.class, AccountRef::new);
+
+    AccountRef(UUID uuidRef) {
         super(uuidRef);
     }
 

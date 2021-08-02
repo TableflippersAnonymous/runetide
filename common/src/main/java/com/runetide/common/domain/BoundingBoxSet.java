@@ -1,5 +1,6 @@
 package com.runetide.common.domain;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterators;
 import com.runetide.common.dto.Vec;
@@ -45,7 +46,8 @@ public class BoundingBoxSet<PointType extends VectorLike<PointType, VecType>, Ve
     @Override
     public Optional<BoundingBoxSet<PointType, VecType>> intersect(final BoundingBox<PointType, VecType> other) {
         final Set<BoundingBox<PointType, VecType>> newBoxes = boxes.stream()
-                .filter(bb -> bb.intersectsWith(other))
+                .map(bb -> bb.intersect(other))
+                .flatMap(Optional::stream)
                 .collect(Collectors.toUnmodifiableSet());
         if(newBoxes.isEmpty())
             return Optional.empty();
@@ -122,6 +124,11 @@ public class BoundingBoxSet<PointType extends VectorLike<PointType, VecType>, Ve
     @Override
     public int hashCode() {
         return Objects.hash(boxes);
+    }
+
+    @Override
+    public String toString() {
+        return "<BBSet:" + Joiner.on(",").join(boxes) + ">";
     }
 
     private Set<BoundingBox<PointType, VecType>> compact(final Set<BoundingBox<PointType, VecType>> inputBoxes) {

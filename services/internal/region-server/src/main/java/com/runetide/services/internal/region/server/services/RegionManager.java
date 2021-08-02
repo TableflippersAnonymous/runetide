@@ -1,6 +1,8 @@
 package com.runetide.services.internal.region.server.services;
 
 import com.runetide.common.*;
+import com.runetide.common.dto.ChunkRef;
+import com.runetide.common.dto.ChunkSectionRef;
 import com.runetide.common.dto.RegionRef;
 import com.runetide.common.loading.SavingUniqueLoadingManager;
 import com.runetide.common.services.locking.LockManager;
@@ -97,12 +99,14 @@ public class RegionManager extends SavingUniqueLoadingManager<RegionRef, LoadedR
         return getLoadedRegion(regionRef).toClientRegionChunkData();
     }
 
-    public Chunk getChunk(final RegionRef regionRef, final int cx, final int cz) {
-        return getLoadedRegion(regionRef).getChunk(cx, cz).toClient();
+    public Chunk getChunk(final ChunkRef chunkRef) {
+        return getLoadedRegion(chunkRef.getRegionRef()).getChunk(chunkRef.getX(), chunkRef.getZ()).toClient();
     }
 
-    public ChunkSection getChunkSection(final RegionRef regionRef, final int cx, final int cz, final int sy) {
-        return getLoadedRegion(regionRef).getChunk(cx, cz).getSection(sy).toClient();
+    public ChunkSection getChunkSection(final ChunkSectionRef chunkSectionRef) {
+        return getLoadedRegion(chunkSectionRef.getRegionRef())
+                .getChunk(chunkSectionRef.getChunkRef().getX(), chunkSectionRef.getChunkRef().getZ())
+                .getSection(chunkSectionRef.getY()).toClient();
     }
 
     public synchronized void update(final RegionRef regionRef, final BulkBlockUpdateRequest bulkBlockUpdateRequest) {

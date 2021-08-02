@@ -1,20 +1,24 @@
 package com.runetide.services.internal.worldgen.server.generation;
 
 import com.runetide.common.Constants;
+import com.runetide.common.domain.BoundingBox;
 import com.runetide.common.domain.Vec2D;
-import com.runetide.common.dto.SectorRef;
+import com.runetide.common.dto.Ref;
+import com.runetide.common.dto.VectorLike;
 import org.apache.commons.math3.analysis.interpolation.UnivariateInterpolator;
 
-public class InterpolatingGenerator2D extends BaseGenerator2D {
+public class InterpolatingGenerator2D<SeedType extends Ref<SeedType>, PointType extends VectorLike<PointType, Vec2D>>
+        extends BaseGenerator2D<SeedType, PointType> {
     private final UnivariateInterpolator interpolator;
-    private final BaseGenerator2D generator;
+    private final BaseGenerator2D<SeedType, PointType> generator;
     private final Vec2D interpolateBorder;
     private final Vec2D interpolateDistance;
     private final Vec2D scale;
     private final Vec2D sectorSize;
 
-    public InterpolatingGenerator2D(final UnivariateInterpolator interpolator, final BaseGenerator2D generator,
-                                    final Vec2D interpolateBorder, final Vec2D interpolateDistance, final Vec2D scale) {
+    public InterpolatingGenerator2D(final UnivariateInterpolator interpolator,
+                                    final BaseGenerator2D<SeedType, PointType> generator, final Vec2D interpolateBorder,
+                                    final Vec2D interpolateDistance, final Vec2D scale) {
         this.interpolator = interpolator;
         this.generator = generator;
         this.interpolateBorder = interpolateBorder;
@@ -27,8 +31,8 @@ public class InterpolatingGenerator2D extends BaseGenerator2D {
     }
 
     @Override
-    protected void generateValues(final SectorRef sectorRef, final Vec2D start, final int[][] out) {
-        generator.generateValues(sectorRef, start, out);
+    protected void generateValues(final BoundingBox<PointType, Vec2D> boundingBox, final int[][] out) {
+        generator.generateValues(boundingBox, out);
 
         /* At this point, out contains the filled output from the child generator.  We need to check if any of the
          * elements of out are within interpolateBorder from the edge of sectorRef.
@@ -42,7 +46,7 @@ public class InterpolatingGenerator2D extends BaseGenerator2D {
     }
 
     @Override
-    protected long seed(final SectorRef sectorRef) {
-        return generator.seed(sectorRef);
+    protected long seed(final SeedType point) {
+        return generator.seed(point);
     }
 }

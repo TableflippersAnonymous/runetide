@@ -1,13 +1,16 @@
 package com.runetide.services.internal.entity.common.dto;
 
 import com.runetide.common.dto.UUIDRef;
+import com.runetide.common.services.cql.UUIDRefCodec;
 
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.UUID;
 
 public class EntityRef extends UUIDRef<EntityRef> {
-    public EntityRef(final UUID uuidRef) {
+    public static final UUIDRefCodec<EntityRef> CODEC = new UUIDRefCodec<>(EntityRef.class, EntityRef::new);
+
+    EntityRef(final UUID uuidRef) {
         super(uuidRef);
     }
 

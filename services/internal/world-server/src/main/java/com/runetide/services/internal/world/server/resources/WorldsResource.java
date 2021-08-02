@@ -23,7 +23,7 @@ public class WorldsResource {
     }
 
     @GET
-    @Path("/{worldId}")
+    @Path("/{worldId: " + WorldRef.PATH_REGEX + "}")
     public World getWorld(final WorldRef worldRef) {
         return manager.getWorld(worldRef);
     }

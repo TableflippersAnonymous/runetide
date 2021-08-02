@@ -16,7 +16,54 @@
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
         <environment>dev</environment>
+
+        <!-- Versions -->
         <runetide.version>0.0.1-DEVELOPMENT-SNAPSHOT</runetide.version>
+
+        <!-- Dropwizard -->
+        <dropwizard.version>1.3.8</dropwizard.version>
+        <dropwizard-guice.version>1.3.5.0</dropwizard-guice.version>
+        <dropwizard-websockets.version>1.3.2</dropwizard-websockets.version>
+
+        <!-- JSON/Serialization -->
+        <gson.version>2.8.5</gson.version>
+        <jackson.version>2.9.8</jackson.version>
+        <jjwt.version>0.9.1</jjwt.version>
+        <protobuf.version>3.6.1</protobuf.version>
+        <validation.version>2.0.1.Final</validation.version>
+
+        <!-- External Services -->
+        <awssdk.version>2.7.3</awssdk.version>
+        <curator.version>2.12.0</curator.version>
+        <datastax.version>4.13.0</datastax.version>
+        <redisson.version>3.8.1</redisson.version>
+        <sentry.version>1.7.16</sentry.version>
+        <zipkin-brave.version>4.19.3</zipkin-brave.version>
+        <zipkin-sender.version>1.1.2</zipkin-sender.version>
+
+        <!-- HTTP -->
+        <httpclient.version>4.5.6</httpclient.version>
+        <jersey-client.version>2.23.1</jersey-client.version>
+        <jersey-media.version>2.27</jersey-media.version>
+
+        <!-- Injection/Reflection/Annotations -->
+        <guice.version>4.2.2</guice.version>
+        <jetbrains.version>21.0.1</jetbrains.version>
+        <reflections.version>0.9.11</reflections.version>
+
+        <!-- Java QoL -->
+        <commons.codec.version>1.15</commons.codec.version>
+        <commons.io.version>2.11.0</commons.io.version>
+        <commons.math3.version>3.6.1</commons.math3.version>
+        <guava.version>30.1.1-jre</guava.version>
+
+        <!-- Misc -->
+        <bouncycastle.version>1.60</bouncycastle.version>
+        <logback.version>1.2.3</logback.version>
+        <xz.version>1.8</xz.version>
+
+        <!-- Testing -->
+        <testng.version>6.14.3</testng.version>
     </properties>
 
     <modules>
@@ -58,43 +105,43 @@
             <dependency>
                 <groupId>com.google.code.gson</groupId>
                 <artifactId>gson</artifactId>
-                <version>2.8.5</version>
+                <version>${gson.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-codec</groupId>
                 <artifactId>commons-codec</artifactId>
-                <version>1.11</version>
+                <version>${commons.codec.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
-                <version>2.6</version>
+                <version>${commons.io.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-math3</artifactId>
-                <version>3.6.1</version>
+                <version>${commons.math3.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>27.0.1-jre</version>
+                <version>${guava.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.testng</groupId>
                 <artifactId>testng</artifactId>
-                <version>6.14.3</version>
+                <version>${testng.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard</groupId>
                 <artifactId>dropwizard-core</artifactId>
-                <version>1.3.8</version>
+                <version>${dropwizard.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.hubspot.dropwizard</groupId>
                 <artifactId>dropwizard-guice</artifactId>
-                <version>1.3.5.0</version>
+                <version>${dropwizard-guice.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>io.dropwizard</groupId>
@@ -137,7 +184,7 @@
             <dependency>
                 <groupId>io.jsonwebtoken</groupId>
                 <artifactId>jjwt</artifactId>
-                <version>0.9.1</version>
+                <version>${jjwt.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>com.fasterxml.jackson.core</groupId>
@@ -148,94 +195,94 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
-                <version>2.9.8</version>
+                <version>${jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcprov-jdk15on</artifactId>
-                <version>1.60</version>
+                <version>${bouncycastle.version}</version>
                 <scope>compile</scope>
                 <optional>true</optional>
             </dependency>
             <dependency>
                 <groupId>com.liveperson</groupId>
                 <artifactId>dropwizard-websockets</artifactId>
-                <version>1.3.2</version>
+                <version>${dropwizard-websockets.version}</version>
             </dependency>
             <dependency>
                 <groupId>javax.validation</groupId>
                 <artifactId>validation-api</artifactId>
-                <version>2.0.1.Final</version>
+                <version>${validation.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.protobuf</groupId>
                 <artifactId>protobuf-java</artifactId>
-                <version>3.6.1</version>
+                <version>${protobuf.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.redisson</groupId>
                 <artifactId>redisson</artifactId>
-                <version>3.8.1</version>
+                <version>${redisson.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.dataformat</groupId>
                 <artifactId>jackson-dataformat-yaml</artifactId>
-                <version>2.9.8</version>
+                <version>${jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-annotations</artifactId>
-                <version>2.9.8</version>
+                <version>${jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard</groupId>
                 <artifactId>dropwizard-util</artifactId>
-                <version>1.3.8</version>
+                <version>${dropwizard.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.curator</groupId>
                 <artifactId>curator-recipes</artifactId>
-                <version>2.12.0</version>
+                <version>${curator.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.curator</groupId>
                 <artifactId>curator-x-discovery</artifactId>
-                <version>2.12.0</version>
+                <version>${curator.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.datastax.oss</groupId>
                 <artifactId>java-driver-core</artifactId>
-                <version>4.5.1</version>
+                <version>${datastax.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.datastax.oss</groupId>
                 <artifactId>java-driver-query-builder</artifactId>
-                <version>4.5.1</version>
+                <version>${datastax.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.datastax.oss</groupId>
                 <artifactId>java-driver-mapper-runtime</artifactId>
-                <version>4.5.1</version>
+                <version>${datastax.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpclient</artifactId>
-                <version>4.5.6</version>
+                <version>${httpclient.version}</version>
             </dependency>
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
-                <version>1.2.3</version>
+                <version>${logback.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.jersey.core</groupId>
                 <artifactId>jersey-client</artifactId>
-                <version>2.23.1</version>
+                <version>${jersey-client.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.jersey.media</groupId>
                 <artifactId>jersey-media-json-jackson</artifactId>
-                <version>2.27</version>
+                <version>${jersey-media.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>com.fasterxml.jackson.jaxrs</groupId>
@@ -246,32 +293,32 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.jaxrs</groupId>
                 <artifactId>jackson-jaxrs-base</artifactId>
-                <version>2.9.8</version>
+                <version>${jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.sentry</groupId>
                 <artifactId>sentry-logback</artifactId>
-                <version>1.7.16</version>
+                <version>${sentry.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.inject</groupId>
                 <artifactId>guice</artifactId>
-                <version>4.2.2</version>
+                <version>${guice.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.reflections</groupId>
                 <artifactId>reflections</artifactId>
-                <version>0.9.11</version>
+                <version>${reflections.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.zipkin.brave</groupId>
                 <artifactId>brave</artifactId>
-                <version>4.19.3</version>
+                <version>${zipkin-brave.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.zipkin.reporter</groupId>
                 <artifactId>zipkin-sender-okhttp3</artifactId>
-                <version>1.1.2</version>
+                <version>${zipkin-sender.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.runetide</groupId>
@@ -281,19 +328,19 @@
             <dependency>
                 <groupId>software.amazon.awssdk</groupId>
                 <artifactId>bom</artifactId>
-                <version>2.7.3</version>
+                <version>${awssdk.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>org.tukaani</groupId>
                 <artifactId>xz</artifactId>
-                <version>1.8</version>
+                <version>${xz.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jetbrains</groupId>
                 <artifactId>annotations</artifactId>
-                <version>21.0.1</version>
+                <version>${jetbrains.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -311,7 +358,7 @@
                         <path>
                             <groupId>com.datastax.oss</groupId>
                             <artifactId>java-driver-mapper-processor</artifactId>
-                            <version>4.5.1</version>
+                            <version>${datastax.version}</version>
                         </path>
                     </annotationProcessorPaths>
                 </configuration>

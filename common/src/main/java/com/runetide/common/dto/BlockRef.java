@@ -1,5 +1,6 @@
 package com.runetide.common.dto;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.runetide.common.Constants;
 import com.runetide.common.domain.Vec3D;
@@ -7,6 +8,7 @@ import com.runetide.common.domain.Vec3D;
 import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -23,13 +25,15 @@ public class BlockRef implements Ref<BlockRef>, XYZCoordinates<BlockRef> {
             .thenComparingInt(BlockRef::getZ);
     public static final List<Comparator<BlockRef>> COMPARATORS = ImmutableList.of(COMPARE_BY_X, COMPARE_BY_Z,
             COMPARE_BY_Y);
+    public static final String PATH_REGEX = ChunkSectionRef.PATH_REGEX + ":[0-9a-f]+";
+    public static final int PATH_PARTS = ChunkSectionRef.PATH_PARTS + 1;
 
     private final ChunkSectionRef chunkSectionRef;
     private final int x;
     private final int y;
     private final int z;
 
-    public BlockRef(ChunkSectionRef chunkSectionRef, int x, int y, int z) {
+    BlockRef(ChunkSectionRef chunkSectionRef, int x, int y, int z) {
         if(x < 0 || x >= Constants.BLOCKS_PER_CHUNK_SECTION_X
                 || y < 0 || y >= Constants.BLOCKS_PER_CHUNK_SECTION_Y
                 || z < 0 || z >= Constants.BLOCKS_PER_CHUNK_SECTION_Z)
@@ -74,19 +78,21 @@ public class BlockRef implements Ref<BlockRef>, XYZCoordinates<BlockRef> {
 
     @Override
     public String toString() {
-        return chunkSectionRef + ":" + x + ":" + y + ":" + z;
+        return chunkSectionRef + ":" + Integer.toString((x * Constants.BLOCKS_PER_CHUNK_SECTION_Y + y)
+                * Constants.BLOCKS_PER_CHUNK_SECTION_Z + z, 16);
     }
 
     public static BlockRef valueOf(final String stringValue) {
-        final String[] parts = stringValue.split(":", 9);
-        if(parts.length != 9)
+        final String[] parts = stringValue.split(":", PATH_PARTS);
+        if(parts.length != PATH_PARTS)
             throw new IllegalArgumentException("Invalid BlockRef: " + stringValue);
-        final String encodedChunkSection = parts[0] + ":" + parts[1] + ":" + parts[2] + ":" + parts[3] + ":" + parts[4]
-                + ":" + parts[5];
-        final ChunkSectionRef chunkSectionRef = ChunkSectionRef.valueOf(encodedChunkSection);
-        final int x = Integer.parseInt(parts[6]);
-        final int y = Integer.parseInt(parts[7]);
-        final int z = Integer.parseInt(parts[8]);
+        final ChunkSectionRef chunkSectionRef = ChunkSectionRef.valueOf(Joiner.on(":")
+                .join(Arrays.copyOf(parts, ChunkSectionRef.PATH_PARTS)));
+        final int xyz = Integer.parseInt(parts[PATH_PARTS - 1], 16);
+        final int xy = xyz / Constants.BLOCKS_PER_CHUNK_SECTION_Z;
+        final int x = xy / Constants.BLOCKS_PER_CHUNK_SECTION_Y;
+        final int y = xy % Constants.BLOCKS_PER_CHUNK_SECTION_Y;
+        final int z = xyz % Constants.BLOCKS_PER_CHUNK_SECTION_Z;
         return new BlockRef(chunkSectionRef, x, y, z);
     }
 

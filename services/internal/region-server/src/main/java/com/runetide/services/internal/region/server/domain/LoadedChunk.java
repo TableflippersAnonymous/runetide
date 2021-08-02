@@ -28,7 +28,7 @@ public class LoadedChunk {
     private byte[] columns = new byte[Constants.COLUMNS_PER_CHUNK * Constants.BYTES_PER_COLUMN]; // x/z; 3 bytes for: top (12 bits), biome (12 bits)
 
     public LoadedChunk(final RegionRef regionRef, final int x, final int z, final byte[] encoded) throws IOException {
-        this.ref = new ChunkRef(regionRef, x, z);
+        this.ref = regionRef.chunk(x, z);
         decode(encoded);
     }
 

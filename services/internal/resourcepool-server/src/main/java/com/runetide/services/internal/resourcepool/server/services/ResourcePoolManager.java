@@ -17,7 +17,6 @@ import org.redisson.api.RedissonClient;
 
 import javax.inject.Named;
 import java.util.Collection;
-import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -48,7 +47,7 @@ public class ResourcePoolManager extends TickingSavingUniqueLoadingManager<Resou
     }
 
     public void createResourcePool(ResourcePool resourcePool) {
-        resourcePool.setId(new ResourcePoolRef(UUID.randomUUID()));
+        resourcePool.setId(ResourcePoolRef.random());
         resourcePoolDao.save(resourcePool);
     }
 

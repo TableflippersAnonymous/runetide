@@ -1,5 +1,6 @@
 package com.runetide.common.dto;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.runetide.common.Constants;
 import com.runetide.common.domain.Vec3D;
@@ -7,6 +8,7 @@ import com.runetide.common.domain.Vec3D;
 import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -23,13 +25,15 @@ public class PositionRef implements Ref<PositionRef>, XYZCoordinates<PositionRef
             .thenComparingInt(PositionRef::getZ);
     public static final List<Comparator<PositionRef>> COMPARATORS = ImmutableList.of(COMPARE_BY_X, COMPARE_BY_Z,
             COMPARE_BY_Y);
+    public static final String PATH_REGEX = BlockRef.PATH_REGEX + ":[0-9a-f]+";
+    public static final int PATH_PARTS = BlockRef.PATH_PARTS + 1;
 
     private final BlockRef blockRef;
     private final int x;
     private final int y;
     private final int z;
 
-    public PositionRef(BlockRef blockRef, int x, int y, int z) {
+    PositionRef(BlockRef blockRef, int x, int y, int z) {
         if(x < 0 || x >= Constants.OFFSETS_PER_BLOCK_X
                 || y < 0 || y >= Constants.OFFSETS_PER_BLOCK_Y
                 || z < 0 || z >= Constants.OFFSETS_PER_BLOCK_Z)
@@ -74,20 +78,20 @@ public class PositionRef implements Ref<PositionRef>, XYZCoordinates<PositionRef
 
     @Override
     public String toString() {
-        return blockRef + "," + x + ":" + y + ":" + z;
+        return blockRef + ":" + Integer.toString((x * Constants.OFFSETS_PER_BLOCK_Y + y)
+                * Constants.OFFSETS_PER_BLOCK_Z + z, 16);
     }
 
     public static PositionRef valueOf(final String stringValue) {
-        final String[] parts = stringValue.split(",", 2);
-        if(parts.length != 2)
+        final String[] parts = stringValue.split(":", PATH_PARTS);
+        if(parts.length != PATH_PARTS)
             throw new IllegalArgumentException("Invalid PositionRef: " + stringValue);
-        final BlockRef blockRef = BlockRef.valueOf(parts[0]);
-        final String[] coordinates = parts[1].split(":", 3);
-        if(coordinates.length != 3)
-            throw new IllegalArgumentException("Invalid PositionRef: " + stringValue);
-        final int x = Integer.parseInt(coordinates[0]);
-        final int y = Integer.parseInt(coordinates[1]);
-        final int z = Integer.parseInt(coordinates[2]);
+        final BlockRef blockRef = BlockRef.valueOf(Joiner.on(":").join(Arrays.copyOf(parts, BlockRef.PATH_PARTS)));
+        final int xyz = Integer.parseInt(parts[PATH_PARTS - 1], 16);
+        final int xy = xyz / Constants.OFFSETS_PER_BLOCK_Z;
+        final int x = xy / Constants.OFFSETS_PER_BLOCK_Y;
+        final int y = xy % Constants.OFFSETS_PER_BLOCK_Y;
+        final int z = xyz % Constants.OFFSETS_PER_BLOCK_X;
         return new PositionRef(blockRef, x, y, z);
     }
 

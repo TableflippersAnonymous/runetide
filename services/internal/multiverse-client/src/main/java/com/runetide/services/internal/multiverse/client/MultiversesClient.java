@@ -7,7 +7,6 @@ import com.runetide.common.Constants;
 import com.runetide.common.services.servicediscovery.ServiceRegistry;
 import com.runetide.common.services.topics.TopicManager;
 import com.runetide.common.clients.UniqueLoadingClient;
-import com.runetide.common.services.cql.UUIDRefCodec;
 import com.runetide.services.internal.multiverse.common.MultiverseRef;
 import org.apache.curator.framework.CuratorFramework;
 import org.redisson.api.RedissonClient;
@@ -25,8 +24,6 @@ public class MultiversesClient extends UniqueLoadingClient<MultiverseRef> {
     }
 
     public static List<TypeCodec<?>> getCqlTypeCodecs() {
-        return Arrays.asList(
-                new UUIDRefCodec<>(MultiverseRef.class, MultiverseRef::new)
-        );
+        return Arrays.asList(MultiverseRef.CODEC);
     }
 }

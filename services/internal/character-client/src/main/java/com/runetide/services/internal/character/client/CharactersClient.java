@@ -8,7 +8,6 @@ import com.runetide.common.services.servicediscovery.ServiceRegistry;
 import com.runetide.common.services.topics.TopicManager;
 import com.runetide.common.clients.UniqueLoadingClient;
 import com.runetide.common.services.cql.EnumIndexedCodec;
-import com.runetide.common.services.cql.UUIDRefCodec;
 import com.runetide.services.internal.character.common.*;
 import org.apache.curator.framework.CuratorFramework;
 import org.redisson.api.RedissonClient;
@@ -34,7 +33,7 @@ public class CharactersClient extends UniqueLoadingClient<CharacterRef> {
                 new EnumIndexedCodec<>(ClassType.class),
                 new EnumIndexedCodec<>(EquipmentSlot.class),
                 new EnumIndexedCodec<>(SpecialAbilityType.class),
-                new UUIDRefCodec<>(CharacterRef.class, CharacterRef::new)
+                CharacterRef.CODEC
         );
     }
 }

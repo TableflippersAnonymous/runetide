@@ -8,7 +8,6 @@ import com.runetide.common.services.servicediscovery.ServiceRegistry;
 import com.runetide.common.services.topics.TopicManager;
 import com.runetide.common.clients.UniqueLoadingClient;
 import com.runetide.services.internal.entity.common.dto.EntityRef;
-import com.runetide.common.services.cql.UUIDRefCodec;
 import org.apache.curator.framework.CuratorFramework;
 import org.redisson.api.RedissonClient;
 
@@ -25,8 +24,6 @@ public class EntitiesClient extends UniqueLoadingClient<EntityRef> {
     }
 
     public static List<TypeCodec<?>> getCqlTypeCodecs() {
-        return Arrays.asList(
-                new UUIDRefCodec<>(EntityRef.class, EntityRef::new)
-        );
+        return Arrays.asList(EntityRef.CODEC);
     }
 }

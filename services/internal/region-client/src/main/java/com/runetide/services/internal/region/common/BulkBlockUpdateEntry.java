@@ -2,6 +2,7 @@ package com.runetide.services.internal.region.common;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.runetide.common.dto.BlockRef;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class BulkBlockUpdateEntry {
@@ -32,6 +33,11 @@ public class BulkBlockUpdateEntry {
         this.by = by;
         this.bz = bz;
         this.block = block;
+    }
+
+    public BulkBlockUpdateEntry(final BlockRef blockRef, final Block block) {
+        this(blockRef.getChunkRef().getX(), blockRef.getChunkRef().getZ(), blockRef.getChunkSectionRef().getY(),
+                blockRef.getX(), blockRef.getY(), blockRef.getZ(), block);
     }
 
     public int getCx() {

@@ -28,7 +28,7 @@ public class LoadedChunkSection {
 
     public LoadedChunkSection(final ChunkRef chunkRef, final int sectionY,
                               final DataInputStream dataInputStream) throws IOException {
-        this.ref = new ChunkSectionRef(chunkRef, sectionY);
+        this.ref = chunkRef.section(sectionY);
         dataInputStream.readFully(encodedBlocks);
         dataInputStream.readFully(encodedLight);
         final int count = dataInputStream.readUnsignedShort();
@@ -117,7 +117,7 @@ public class LoadedChunkSection {
     }
 
     public BlockRef getBlockRef(final int x, final int y, final int z) {
-        return new BlockRef(toRef(), x, y, z);
+        return ref.block(x, y, z);
     }
 
     public ChunkSectionRef toRef() {

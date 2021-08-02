@@ -1,11 +1,15 @@
 package com.runetide.common.dto;
 
+import com.runetide.common.services.cql.UUIDRefCodec;
+
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.UUID;
 
 public class InstanceRef extends UUIDRef<InstanceRef> {
-    public InstanceRef(final UUID uuidRef) {
+    public static final UUIDRefCodec<InstanceRef> CODEC = new UUIDRefCodec<>(InstanceRef.class, InstanceRef::new);
+
+    InstanceRef(final UUID uuidRef) {
         super(uuidRef);
     }
 

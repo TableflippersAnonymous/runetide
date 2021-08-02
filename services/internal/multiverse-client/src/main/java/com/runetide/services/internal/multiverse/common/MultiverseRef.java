@@ -1,13 +1,16 @@
 package com.runetide.services.internal.multiverse.common;
 
 import com.runetide.common.dto.UUIDRef;
+import com.runetide.common.services.cql.UUIDRefCodec;
 
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.UUID;
 
 public class MultiverseRef extends UUIDRef<MultiverseRef> {
-    public MultiverseRef(UUID uuidRef) {
+    public static final UUIDRefCodec<MultiverseRef> CODEC = new UUIDRefCodec<>(MultiverseRef.class, MultiverseRef::new);
+
+    MultiverseRef(UUID uuidRef) {
         super(uuidRef);
     }
 

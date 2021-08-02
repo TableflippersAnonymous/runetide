@@ -12,6 +12,7 @@ import com.runetide.services.internal.region.common.*;
 import org.apache.curator.framework.CuratorFramework;
 import org.redisson.api.RedissonClient;
 
+import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.client.Entity;
@@ -67,28 +68,29 @@ public class RegionsClient extends UniqueLoadingClient<RegionRef> {
     }
 
     @Override
-    protected WebTarget getTarget(final LoadingToken<RegionRef> regionRef) {
+    protected WebTarget getTarget(@Nonnull final LoadingToken<RegionRef> regionRef) {
         return super.getTarget(regionRef)
-                .path(regionRef.getKey().getWorldRef().toString())
-                .path(String.valueOf(regionRef.getKey().getX())).path(String.valueOf(regionRef.getKey().getZ()));
+                .path(regionRef.getKey().toString());
     }
 
     private WebTarget getTarget(final LoadingToken<RegionRef> loadingToken, final ChunkRef chunkRef) {
         if(!loadingToken.getKey().equals(chunkRef.getRegionRef()))
             throw new IllegalArgumentException("Invalid loading token");
-        return getTarget(loadingToken)
-                .path(String.valueOf(chunkRef.getX())).path(String.valueOf(chunkRef.getZ()));
+        return super.getTarget(loadingToken)
+                .path(chunkRef.toString());
     }
 
     private WebTarget getTarget(final LoadingToken<RegionRef> loadingToken, final ChunkSectionRef chunkSectionRef) {
-        return getTarget(loadingToken, chunkSectionRef.getChunkRef())
-                .path(String.valueOf(chunkSectionRef.getY()));
+        if(!loadingToken.getKey().equals(chunkSectionRef.getRegionRef()))
+            throw new IllegalArgumentException("Invalid loading token");
+        return super.getTarget(loadingToken)
+                .path(chunkSectionRef.toString());
     }
 
     private WebTarget getTarget(final LoadingToken<RegionRef> loadingToken, final BlockRef blockRef) {
-        return getTarget(loadingToken, blockRef.getChunkSectionRef())
-                .path(String.valueOf(blockRef.getX()))
-                .path(String.valueOf(blockRef.getY()))
-                .path(String.valueOf(blockRef.getZ()));
+        if(!loadingToken.getKey().equals(blockRef.getRegionRef()))
+            throw new IllegalArgumentException("Invalid loading token");
+        return super.getTarget(loadingToken)
+                .path(blockRef.toString());
     }
 }

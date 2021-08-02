@@ -1,11 +1,15 @@
 package com.runetide.common.dto;
 
+import com.runetide.common.services.cql.UUIDRefCodec;
+
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.UUID;
 
 public class DungeonRef extends UUIDRef<DungeonRef> {
-    public DungeonRef(final UUID uuidRef) {
+    public static final UUIDRefCodec<DungeonRef> CODEC = new UUIDRefCodec<>(DungeonRef.class, DungeonRef::new);
+
+    DungeonRef(final UUID uuidRef) {
         super(uuidRef);
     }
 
