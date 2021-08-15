@@ -1,8 +1,6 @@
-package com.runetide.common.domain;
+package com.runetide.common.domain.geometry;
 
 import com.google.common.collect.ImmutableList;
-import com.runetide.common.dto.Vec;
-import com.runetide.common.dto.XZCoordinates;
 
 import java.util.Comparator;
 import java.util.List;
@@ -64,6 +62,16 @@ public class Vec2D implements Vec<Vec2D>, XZCoordinates<Vec2D> {
     @Override
     public List<Vec2D> axisVectors() {
         return AXIS;
+    }
+
+    @Override
+    public long sum() {
+        return x + z;
+    }
+
+    @Override
+    public long product() {
+        return x * z;
     }
 
     public Vec2D modulo(final Vec3D vec) {

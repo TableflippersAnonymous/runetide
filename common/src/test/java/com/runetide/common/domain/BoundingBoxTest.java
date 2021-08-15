@@ -1,5 +1,9 @@
 package com.runetide.common.domain;
 
+import com.runetide.common.domain.geometry.BoundingBox;
+import com.runetide.common.domain.geometry.BoundingBoxSet;
+import com.runetide.common.domain.geometry.Vec2D;
+import com.runetide.common.domain.geometry.Vec3D;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

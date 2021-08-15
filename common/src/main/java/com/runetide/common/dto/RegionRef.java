@@ -4,7 +4,8 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.runetide.common.Constants;
-import com.runetide.common.domain.Vec2D;
+import com.runetide.common.domain.geometry.Vec2D;
+import com.runetide.common.domain.geometry.XZCoordinates;
 
 import java.io.DataInputStream;
 import java.io.DataOutput;

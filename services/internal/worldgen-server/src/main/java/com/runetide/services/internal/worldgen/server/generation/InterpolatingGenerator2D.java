@@ -1,13 +1,13 @@
 package com.runetide.services.internal.worldgen.server.generation;
 
 import com.runetide.common.Constants;
-import com.runetide.common.domain.BoundingBox;
-import com.runetide.common.domain.Vec2D;
+import com.runetide.common.domain.geometry.BoundingBox;
+import com.runetide.common.domain.geometry.Vec2D;
 import com.runetide.common.dto.Ref;
-import com.runetide.common.dto.VectorLike;
+import com.runetide.common.domain.geometry.Point;
 import org.apache.commons.math3.analysis.interpolation.UnivariateInterpolator;
 
-public class InterpolatingGenerator2D<SeedType extends Ref<SeedType>, PointType extends VectorLike<PointType, Vec2D>>
+public class InterpolatingGenerator2D<SeedType extends Ref<SeedType>, PointType extends Point<PointType, Vec2D>>
         extends BaseGenerator2D<SeedType, PointType> {
     private final UnivariateInterpolator interpolator;
     private final BaseGenerator2D<SeedType, PointType> generator;

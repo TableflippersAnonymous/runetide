@@ -1,13 +1,12 @@
-package com.runetide.common.dto;
+package com.runetide.common.domain.geometry;
 
-import com.runetide.common.domain.Vec3D;
 import org.jetbrains.annotations.Contract;
 
 import java.util.List;
 import java.util.OptionalInt;
 import java.util.stream.IntStream;
 
-public interface Vec<Self extends Vec<Self>> extends VectorLike<Self, Self> {
+public interface Vec<Self extends Vec<Self>> extends Point<Self, Self> {
     @Contract(pure = true)
     Self negate();
     @Contract(pure = true)
@@ -22,6 +21,10 @@ public interface Vec<Self extends Vec<Self>> extends VectorLike<Self, Self> {
     Self modulo(final Self other);
     @Contract(pure = true)
     List<Self> axisVectors();
+    @Contract(pure = true)
+    long sum();
+    @Contract(pure = true)
+    long product();
 
     @Contract(pure = true)
     default long crossSquareLength(final Self other) {

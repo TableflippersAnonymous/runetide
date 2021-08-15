@@ -1,7 +1,4 @@
-package com.runetide.common.domain;
-
-import com.runetide.common.dto.Vec;
-import com.runetide.common.dto.VectorLike;
+package com.runetide.common.domain.geometry;
 
 import java.util.Comparator;
 import java.util.Iterator;
@@ -11,7 +8,7 @@ import java.util.OptionalInt;
 import java.util.Set;
 import java.util.function.Function;
 
-public class BoundingBox<PointType extends VectorLike<PointType, VecType>, VecType extends Vec<VecType>>
+public class BoundingBox<PointType extends Point<PointType, VecType>, VecType extends Vec<VecType>>
         implements BoundingBoxLike<BoundingBox<PointType, VecType>, PointType, VecType> {
     private final PointType start;
     private final PointType end;
@@ -96,7 +93,7 @@ public class BoundingBox<PointType extends VectorLike<PointType, VecType>, VecTy
 
     @Override
     public BoundingBoxSet<PointType, VecType> union(final BoundingBox<PointType, VecType> other) {
-        return new BoundingBoxSet<>(Set.of(this)).union(other);
+        return new BoundingBoxSet<>(this).union(other);
     }
 
     @Override
@@ -165,7 +162,7 @@ public class BoundingBox<PointType extends VectorLike<PointType, VecType>, VecTy
     }
 
     @Override
-    public <NewPointType extends VectorLike<NewPointType, NewVecType>, NewVecType extends Vec<NewVecType>>
+    public <NewPointType extends Point<NewPointType, NewVecType>, NewVecType extends Vec<NewVecType>>
     BoundingBox<NewPointType, NewVecType> map(final Function<PointType, NewPointType> startMapper,
                                               final Function<PointType, NewPointType> endMapper) {
         return new BoundingBox<>(startMapper.apply(start), endMapper.apply(end));

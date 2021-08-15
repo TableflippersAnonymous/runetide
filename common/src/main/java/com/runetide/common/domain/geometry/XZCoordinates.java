@@ -1,6 +1,4 @@
-package com.runetide.common.dto;
-
-import com.runetide.common.domain.Vec2D;
+package com.runetide.common.domain.geometry;
 
 import java.util.Comparator;
 import java.util.Iterator;

@@ -3,7 +3,8 @@ package com.runetide.common.dto;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.runetide.common.Constants;
-import com.runetide.common.domain.Vec3D;
+import com.runetide.common.domain.geometry.Vec3D;
+import com.runetide.common.domain.geometry.XYZCoordinates;
 
 import java.io.DataInputStream;
 import java.io.DataOutput;

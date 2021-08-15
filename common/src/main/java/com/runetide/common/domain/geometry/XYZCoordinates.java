@@ -1,6 +1,5 @@
-package com.runetide.common.dto;
+package com.runetide.common.domain.geometry;
 
-import com.runetide.common.domain.Vec3D;
 import org.jetbrains.annotations.Contract;
 
 import java.util.Comparator;

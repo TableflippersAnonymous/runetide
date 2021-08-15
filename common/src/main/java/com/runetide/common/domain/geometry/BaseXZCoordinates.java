@@ -1,11 +1,11 @@
-package com.runetide.common.dto;
+package com.runetide.common.domain.geometry;
 
 import org.jetbrains.annotations.Contract;
 
 import java.util.Comparator;
 
 public interface BaseXZCoordinates<Self extends BaseXZCoordinates<Self, VecType>, VecType extends Vec<VecType>>
-        extends VectorLike<Self, VecType> {
+        extends Point<Self, VecType> {
     @Contract(pure = true)
     default Self withXFrom(final Self other) {
         return withCoordinateFrom(other, COORDINATE_X);
