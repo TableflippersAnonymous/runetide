@@ -4,7 +4,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.runetide.common.Constants;
-import com.runetide.common.domain.geometry.Vec2D;
+import com.runetide.common.domain.geometry.Vector2D;
 import com.runetide.common.domain.geometry.XZCoordinates;
 
 import java.io.DataInputStream;
@@ -14,7 +14,8 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
-public class RegionRef implements Ref<RegionRef>, XZCoordinates<RegionRef> {
+public class RegionRef implements OffsetRef<RegionRef, Vector2D, SectorRef, ChunkRef, Vector2D>,
+        XZCoordinates<RegionRef> {
     public static final Comparator<RegionRef> COMPARE_BY_X = Comparator.comparing(RegionRef::getWorldRef)
             .thenComparingLong(RegionRef::getX);
     public static final Comparator<RegionRef> COMPARE_BY_Z = Comparator.comparing(RegionRef::getWorldRef)
@@ -103,7 +104,7 @@ public class RegionRef implements Ref<RegionRef>, XZCoordinates<RegionRef> {
     }
 
     @Override
-    public RegionRef add(final Vec2D vec) {
+    public RegionRef add(final Vector2D vec) {
         return new RegionRef(worldRef, x + vec.getX(), z + vec.getZ());
     }
 
@@ -113,8 +114,8 @@ public class RegionRef implements Ref<RegionRef>, XZCoordinates<RegionRef> {
     }
 
     @Override
-    public Vec2D subtract(final RegionRef other) {
-        return new Vec2D(x - other.x, z - other.z);
+    public Vector2D subtract(final RegionRef other) {
+        return new Vector2D(x - other.x, z - other.z);
     }
 
     @Override
@@ -128,5 +129,32 @@ public class RegionRef implements Ref<RegionRef>, XZCoordinates<RegionRef> {
             return this;
         return new RegionRef(worldRef, coordinate == COORDINATE_X ? other.x : x,
                 coordinate == COORDINATE_Z ? other.z : z);
+    }
+
+    @Override
+    public ChunkRef getStart() {
+        return chunk(0, 0);
+    }
+
+    @Override
+    public ChunkRef getEnd() {
+        return chunk(Constants.CHUNKS_PER_REGION_X - 1, Constants.CHUNKS_PER_REGION_Z - 1);
+    }
+
+    @Override
+    public Vector2D offsetTo(final OffsetBasis<?> basis) {
+        if(basis.equals(this))
+            return Vector2D.IDENTITY;
+        if(basis instanceof RegionRef)
+            return subtract((RegionRef) basis).modulo(Constants.REGIONS_PER_SECTOR_VEC);
+        if(OffsetBasis.CONTAINING_COMPARATOR.compare(getClass(), basis.getClass()) < 0)
+            return getStart().offsetTo(basis).divide(Constants.CHUNKS_PER_REGION_VEC);
+        return getParent().offsetTo(basis).scale(Constants.REGIONS_PER_SECTOR_VEC)
+                .add(new Vector2D(x % Constants.REGIONS_PER_SECTOR_X, z % Constants.REGIONS_PER_SECTOR_Z));
+    }
+
+    @Override
+    public SectorRef getParent() {
+        return getSectorRef();
     }
 }

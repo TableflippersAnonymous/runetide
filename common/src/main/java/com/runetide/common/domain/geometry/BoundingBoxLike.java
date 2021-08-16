@@ -6,7 +6,7 @@ import java.util.Optional;
 import java.util.function.Function;
 
 public interface BoundingBoxLike<BBType extends BoundingBoxLike<BBType, PointType, VecType>,
-        PointType extends Point<PointType, VecType>, VecType extends Vec<VecType>>
+        PointType extends Point<PointType, VecType>, VecType extends Vector<VecType>>
         extends IterableLocus<BBType, PointType, VecType> {
 
     @Override
@@ -19,13 +19,13 @@ public interface BoundingBoxLike<BBType extends BoundingBoxLike<BBType, PointTyp
     Optional<BoundingBoxSet<PointType, VecType>> subtract(final BBType other);
 
     @Contract(pure = true)
-    <NewPointType extends Point<NewPointType, NewVecType>, NewVecType extends Vec<NewVecType>>
+    <NewPointType extends Point<NewPointType, NewVecType>, NewVecType extends Vector<NewVecType>>
     BoundingBoxLike<?, NewPointType, NewVecType> map(final Function<PointType, NewPointType> startMapper,
                                            final Function<PointType, NewPointType> endMapper);
 
 
     @Contract(pure = true)
-    default <NewPointType extends Point<NewPointType, NewVecType>, NewVecType extends Vec<NewVecType>>
+    default <NewPointType extends Point<NewPointType, NewVecType>, NewVecType extends Vector<NewVecType>>
     BoundingBoxLike<?, NewPointType, NewVecType> map(final Function<PointType, NewPointType> mapper) {
         return map(mapper, mapper);
     }

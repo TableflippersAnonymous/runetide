@@ -6,13 +6,13 @@ import java.util.List;
 import java.util.OptionalInt;
 import java.util.stream.IntStream;
 
-public interface Vec<Self extends Vec<Self>> extends Point<Self, Self> {
+public interface Vector<Self extends Vector<Self>> extends Point<Self, Self> {
     @Contract(pure = true)
     Self negate();
     @Contract(pure = true)
     Self scale(final Self other);
     @Contract(pure = true)
-    Vec3D cross(final Self other);
+    Vector3D cross(final Self other);
     @Contract(pure = true)
     long dot(final Self other);
     @Contract(pure = true)
@@ -57,5 +57,10 @@ public interface Vec<Self extends Vec<Self>> extends Point<Self, Self> {
         return IntStream.range(0, axisVectors.size())
                 .filter(i -> crossSquareLength(axisVectors.get(i)) == 0)
                 .findFirst();
+    }
+
+    @Contract(pure = true)
+    default Self transform(final SquareMatrix<?, Self> transform) {
+        return transform.multiply(getSelf());
     }
 }

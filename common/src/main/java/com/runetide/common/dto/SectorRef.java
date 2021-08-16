@@ -3,7 +3,7 @@ package com.runetide.common.dto;
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.runetide.common.Constants;
-import com.runetide.common.domain.geometry.Vec2D;
+import com.runetide.common.domain.geometry.Vector2D;
 import com.runetide.common.domain.geometry.XZCoordinates;
 
 import java.io.DataInputStream;
@@ -12,7 +12,8 @@ import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
 
-public class SectorRef implements Ref<SectorRef>, XZCoordinates<SectorRef> {
+public class SectorRef implements OffsetRef<SectorRef, Vector2D, WorldRef, RegionRef, Vector2D>,
+        XZCoordinates<SectorRef> {
     public static final Comparator<SectorRef> COMPARE_BY_X = Comparator.comparing(SectorRef::getWorldRef)
             .thenComparingLong(SectorRef::getX);
     public static final Comparator<SectorRef> COMPARE_BY_Z = Comparator.comparing(SectorRef::getWorldRef)
@@ -96,13 +97,13 @@ public class SectorRef implements Ref<SectorRef>, XZCoordinates<SectorRef> {
     }
 
     @Override
-    public SectorRef add(final Vec2D vec) {
+    public SectorRef add(final Vector2D vec) {
         return new SectorRef(worldRef, x + vec.getX(), z + vec.getZ());
     }
 
     @Override
-    public Vec2D subtract(final SectorRef other) {
-        return new Vec2D(x - other.x, z - other.z);
+    public Vector2D subtract(final SectorRef other) {
+        return new Vector2D(x - other.x, z - other.z);
     }
 
     @Override
@@ -121,5 +122,33 @@ public class SectorRef implements Ref<SectorRef>, XZCoordinates<SectorRef> {
     @Override
     public SectorRef getSelf() {
         return this;
+    }
+
+    @Override
+    public Vector2D offsetTo(final OffsetBasis<?> basis) {
+        if(basis.equals(this))
+            return Vector2D.IDENTITY;
+        if(basis instanceof SectorRef)
+            return subtract((SectorRef) basis);
+        if(OffsetBasis.CONTAINING_COMPARATOR.compare(getClass(), basis.getClass()) < 0)
+            return getStart().offsetTo(basis).divide(Constants.CHUNKS_PER_REGION_VEC);
+        if(!(basis instanceof WorldRef))
+            throw new IllegalArgumentException("Bad OffsetBasis: " + basis);
+        return new Vector2D(x, z);
+    }
+
+    @Override
+    public WorldRef getParent() {
+        return worldRef;
+    }
+
+    @Override
+    public RegionRef getStart() {
+        return region(0, 0);
+    }
+
+    @Override
+    public RegionRef getEnd() {
+        return region(Constants.REGIONS_PER_SECTOR_X - 1, Constants.REGIONS_PER_SECTOR_Z - 1);
     }
 }

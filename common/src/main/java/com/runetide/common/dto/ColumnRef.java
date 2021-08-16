@@ -3,7 +3,8 @@ package com.runetide.common.dto;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.runetide.common.Constants;
-import com.runetide.common.domain.geometry.Vec2D;
+import com.runetide.common.domain.geometry.Vector2D;
+import com.runetide.common.domain.geometry.Vector3D;
 import com.runetide.common.domain.geometry.XZCoordinates;
 
 import java.io.DataInputStream;
@@ -14,7 +15,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
-public class ColumnRef implements Ref<ColumnRef>, XZCoordinates<ColumnRef> {
+public class ColumnRef implements OffsetRef<ColumnRef, Vector2D, ChunkRef, BlockRef, Vector3D>,
+        XZCoordinates<ColumnRef> {
     public static final Comparator<ColumnRef> COMPARE_BY_X = Comparator
             .comparing(ColumnRef::getChunkRef, ChunkRef.COMPARE_BY_X)
             .thenComparingInt(ColumnRef::getX);
@@ -102,9 +104,9 @@ public class ColumnRef implements Ref<ColumnRef>, XZCoordinates<ColumnRef> {
     }
 
     @Override
-    public ColumnRef add(final Vec2D vec) {
-        final Vec2D sum = vec.add(new Vec2D(x, z));
-        final Vec2D modulo = sum.modulo(Constants.BLOCKS_PER_CHUNK_SECTION_VEC);
+    public ColumnRef add(final Vector2D vec) {
+        final Vector2D sum = vec.add(new Vector2D(x, z));
+        final Vector2D modulo = sum.modulo(Constants.BLOCKS_PER_CHUNK_SECTION_VEC);
         return chunkRef.add(sum.divide(Constants.BLOCKS_PER_CHUNK_SECTION_VEC))
                 .column((int) modulo.getX(), (int) modulo.getZ());
     }
@@ -120,10 +122,10 @@ public class ColumnRef implements Ref<ColumnRef>, XZCoordinates<ColumnRef> {
     }
 
     @Override
-    public Vec2D subtract(final ColumnRef other) {
+    public Vector2D subtract(final ColumnRef other) {
         return chunkRef.subtract(other.chunkRef)
                 .scale(Constants.COLUMNS_PER_CHUNK_VEC)
-                .add(new Vec2D(x - other.x, z - other.z));
+                .add(new Vector2D(x - other.x, z - other.z));
     }
 
     @Override
@@ -137,5 +139,32 @@ public class ColumnRef implements Ref<ColumnRef>, XZCoordinates<ColumnRef> {
             return this;
         return chunkRef.withCoordinateFrom(other.chunkRef, coordinate)
                 .column(coordinate == COORDINATE_X ? other.x : x, coordinate == COORDINATE_Z ? other.z : z);
+    }
+
+    @Override
+    public BlockRef getStart() {
+        return block(0);
+    }
+
+    @Override
+    public BlockRef getEnd() {
+        return block(Constants.BLOCKS_PER_CHUNK_Y - 1);
+    }
+
+    @Override
+    public Vector2D offsetTo(final OffsetBasis<?> basis) {
+        if(basis.equals(this))
+            return Vector2D.IDENTITY;
+        if(basis instanceof ColumnRef)
+            return subtract((ColumnRef) basis);
+        if(OffsetBasis.CONTAINING_COMPARATOR.compare(getClass(), basis.getClass()) <= 0)
+            return getStart().offsetTo(basis).toVec2D();
+        return getParent().offsetTo(basis).scale(Constants.COLUMNS_PER_CHUNK_VEC)
+                .add(new Vector2D(x, z));
+    }
+
+    @Override
+    public ChunkRef getParent() {
+        return chunkRef;
     }
 }

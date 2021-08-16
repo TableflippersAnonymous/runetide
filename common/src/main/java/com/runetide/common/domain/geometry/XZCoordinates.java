@@ -5,10 +5,10 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
-public interface XZCoordinates<Self extends XZCoordinates<Self>> extends BaseXZCoordinates<Self, Vec2D> {
+public interface XZCoordinates<Self extends XZCoordinates<Self>> extends BaseXZCoordinates<Self, Vector2D> {
     @Override
     default Self add(final long val) {
-        return add(new Vec2D(val, val));
+        return add(new Vector2D(val, val));
     }
 
     @Override
@@ -35,9 +35,9 @@ public interface XZCoordinates<Self extends XZCoordinates<Self>> extends BaseXZC
                 if(current == null)
                     current = start;
                 else if(compareByX.compare(current, end) < 0)
-                    current = current.add(Vec2D.UNIT_X);
+                    current = current.add(Vector2D.UNIT_X);
                 else
-                    current = current.withXFrom(start).add(Vec2D.UNIT_Z);
+                    current = current.withXFrom(start).add(Vector2D.UNIT_Z);
                 return current;
             }
         };

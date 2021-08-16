@@ -3,7 +3,8 @@ package com.runetide.common.dto;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.runetide.common.Constants;
-import com.runetide.common.domain.geometry.Vec2D;
+import com.runetide.common.domain.geometry.Vector2D;
+import com.runetide.common.domain.geometry.Vector3D;
 import com.runetide.common.domain.geometry.XZCoordinates;
 
 import java.io.DataInputStream;
@@ -14,7 +15,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
-public class ChunkRef implements Ref<ChunkRef>, XZCoordinates<ChunkRef> {
+public class ChunkRef implements OffsetRef<ChunkRef, Vector2D, RegionRef, ChunkSectionRef, Vector3D>,
+        XZCoordinates<ChunkRef> {
     public static final Comparator<ChunkRef> COMPARE_BY_X = Comparator
             .comparing(ChunkRef::getRegionRef, RegionRef.COMPARE_BY_X)
             .thenComparingInt(ChunkRef::getX);
@@ -118,9 +120,9 @@ public class ChunkRef implements Ref<ChunkRef>, XZCoordinates<ChunkRef> {
     }
 
     @Override
-    public ChunkRef add(final Vec2D vec) {
-        final Vec2D sum = vec.add(new Vec2D(x, z));
-        final Vec2D modulo = sum.modulo(Constants.CHUNKS_PER_REGION_VEC);
+    public ChunkRef add(final Vector2D vec) {
+        final Vector2D sum = vec.add(new Vector2D(x, z));
+        final Vector2D modulo = sum.modulo(Constants.CHUNKS_PER_REGION_VEC);
         return regionRef.add(sum.divide(Constants.CHUNKS_PER_REGION_VEC))
                 .chunk((int) modulo.getX(), (int) modulo.getZ());
     }
@@ -131,10 +133,10 @@ public class ChunkRef implements Ref<ChunkRef>, XZCoordinates<ChunkRef> {
     }
 
     @Override
-    public Vec2D subtract(final ChunkRef other) {
+    public Vector2D subtract(final ChunkRef other) {
         return regionRef.subtract(other.regionRef)
                 .scale(Constants.CHUNKS_PER_REGION_VEC)
-                .add(new Vec2D(x - other.x, z - other.z));
+                .add(new Vector2D(x - other.x, z - other.z));
     }
 
     @Override
@@ -148,5 +150,34 @@ public class ChunkRef implements Ref<ChunkRef>, XZCoordinates<ChunkRef> {
             return this;
         return regionRef.withCoordinateFrom(other.regionRef, coordinate)
                 .chunk(coordinate == COORDINATE_X ? other.x : x, coordinate == COORDINATE_Z ? other.z : z);
+    }
+
+    @Override
+    public ChunkSectionRef getStart() {
+        return section(0);
+    }
+
+    @Override
+    public ChunkSectionRef getEnd() {
+        return section(Constants.CHUNK_SECTIONS_PER_CHUNK - 1);
+    }
+
+    @Override
+    public Vector2D offsetTo(final OffsetBasis<?> basis) {
+        if(basis.equals(this))
+            return Vector2D.IDENTITY;
+        if(basis instanceof ChunkRef)
+            return subtract((ChunkRef) basis);
+        if(basis instanceof ColumnRef)
+            return column(0, 0).offsetTo(basis).divide(Constants.COLUMNS_PER_CHUNK_VEC);
+        if(OffsetBasis.CONTAINING_COMPARATOR.compare(getClass(), basis.getClass()) < 0)
+            return getStart().offsetTo(basis).divide(Constants.CHUNK_SECTIONS_PER_CHUNK_VEC).toVec2D();
+        return getParent().offsetTo(basis).scale(Constants.CHUNKS_PER_REGION_VEC)
+                .add(new Vector2D(x, z));
+    }
+
+    @Override
+    public RegionRef getParent() {
+        return regionRef;
     }
 }

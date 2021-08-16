@@ -2,15 +2,20 @@ package com.runetide.common.domain.geometry;
 
 import java.util.Objects;
 
-public class Matrix2D implements SquareMatrix<Matrix2D, Vec2D> {
-    public static final Matrix2D IDENTITY = new Matrix2D(new Vec2D(1, 0), new Vec2D(0, 1));
+public class Matrix2D implements SquareMatrix<Matrix2D, Vector2D> {
+    public static final Matrix2D IDENTITY = new Matrix2D(new Vector2D(1, 0), new Vector2D(0, 1));
 
-    private final Vec2D columnA;
-    private final Vec2D columnB;
+    private final Vector2D columnA;
+    private final Vector2D columnB;
 
-    public Matrix2D(final Vec2D columnA, final Vec2D columnB) {
+    public Matrix2D(final Vector2D columnA, final Vector2D columnB) {
         this.columnA = Objects.requireNonNull(columnA);
         this.columnB = Objects.requireNonNull(columnB);
+    }
+
+    @Override
+    public Matrix2D getSelf() {
+        return this;
     }
 
     @Override
@@ -25,13 +30,13 @@ public class Matrix2D implements SquareMatrix<Matrix2D, Vec2D> {
 
     @Override
     public Matrix2D multiply(final long scalar) {
-        final Vec2D scaleVec = new Vec2D(scalar, scalar);
+        final Vector2D scaleVec = new Vector2D(scalar, scalar);
         return new Matrix2D(columnA.scale(scaleVec), columnB.scale(scaleVec));
     }
 
     @Override
     public Matrix2D transpose() {
-        return new Matrix2D(new Vec2D(columnA.getX(), columnB.getX()), new Vec2D(columnA.getZ(), columnB.getZ()));
+        return new Matrix2D(new Vector2D(columnA.getX(), columnB.getX()), new Vector2D(columnA.getZ(), columnB.getZ()));
     }
 
     @Override
@@ -46,19 +51,19 @@ public class Matrix2D implements SquareMatrix<Matrix2D, Vec2D> {
     }
 
     @Override
-    public Vec2D multiply(final Vec2D other) {
+    public Vector2D multiply(final Vector2D other) {
         final Matrix2D transposed = transpose();
-        return new Vec2D(other.dot(transposed.columnA), other.dot(transposed.columnB));
+        return new Vector2D(other.dot(transposed.columnA), other.dot(transposed.columnB));
     }
 
     @Override
-    public Vec2D diagonalVector() {
-        return new Vec2D(columnA.getX(), columnB.getZ());
+    public Vector2D diagonalVector() {
+        return new Vector2D(columnA.getX(), columnB.getZ());
     }
 
     @Override
-    public Vec2D antidiagonalVector() {
-        return new Vec2D(columnB.getX(), columnA.getZ());
+    public Vector2D antidiagonalVector() {
+        return new Vector2D(columnB.getX(), columnA.getZ());
     }
 
     @Override
@@ -68,7 +73,7 @@ public class Matrix2D implements SquareMatrix<Matrix2D, Vec2D> {
 
     @Override
     public Matrix2D upperTriangularize() {
-        return new Matrix2D(new Vec2D(columnA.getX(), 0), columnB);
+        return new Matrix2D(new Vector2D(columnA.getX(), 0), columnB);
     }
 
     @Override
@@ -78,7 +83,7 @@ public class Matrix2D implements SquareMatrix<Matrix2D, Vec2D> {
 
     @Override
     public Matrix2D lowerTriangularize() {
-        return new Matrix2D(columnA, new Vec2D(0, columnB.getZ()));
+        return new Matrix2D(columnA, new Vector2D(0, columnB.getZ()));
     }
 
     @Override

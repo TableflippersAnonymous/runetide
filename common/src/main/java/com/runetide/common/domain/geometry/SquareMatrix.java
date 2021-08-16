@@ -2,7 +2,7 @@ package com.runetide.common.domain.geometry;
 
 import org.jetbrains.annotations.Contract;
 
-public interface SquareMatrix<MatrixType extends SquareMatrix<MatrixType, VecType>, VecType extends Vec<VecType>>
+public interface SquareMatrix<MatrixType extends SquareMatrix<MatrixType, VecType>, VecType extends Vector<VecType>>
         extends Matrix<MatrixType> {
     @Contract(pure = true)
     VecType multiply(final VecType other);
@@ -63,5 +63,10 @@ public interface SquareMatrix<MatrixType extends SquareMatrix<MatrixType, VecTyp
     @Contract(pure = true)
     default boolean isNormal() {
         return isSymmetric() || isSkewSymmetric() || isOrthogonal();
+    }
+
+    @Contract(pure = true)
+    default MatrixType transform(final MatrixType other) {
+        return other.multiply(getSelf());
     }
 }

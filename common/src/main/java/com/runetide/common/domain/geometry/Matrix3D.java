@@ -2,18 +2,23 @@ package com.runetide.common.domain.geometry;
 
 import java.util.Objects;
 
-public class Matrix3D implements SquareMatrix<Matrix3D, Vec3D> {
-    public static final Matrix3D IDENTITY = new Matrix3D(new Vec3D(1, 0, 0), new Vec3D(0, 1, 0),
-            new Vec3D(0, 0, 1));
+public class Matrix3D implements SquareMatrix<Matrix3D, Vector3D> {
+    public static final Matrix3D IDENTITY = new Matrix3D(new Vector3D(1, 0, 0), new Vector3D(0, 1, 0),
+            new Vector3D(0, 0, 1));
 
-    private final Vec3D columnA;
-    private final Vec3D columnB;
-    private final Vec3D columnC;
+    private final Vector3D columnA;
+    private final Vector3D columnB;
+    private final Vector3D columnC;
 
-    public Matrix3D(final Vec3D columnA, final Vec3D columnB, final Vec3D columnC) {
+    public Matrix3D(final Vector3D columnA, final Vector3D columnB, final Vector3D columnC) {
         this.columnA = Objects.requireNonNull(columnA);
         this.columnB = Objects.requireNonNull(columnB);
         this.columnC = Objects.requireNonNull(columnC);
+    }
+
+    @Override
+    public Matrix3D getSelf() {
+        return this;
     }
 
     @Override
@@ -28,15 +33,15 @@ public class Matrix3D implements SquareMatrix<Matrix3D, Vec3D> {
 
     @Override
     public Matrix3D multiply(final long scalar) {
-        final Vec3D scaleVec = new Vec3D(scalar, scalar, scalar);
+        final Vector3D scaleVec = new Vector3D(scalar, scalar, scalar);
         return new Matrix3D(columnA.scale(scaleVec), columnB.scale(scaleVec), columnC.scale(scaleVec));
     }
 
     @Override
     public Matrix3D transpose() {
-        return new Matrix3D(new Vec3D(columnA.getX(), columnB.getX(), columnC.getX()),
-                new Vec3D(columnA.getY(), columnB.getY(), columnC.getY()),
-                new Vec3D(columnA.getZ(), columnB.getZ(), columnC.getZ()));
+        return new Matrix3D(new Vector3D(columnA.getX(), columnB.getX(), columnC.getX()),
+                new Vector3D(columnA.getY(), columnB.getY(), columnC.getY()),
+                new Vector3D(columnA.getZ(), columnB.getZ(), columnC.getZ()));
     }
 
     @Override
@@ -50,19 +55,19 @@ public class Matrix3D implements SquareMatrix<Matrix3D, Vec3D> {
     }
 
     @Override
-    public Vec3D multiply(final Vec3D other) {
+    public Vector3D multiply(final Vector3D other) {
         final Matrix3D transposed = transpose();
-        return new Vec3D(other.dot(transposed.columnA), other.dot(transposed.columnB), other.dot(transposed.columnC));
+        return new Vector3D(other.dot(transposed.columnA), other.dot(transposed.columnB), other.dot(transposed.columnC));
     }
 
     @Override
-    public Vec3D diagonalVector() {
-        return new Vec3D(columnA.getX(), columnB.getY(), columnC.getZ());
+    public Vector3D diagonalVector() {
+        return new Vector3D(columnA.getX(), columnB.getY(), columnC.getZ());
     }
 
     @Override
-    public Vec3D antidiagonalVector() {
-        return new Vec3D(columnC.getX(), columnB.getY(), columnA.getZ());
+    public Vector3D antidiagonalVector() {
+        return new Vector3D(columnC.getX(), columnB.getY(), columnA.getZ());
     }
 
     @Override
@@ -72,7 +77,7 @@ public class Matrix3D implements SquareMatrix<Matrix3D, Vec3D> {
 
     @Override
     public Matrix3D upperTriangularize() {
-        return new Matrix3D(new Vec3D(columnA.getX(), 0, 0), new Vec3D(columnB.getX(), columnB.getY(), 0),
+        return new Matrix3D(new Vector3D(columnA.getX(), 0, 0), new Vector3D(columnB.getX(), columnB.getY(), 0),
                 columnC);
     }
 
@@ -83,8 +88,8 @@ public class Matrix3D implements SquareMatrix<Matrix3D, Vec3D> {
 
     @Override
     public Matrix3D lowerTriangularize() {
-        return new Matrix3D(columnA, new Vec3D(0, columnB.getY(), columnB.getZ()),
-                new Vec3D(0, 0, columnC.getZ()));
+        return new Matrix3D(columnA, new Vector3D(0, columnB.getY(), columnB.getZ()),
+                new Vector3D(0, 0, columnC.getZ()));
     }
 
     @Override
@@ -106,7 +111,8 @@ public class Matrix3D implements SquareMatrix<Matrix3D, Vec3D> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         final Matrix3D matrix3D = (Matrix3D) o;
-        return Objects.equals(columnA, matrix3D.columnA) && Objects.equals(columnB, matrix3D.columnB) && Objects.equals(columnC, matrix3D.columnC);
+        return Objects.equals(columnA, matrix3D.columnA) && Objects.equals(columnB, matrix3D.columnB)
+                && Objects.equals(columnC, matrix3D.columnC);
     }
 
     @Override

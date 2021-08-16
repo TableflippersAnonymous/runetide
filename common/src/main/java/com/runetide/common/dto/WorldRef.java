@@ -6,7 +6,7 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.UUID;
 
-public class WorldRef extends UUIDRef<WorldRef> {
+public class WorldRef extends UUIDRef<WorldRef> implements OffsetBasis<WorldRef> {
     public static final UUIDRefCodec<WorldRef> CODEC = new UUIDRefCodec<>(WorldRef.class, WorldRef::new);
     public static final String PATH_REGEX = UUIDRef.PATH_REGEX;
     public static final int PATH_PARTS = UUIDRef.PATH_PARTS;

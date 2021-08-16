@@ -7,7 +7,7 @@ import java.util.Iterator;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
 
-public interface Point<Self extends Point<Self, VecType>, VecType extends Vec<VecType>> {
+public interface Point<Self extends Point<Self, VecType>, VecType extends Vector<VecType>> {
     int COORDINATE_X = 0;
     int COORDINATE_Z = 1;
     int COORDINATE_Y = 2;

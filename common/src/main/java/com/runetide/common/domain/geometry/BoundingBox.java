@@ -5,10 +5,9 @@ import java.util.Iterator;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalInt;
-import java.util.Set;
 import java.util.function.Function;
 
-public class BoundingBox<PointType extends Point<PointType, VecType>, VecType extends Vec<VecType>>
+public class BoundingBox<PointType extends Point<PointType, VecType>, VecType extends Vector<VecType>>
         implements BoundingBoxLike<BoundingBox<PointType, VecType>, PointType, VecType> {
     private final PointType start;
     private final PointType end;
@@ -162,7 +161,7 @@ public class BoundingBox<PointType extends Point<PointType, VecType>, VecType ex
     }
 
     @Override
-    public <NewPointType extends Point<NewPointType, NewVecType>, NewVecType extends Vec<NewVecType>>
+    public <NewPointType extends Point<NewPointType, NewVecType>, NewVecType extends Vector<NewVecType>>
     BoundingBox<NewPointType, NewVecType> map(final Function<PointType, NewPointType> startMapper,
                                               final Function<PointType, NewPointType> endMapper) {
         return new BoundingBox<>(startMapper.apply(start), endMapper.apply(end));

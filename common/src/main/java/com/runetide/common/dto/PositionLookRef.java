@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Objects;
 
-public class PositionLookRef implements Ref<PositionLookRef> {
+public class PositionLookRef implements OffsetBasis<PositionLookRef> {
     public static final String PATH_REGEX = PositionRef.PATH_REGEX + ":[0-9a-z]+:[0-9a-z]+";
     public static final int PATH_PARTS = PositionRef.PATH_PARTS + 2;
 

@@ -4,7 +4,7 @@ import org.jetbrains.annotations.Contract;
 
 import java.util.Comparator;
 
-public interface BaseXZCoordinates<Self extends BaseXZCoordinates<Self, VecType>, VecType extends Vec<VecType>>
+public interface BaseXZCoordinates<Self extends BaseXZCoordinates<Self, VecType>, VecType extends Vector<VecType>>
         extends Point<Self, VecType> {
     @Contract(pure = true)
     default Self withXFrom(final Self other) {

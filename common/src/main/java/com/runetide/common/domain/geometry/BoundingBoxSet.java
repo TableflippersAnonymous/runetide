@@ -12,7 +12,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class BoundingBoxSet<PointType extends Point<PointType, VecType>, VecType extends Vec<VecType>>
+public class BoundingBoxSet<PointType extends Point<PointType, VecType>, VecType extends Vector<VecType>>
         implements BoundingBoxLike<BoundingBoxSet<PointType, VecType>, PointType, VecType> {
     private final Set<BoundingBox<PointType, VecType>> boxes;
 
@@ -93,7 +93,7 @@ public class BoundingBoxSet<PointType extends Point<PointType, VecType>, VecType
                 .collect(Collectors.toUnmodifiableSet()));
     }
 
-    public static <PointType extends Point<PointType, VecType>, VecType extends Vec<VecType>>
+    public static <PointType extends Point<PointType, VecType>, VecType extends Vector<VecType>>
     Optional<BoundingBoxSet<PointType, VecType>> of(final Set<BoundingBox<PointType, VecType>> boxes) {
         if(boxes.isEmpty())
             return Optional.empty();
@@ -106,7 +106,7 @@ public class BoundingBoxSet<PointType extends Point<PointType, VecType>, VecType
     }
 
     @Override
-    public <NewPointType extends Point<NewPointType, NewVecType>, NewVecType extends Vec<NewVecType>>
+    public <NewPointType extends Point<NewPointType, NewVecType>, NewVecType extends Vector<NewVecType>>
     BoundingBoxSet<NewPointType, NewVecType> map(final Function<PointType, NewPointType> startMapper,
                                                  final Function<PointType, NewPointType> endMapper) {
         return new BoundingBoxSet<>(boxes.stream().map(e -> e.map(startMapper, endMapper))

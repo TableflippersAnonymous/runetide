@@ -3,6 +3,8 @@ package com.runetide.common.domain.geometry;
 import org.jetbrains.annotations.Contract;
 
 public interface Matrix<MatrixType extends Matrix<MatrixType>> {
+    @Contract(value = "-> this", pure = true)
+    MatrixType getSelf();
     @Contract(pure = true)
     MatrixType add(final MatrixType other);
     @Contract(pure = true)

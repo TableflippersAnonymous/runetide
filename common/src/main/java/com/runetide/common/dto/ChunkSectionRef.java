@@ -3,7 +3,8 @@ package com.runetide.common.dto;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.runetide.common.Constants;
-import com.runetide.common.domain.geometry.Vec3D;
+import com.runetide.common.domain.geometry.Vector2D;
+import com.runetide.common.domain.geometry.Vector3D;
 import com.runetide.common.domain.geometry.XYZCoordinates;
 
 import java.io.DataInputStream;
@@ -14,7 +15,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
-public class ChunkSectionRef implements Ref<ChunkSectionRef>, XYZCoordinates<ChunkSectionRef> {
+public class ChunkSectionRef implements OffsetRef<ChunkSectionRef, Vector3D, ChunkRef, BlockRef, Vector3D>,
+        XYZCoordinates<ChunkSectionRef> {
     public static final Comparator<ChunkSectionRef> COMPARE_BY_X = Comparator
             .comparing(ChunkSectionRef::getChunkRef, ChunkRef.COMPARE_BY_X);
     public static final Comparator<ChunkSectionRef> COMPARE_BY_Y = Comparator
@@ -107,9 +109,9 @@ public class ChunkSectionRef implements Ref<ChunkSectionRef>, XYZCoordinates<Chu
     }
 
     @Override
-    public ChunkSectionRef add(final Vec3D vec) {
-        final Vec3D sum = vec.add(new Vec3D(0, y, 0));
-        final Vec3D modulo = sum.modulo(Constants.CHUNK_SECTIONS_PER_CHUNK_VEC);
+    public ChunkSectionRef add(final Vector3D vec) {
+        final Vector3D sum = vec.add(new Vector3D(0, y, 0));
+        final Vector3D modulo = sum.modulo(Constants.CHUNK_SECTIONS_PER_CHUNK_VEC);
         return chunkRef.add(sum.divide(Constants.CHUNK_SECTIONS_PER_CHUNK_VEC).toVec2D())
                 .section((int) modulo.getY());
     }
@@ -120,10 +122,10 @@ public class ChunkSectionRef implements Ref<ChunkSectionRef>, XYZCoordinates<Chu
     }
 
     @Override
-    public Vec3D subtract(final ChunkSectionRef other) {
+    public Vector3D subtract(final ChunkSectionRef other) {
         return chunkRef.subtract(other.chunkRef)
                 .scale(Constants.CHUNK_SECTIONS_PER_CHUNK_VEC)
-                .add(new Vec3D(0, y - other.y, 0));
+                .add(new Vector3D(0, y - other.y, 0));
     }
 
     @Override
@@ -137,5 +139,33 @@ public class ChunkSectionRef implements Ref<ChunkSectionRef>, XYZCoordinates<Chu
             return this;
         return chunkRef.withCoordinateFrom(other.chunkRef, coordinate)
                 .section(coordinate == COORDINATE_Y ? other.y : y);
+    }
+
+    @Override
+    public BlockRef getStart() {
+        return block(0, 0, 0);
+    }
+
+    @Override
+    public BlockRef getEnd() {
+        return block(Constants.BLOCKS_PER_CHUNK_SECTION_X - 1, Constants.BLOCKS_PER_CHUNK_SECTION_Y - 1,
+                Constants.BLOCKS_PER_CHUNK_SECTION_Z - 1);
+    }
+
+    @Override
+    public Vector3D offsetTo(final OffsetBasis<?> basis) {
+        if(basis.equals(this))
+            return Vector3D.IDENTITY;
+        if(basis instanceof ChunkSectionRef)
+            return subtract((ChunkSectionRef) basis);
+        if(OffsetBasis.CONTAINING_COMPARATOR.compare(getClass(), basis.getClass()) < 0)
+            return getStart().offsetTo(basis).divide(Constants.BLOCKS_PER_CHUNK_SECTION_VEC);
+        return getParent().offsetTo(basis).scale(Constants.CHUNK_SECTIONS_PER_CHUNK_VEC)
+                .toVec3D(y);
+    }
+
+    @Override
+    public ChunkRef getParent() {
+        return chunkRef;
     }
 }

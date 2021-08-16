@@ -3,7 +3,7 @@ package com.runetide.common.dto;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.runetide.common.Constants;
-import com.runetide.common.domain.geometry.Vec3D;
+import com.runetide.common.domain.geometry.Vector3D;
 import com.runetide.common.domain.geometry.XYZCoordinates;
 
 import java.io.DataInputStream;
@@ -14,7 +14,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
-public class PositionRef implements Ref<PositionRef>, XYZCoordinates<PositionRef> {
+public class PositionRef implements OffsetRef<PositionRef, Vector3D, BlockRef, PositionRef, Vector3D>,
+        XYZCoordinates<PositionRef> {
     public static final Comparator<PositionRef> COMPARE_BY_X = Comparator
             .comparing(PositionRef::getBlockRef, BlockRef.COMPARE_BY_X)
             .thenComparingInt(PositionRef::getX);
@@ -122,18 +123,18 @@ public class PositionRef implements Ref<PositionRef>, XYZCoordinates<PositionRef
     }
 
     @Override
-    public PositionRef add(final Vec3D other) {
-        final Vec3D sum = other.add(new Vec3D(x, y, z));
-        final Vec3D modulo = sum.modulo(Constants.OFFSETS_PER_BLOCK_VEC);
+    public PositionRef add(final Vector3D other) {
+        final Vector3D sum = other.add(new Vector3D(x, y, z));
+        final Vector3D modulo = sum.modulo(Constants.OFFSETS_PER_BLOCK_VEC);
         return blockRef.add(sum.divide(Constants.OFFSETS_PER_BLOCK_VEC))
                 .position((int) modulo.getX(), (int) modulo.getY(), (int) modulo.getZ());
     }
 
     @Override
-    public Vec3D subtract(final PositionRef other) {
+    public Vector3D subtract(final PositionRef other) {
         return blockRef.subtract(other.blockRef)
                 .scale(Constants.OFFSETS_PER_BLOCK_VEC)
-                .add(new Vec3D(x - other.x, y - other.y, z - other.z));
+                .add(new Vector3D(x - other.x, y - other.y, z - other.z));
     }
 
     @Override
@@ -148,5 +149,34 @@ public class PositionRef implements Ref<PositionRef>, XYZCoordinates<PositionRef
         return blockRef.withCoordinateFrom(other.blockRef, coordinate)
                 .position(coordinate == COORDINATE_X ? other.x : x, coordinate == COORDINATE_Y ? other.y : y,
                         coordinate == COORDINATE_Z ? other.z : z);
+    }
+
+    @Override
+    public PositionRef getStart() {
+        return this;
+    }
+
+    @Override
+    public PositionRef getEnd() {
+        return this;
+    }
+
+    @Override
+    public Vector3D offsetTo(final OffsetBasis<?> basis) {
+        if(basis.equals(this))
+            return Vector3D.IDENTITY;
+        if(basis instanceof PositionRef)
+            return subtract((PositionRef) basis);
+        if(basis instanceof PositionLookRef)
+            return subtract(((PositionLookRef) basis).getPositionRef());
+        if(OffsetBasis.CONTAINING_COMPARATOR.compare(getClass(), basis.getClass()) < 0)
+            throw new IllegalArgumentException("Bad OffsetBasis: " + basis);
+        return getParent().offsetTo(basis).scale(Constants.OFFSETS_PER_BLOCK_VEC)
+                .add(new Vector3D(x, y, z));
+    }
+
+    @Override
+    public BlockRef getParent() {
+        return null;
     }
 }
