@@ -5,7 +5,7 @@ import org.jetbrains.annotations.Contract;
 
 import java.util.Comparator;
 
-public interface OffsetBasis<Self extends OffsetBasis<Self>> extends Ref<Self> {
+public interface ContainerBase<Self extends ContainerBase<Self>> extends Ref<Self> {
     class Initialize {
         private static Comparator<Class<?>> initialize() {
             final FixedOrderComparator<Class<?>> fixedOrderComparator = new FixedOrderComparator<>(
@@ -22,7 +22,7 @@ public interface OffsetBasis<Self extends OffsetBasis<Self>> extends Ref<Self> {
     Comparator<Class<?>> CONTAINING_COMPARATOR = Initialize.initialize();
 
     @Contract(pure = true)
-    default <T extends OffsetBasis<T>> T getOffsetBasis(final Class<T> clazz) {
+    default <T extends ContainerBase<T>> T getOffsetBasis(final Class<T> clazz) {
         if(clazz.isInstance(this))
             return clazz.cast(this);
         throw new IllegalArgumentException("Invalid OffsetBasis: " + clazz);

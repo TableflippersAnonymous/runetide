@@ -3,8 +3,8 @@ package com.runetide.common.dto;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.runetide.common.Constants;
-import com.runetide.common.domain.geometry.Vector2D;
-import com.runetide.common.domain.geometry.Vector3D;
+import com.runetide.common.domain.geometry.Vector2L;
+import com.runetide.common.domain.geometry.Vector3L;
 import com.runetide.common.domain.geometry.XZCoordinates;
 
 import java.io.DataInputStream;
@@ -15,7 +15,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
-public class ColumnRef implements OffsetRef<ColumnRef, Vector2D, ChunkRef, BlockRef, Vector3D>,
+public class ColumnRef implements ContainerRef<ColumnRef, Vector2L, ChunkRef, BlockRef, Vector3L>,
         XZCoordinates<ColumnRef> {
     public static final Comparator<ColumnRef> COMPARE_BY_X = Comparator
             .comparing(ColumnRef::getChunkRef, ChunkRef.COMPARE_BY_X)
@@ -104,11 +104,11 @@ public class ColumnRef implements OffsetRef<ColumnRef, Vector2D, ChunkRef, Block
     }
 
     @Override
-    public ColumnRef add(final Vector2D vec) {
-        final Vector2D sum = vec.add(new Vector2D(x, z));
-        final Vector2D modulo = sum.modulo(Constants.BLOCKS_PER_CHUNK_SECTION_VEC);
+    public ColumnRef add(final Vector2L vec) {
+        final Vector2L sum = vec.add(new Vector2L(x, z));
+        final Vector2L modulo = sum.modulo(Constants.BLOCKS_PER_CHUNK_SECTION_VEC);
         return chunkRef.add(sum.divide(Constants.BLOCKS_PER_CHUNK_SECTION_VEC))
-                .column((int) modulo.getX(), (int) modulo.getZ());
+                .column(modulo.getX().intValue(), modulo.getZ().intValue());
     }
 
     @Override
@@ -122,10 +122,10 @@ public class ColumnRef implements OffsetRef<ColumnRef, Vector2D, ChunkRef, Block
     }
 
     @Override
-    public Vector2D subtract(final ColumnRef other) {
+    public Vector2L subtract(final ColumnRef other) {
         return chunkRef.subtract(other.chunkRef)
                 .scale(Constants.COLUMNS_PER_CHUNK_VEC)
-                .add(new Vector2D(x - other.x, z - other.z));
+                .add(new Vector2L(x - other.x, z - other.z));
     }
 
     @Override
@@ -152,15 +152,15 @@ public class ColumnRef implements OffsetRef<ColumnRef, Vector2D, ChunkRef, Block
     }
 
     @Override
-    public Vector2D offsetTo(final OffsetBasis<?> basis) {
+    public Vector2L offsetTo(final ContainerBase<?> basis) {
         if(basis.equals(this))
-            return Vector2D.IDENTITY;
+            return Vector2L.IDENTITY;
         if(basis instanceof ColumnRef)
             return subtract((ColumnRef) basis);
-        if(OffsetBasis.CONTAINING_COMPARATOR.compare(getClass(), basis.getClass()) <= 0)
+        if(ContainerBase.CONTAINING_COMPARATOR.compare(getClass(), basis.getClass()) <= 0)
             return getStart().offsetTo(basis).toVec2D();
         return getParent().offsetTo(basis).scale(Constants.COLUMNS_PER_CHUNK_VEC)
-                .add(new Vector2D(x, z));
+                .add(new Vector2L(x, z));
     }
 
     @Override

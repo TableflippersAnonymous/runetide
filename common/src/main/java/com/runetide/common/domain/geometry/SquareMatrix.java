@@ -2,8 +2,9 @@ package com.runetide.common.domain.geometry;
 
 import org.jetbrains.annotations.Contract;
 
-public interface SquareMatrix<MatrixType extends SquareMatrix<MatrixType, VecType>, VecType extends Vector<VecType>>
-        extends Matrix<MatrixType> {
+public interface SquareMatrix<MatrixType extends SquareMatrix<MatrixType, VecType, NumberType>,
+        VecType extends Vector<VecType, NumberType>, NumberType extends Number>
+        extends Matrix<MatrixType, NumberType> {
     @Contract(pure = true)
     VecType multiply(final VecType other);
 
@@ -24,7 +25,7 @@ public interface SquareMatrix<MatrixType extends SquareMatrix<MatrixType, VecTyp
     @Contract(pure = true)
     MatrixType identity();
     @Contract(pure = true)
-    long determinant();
+    NumberType determinant();
 
     @Contract(pure = true)
     default boolean isDiagonal() {
@@ -36,7 +37,7 @@ public interface SquareMatrix<MatrixType extends SquareMatrix<MatrixType, VecTyp
     }
 
     @Contract(pure = true)
-    default long trace() {
+    default NumberType trace() {
         return diagonalVector().sum();
     }
 
@@ -47,7 +48,7 @@ public interface SquareMatrix<MatrixType extends SquareMatrix<MatrixType, VecTyp
 
     @Contract(pure = true)
     default boolean isSkewSymmetric() {
-        return equals(transpose().multiply(-1));
+        return equals(transpose().negate());
     }
 
     @Contract(pure = true)
@@ -57,7 +58,7 @@ public interface SquareMatrix<MatrixType extends SquareMatrix<MatrixType, VecTyp
 
     @Contract(pure = true)
     default boolean isSingular() {
-        return determinant() == 0;
+        return determinant().equals(0);
     }
 
     @Contract(pure = true)

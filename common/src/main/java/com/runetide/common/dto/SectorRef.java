@@ -3,7 +3,7 @@ package com.runetide.common.dto;
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.runetide.common.Constants;
-import com.runetide.common.domain.geometry.Vector2D;
+import com.runetide.common.domain.geometry.Vector2L;
 import com.runetide.common.domain.geometry.XZCoordinates;
 
 import java.io.DataInputStream;
@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
 
-public class SectorRef implements OffsetRef<SectorRef, Vector2D, WorldRef, RegionRef, Vector2D>,
+public class SectorRef implements ContainerRef<SectorRef, Vector2L, WorldRef, RegionRef, Vector2L>,
         XZCoordinates<SectorRef> {
     public static final Comparator<SectorRef> COMPARE_BY_X = Comparator.comparing(SectorRef::getWorldRef)
             .thenComparingLong(SectorRef::getX);
@@ -97,13 +97,13 @@ public class SectorRef implements OffsetRef<SectorRef, Vector2D, WorldRef, Regio
     }
 
     @Override
-    public SectorRef add(final Vector2D vec) {
+    public SectorRef add(final Vector2L vec) {
         return new SectorRef(worldRef, x + vec.getX(), z + vec.getZ());
     }
 
     @Override
-    public Vector2D subtract(final SectorRef other) {
-        return new Vector2D(x - other.x, z - other.z);
+    public Vector2L subtract(final SectorRef other) {
+        return new Vector2L(x - other.x, z - other.z);
     }
 
     @Override
@@ -125,16 +125,16 @@ public class SectorRef implements OffsetRef<SectorRef, Vector2D, WorldRef, Regio
     }
 
     @Override
-    public Vector2D offsetTo(final OffsetBasis<?> basis) {
+    public Vector2L offsetTo(final ContainerBase<?> basis) {
         if(basis.equals(this))
-            return Vector2D.IDENTITY;
+            return Vector2L.IDENTITY;
         if(basis instanceof SectorRef)
             return subtract((SectorRef) basis);
-        if(OffsetBasis.CONTAINING_COMPARATOR.compare(getClass(), basis.getClass()) < 0)
+        if(basis instanceof WorldRef)
+            return new Vector2L(x, z);
+        if(ContainerBase.CONTAINING_COMPARATOR.compare(getClass(), basis.getClass()) < 0)
             return getStart().offsetTo(basis).divide(Constants.CHUNKS_PER_REGION_VEC);
-        if(!(basis instanceof WorldRef))
-            throw new IllegalArgumentException("Bad OffsetBasis: " + basis);
-        return new Vector2D(x, z);
+        throw new IllegalArgumentException("Bad OffsetBasis: " + basis);
     }
 
     @Override

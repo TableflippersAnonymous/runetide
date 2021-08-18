@@ -3,7 +3,7 @@ package com.runetide.common.dto;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.runetide.common.Constants;
-import com.runetide.common.domain.geometry.Vector3D;
+import com.runetide.common.domain.geometry.Vector3L;
 import com.runetide.common.domain.geometry.XYZCoordinates;
 
 import java.io.DataInputStream;
@@ -14,7 +14,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
-public class BlockRef implements OffsetRef<BlockRef, Vector3D, ChunkSectionRef, PositionRef, Vector3D>,
+public class BlockRef implements ContainerRef<BlockRef, Vector3L, ChunkSectionRef, PositionRef, Vector3L>,
         XYZCoordinates<BlockRef> {
     public static final Comparator<BlockRef> COMPARE_BY_X = Comparator
             .comparing(BlockRef::getChunkSectionRef, ChunkSectionRef.COMPARE_BY_X)
@@ -119,11 +119,11 @@ public class BlockRef implements OffsetRef<BlockRef, Vector3D, ChunkSectionRef, 
     }
 
     @Override
-    public BlockRef add(final Vector3D vec) {
-        final Vector3D sum = vec.add(new Vector3D(x, y, z));
-        final Vector3D modulo = sum.modulo(Constants.BLOCKS_PER_CHUNK_SECTION_VEC);
+    public BlockRef add(final Vector3L vec) {
+        final Vector3L sum = vec.add(new Vector3L(x, y, z));
+        final Vector3L modulo = sum.modulo(Constants.BLOCKS_PER_CHUNK_SECTION_VEC);
         return chunkSectionRef.add(sum.divide(Constants.BLOCKS_PER_CHUNK_SECTION_VEC))
-                .block((int) modulo.getX(), (int) modulo.getY(), (int) modulo.getZ());
+                .block(modulo.getX().intValue(), modulo.getY().intValue(), modulo.getZ().intValue());
     }
 
     @Override
@@ -149,10 +149,10 @@ public class BlockRef implements OffsetRef<BlockRef, Vector3D, ChunkSectionRef, 
     }
 
     @Override
-    public Vector3D subtract(final BlockRef other) {
+    public Vector3L subtract(final BlockRef other) {
         return chunkSectionRef.subtract(other.chunkSectionRef)
                 .scale(Constants.BLOCKS_PER_CHUNK_SECTION_VEC)
-                .add(new Vector3D(x - other.x, y - other.y, z - other.z));
+                .add(new Vector3L(x - other.x, y - other.y, z - other.z));
     }
 
     @Override
@@ -185,18 +185,18 @@ public class BlockRef implements OffsetRef<BlockRef, Vector3D, ChunkSectionRef, 
     }
 
     @Override
-    public Vector3D offsetTo(final OffsetBasis<?> basis) {
+    public Vector3L offsetTo(final ContainerBase<?> basis) {
         if(basis.equals(this))
-            return Vector3D.IDENTITY;
+            return Vector3L.IDENTITY;
         if(basis instanceof BlockRef)
             return subtract((BlockRef) basis);
         if(basis instanceof ColumnRef)
             return column().offsetTo(basis)
                     .toVec3D((long) chunkSectionRef.getY() * Constants.CHUNK_SECTIONS_PER_CHUNK + y);
-        if(OffsetBasis.CONTAINING_COMPARATOR.compare(getClass(), basis.getClass()) < 0)
+        if(ContainerBase.CONTAINING_COMPARATOR.compare(getClass(), basis.getClass()) < 0)
             return getStart().offsetTo(basis).divide(Constants.OFFSETS_PER_BLOCK_VEC);
         return getParent().offsetTo(basis).scale(Constants.BLOCKS_PER_CHUNK_SECTION_VEC)
-                .add(new Vector3D(x, y, z));
+                .add(new Vector3L(x, y, z));
     }
 
     @Override

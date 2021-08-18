@@ -1,8 +1,8 @@
 package com.runetide.common.dto;
 
-import com.runetide.common.domain.geometry.BoundingBox;
-import com.runetide.common.domain.geometry.Point;
-import com.runetide.common.domain.geometry.Vector;
+import com.runetide.common.domain.geometry.FixedBoundingBoxSingle;
+import com.runetide.common.domain.geometry.FixedVector;
+import com.runetide.common.domain.geometry.FixedPoint;
 import org.jetbrains.annotations.Contract;
 
 import javax.annotation.Nonnull;
@@ -10,36 +10,53 @@ import java.util.Iterator;
 import java.util.Spliterator;
 import java.util.function.Consumer;
 
-public interface ContainerRef<Child extends Point<Child, VecType>, VecType extends Vector<VecType>>
-        extends Iterable<Child> {
+public interface ContainerRef<Self extends ContainerRef<Self, VecType, ParentType, ChildType, ChildVecType>,
+        VecType extends FixedVector<VecType>, ParentType extends ContainerBase<ParentType>,
+        ChildType extends ContainerRef<ChildType, ChildVecType, ?, ?, ?>,
+        ChildVecType extends FixedVector<ChildVecType>>
+        extends Ref<Self>, FixedPoint<Self, VecType>, ContainerBase<Self>, Iterable<ChildType> {
     @Contract(pure = true)
-    Child getStart();
+    VecType offsetTo(final ContainerBase<?> basis);
     @Contract(pure = true)
-    Child getEnd();
+    ParentType getParent();
 
     @Contract(pure = true)
-    default BoundingBox<Child, VecType> asBoundingBox() {
-        return new BoundingBox<>(getStart(), getEnd());
+    ChildType getStart();
+    @Contract(pure = true)
+    ChildType getEnd();
+
+    @Contract(pure = true)
+    default FixedBoundingBoxSingle<ChildType, ChildVecType> asBoundingBox() {
+        return new FixedBoundingBoxSingle<>(getStart(), getEnd());
     }
 
     @Contract(pure = true)
-    default boolean contains(final Child child) {
+    default boolean contains(final ChildType child) {
         return asBoundingBox().contains(child);
     }
 
     @Nonnull
     @Override
-    default Iterator<Child> iterator() {
+    default Iterator<ChildType> iterator() {
         return asBoundingBox().iterator();
     }
 
     @Override
-    default void forEach(Consumer<? super Child> action) {
+    default void forEach(Consumer<? super ChildType> action) {
         asBoundingBox().forEach(action);
     }
 
     @Override
-    default Spliterator<Child> spliterator() {
+    default Spliterator<ChildType> spliterator() {
         return asBoundingBox().spliterator();
+    }
+
+    @Override
+    default <T extends ContainerBase<T>> T getOffsetBasis(final Class<T> clazz) {
+        if(clazz.isInstance(this))
+            return clazz.cast(this);
+        if(ContainerBase.CONTAINING_COMPARATOR.compare(getClass(), clazz) < 0)
+            return getParent().getOffsetBasis(clazz);
+        return getStart().getOffsetBasis(clazz);
     }
 }

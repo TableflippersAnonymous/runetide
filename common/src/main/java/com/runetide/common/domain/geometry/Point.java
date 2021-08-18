@@ -3,11 +3,11 @@ package com.runetide.common.domain.geometry;
 import org.jetbrains.annotations.Contract;
 
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
 
-public interface Point<Self extends Point<Self, VecType>, VecType extends Vector<VecType>> {
+public interface Point<Self extends Point<Self, VecType, NumberType>,
+        VecType extends Vector<VecType, NumberType>, NumberType extends Number> {
     int COORDINATE_X = 0;
     int COORDINATE_Z = 1;
     int COORDINATE_Y = 2;
@@ -16,20 +16,14 @@ public interface Point<Self extends Point<Self, VecType>, VecType extends Vector
     Self getSelf();
 
     @Contract(pure = true)
-    boolean isSameCoordinateSystem(final Self other);
-
-    @Contract(pure = true)
     Self add(final VecType other);
-    @Contract(pure = true)
-    Self add(final long val);
     @Contract(pure = true)
     VecType subtract(final Self other);
 
     @Contract(pure = true)
-    Comparator<Self> compareByCoordinate(final int coordinate);
-
+    boolean isSameCoordinateSystem(final Self other);
     @Contract(pure = true)
-    Iterator<Self> iteratorTo(final Self end);
+    Comparator<Self> compareByCoordinate(final int coordinate);
 
     @Contract(pure = true)
     int coordinateSize();
@@ -41,6 +35,12 @@ public interface Point<Self extends Point<Self, VecType>, VecType extends Vector
     default boolean isBetween(final Self start, final Self end) {
         return allCoordinatesCompare(c -> c >= 0, start)
                 && allCoordinatesCompare(c -> c <= 0, end);
+    }
+
+    @Contract(pure = true)
+    default boolean isBetweenEndExclusive(final Self start, final Self end) {
+        return allCoordinatesCompare(c -> c >= 0, start)
+                && allCoordinatesCompare(c -> c < 0, end);
     }
 
     @Contract(pure = true)
@@ -86,4 +86,5 @@ public interface Point<Self extends Point<Self, VecType>, VecType extends Vector
                 .mapToObj(this::compareByCoordinate)
                 .allMatch(c -> predicate.test(c.compare(getSelf(), other)));
     }
+
 }

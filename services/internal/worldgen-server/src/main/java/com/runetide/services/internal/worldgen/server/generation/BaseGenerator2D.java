@@ -1,9 +1,16 @@
 package com.runetide.services.internal.worldgen.server.generation;
 
-import com.runetide.common.domain.geometry.Vector2D;
-import com.runetide.common.domain.geometry.Point;
+import com.runetide.common.domain.geometry.Vector2L;
+import com.runetide.common.dto.ContainerRef;
 
-public abstract class BaseGenerator2D<PointType extends Point<PointType, Vector2D>, ReturnArrayType>
-        extends BaseGenerator<PointType, Vector2D, ReturnArrayType[]> {
+import java.util.function.Function;
 
+public abstract class BaseGenerator2D<GenerationParent extends ContainerRef<GenerationParent, Vector2L, ?, ?, ?>,
+        PointType extends ContainerRef<PointType, Vector2L, ?, ?, ?>, ReturnArrayType>
+        extends BaseGenerator<GenerationParent, Vector2L, PointType, Vector2L, ReturnArrayType[]> {
+    protected BaseGenerator2D(final Function<Vector2L, ReturnArrayType[]> allocateArray,
+                              final Class<GenerationParent> generationParentClass,
+                              final Class<PointType> pointTypeClass) {
+        super(allocateArray, generationParentClass, pointTypeClass);
+    }
 }

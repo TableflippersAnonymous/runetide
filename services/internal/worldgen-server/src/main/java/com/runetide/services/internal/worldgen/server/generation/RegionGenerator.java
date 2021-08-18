@@ -10,7 +10,7 @@ public class RegionGenerator {
     public RegionGenerator(final WorldClient worldClient, final RegionRef regionRef) {
         this.worldClient = worldClient;
         this.regionRef = regionRef;
-        regionRef.getWorldRef()
+        regionRef.
     }
 
     public GeneratedRegion generate() {

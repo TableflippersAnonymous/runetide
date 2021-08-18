@@ -1,24 +1,24 @@
 package com.runetide.services.internal.worldgen.server.generation;
 
 import com.runetide.common.Constants;
-import com.runetide.common.domain.geometry.BoundingBox;
-import com.runetide.common.domain.geometry.Vector2D;
+import com.runetide.common.domain.geometry.FixedBoundingBoxSingle;
+import com.runetide.common.domain.geometry.Vector2L;
 import com.runetide.common.dto.Ref;
-import com.runetide.common.domain.geometry.Point;
+import com.runetide.common.domain.geometry.FixedPoint;
 import org.apache.commons.math3.analysis.interpolation.UnivariateInterpolator;
 
-public class InterpolatingGenerator2D<SeedType extends Ref<SeedType>, PointType extends Point<PointType, Vector2D>>
+public class InterpolatingGenerator2D<SeedType extends Ref<SeedType>, PointType extends FixedPoint<PointType, Vector2L>>
         extends BaseGenerator2D<SeedType, PointType> {
     private final UnivariateInterpolator interpolator;
     private final BaseGenerator2D<SeedType, PointType> generator;
-    private final Vector2D interpolateBorder;
-    private final Vector2D interpolateDistance;
-    private final Vector2D scale;
-    private final Vector2D sectorSize;
+    private final Vector2L interpolateBorder;
+    private final Vector2L interpolateDistance;
+    private final Vector2L scale;
+    private final Vector2L sectorSize;
 
     public InterpolatingGenerator2D(final UnivariateInterpolator interpolator,
-                                    final BaseGenerator2D<SeedType, PointType> generator, final Vector2D interpolateBorder,
-                                    final Vector2D interpolateDistance, final Vector2D scale) {
+                                    final BaseGenerator2D<SeedType, PointType> generator, final Vector2L interpolateBorder,
+                                    final Vector2L interpolateDistance, final Vector2L scale) {
         this.interpolator = interpolator;
         this.generator = generator;
         this.interpolateBorder = interpolateBorder;
@@ -31,7 +31,7 @@ public class InterpolatingGenerator2D<SeedType extends Ref<SeedType>, PointType 
     }
 
     @Override
-    protected void generateValues(final BoundingBox<PointType, Vector2D> boundingBox, final int[][] out) {
+    protected void generateValues(final FixedBoundingBoxSingle<PointType, Vector2L> boundingBox, final int[][] out) {
         generator.generateValues(boundingBox, out);
 
         /* At this point, out contains the filled output from the child generator.  We need to check if any of the

@@ -3,7 +3,7 @@ package com.runetide.common.dto;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.runetide.common.Constants;
-import com.runetide.common.domain.geometry.Vector3D;
+import com.runetide.common.domain.geometry.Vector3L;
 import com.runetide.common.domain.geometry.XYZCoordinates;
 
 import java.io.DataInputStream;
@@ -14,7 +14,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
-public class PositionRef implements OffsetRef<PositionRef, Vector3D, BlockRef, PositionRef, Vector3D>,
+public class PositionRef implements ContainerRef<PositionRef, Vector3L, BlockRef, PositionRef, Vector3L>,
         XYZCoordinates<PositionRef> {
     public static final Comparator<PositionRef> COMPARE_BY_X = Comparator
             .comparing(PositionRef::getBlockRef, BlockRef.COMPARE_BY_X)
@@ -123,18 +123,18 @@ public class PositionRef implements OffsetRef<PositionRef, Vector3D, BlockRef, P
     }
 
     @Override
-    public PositionRef add(final Vector3D other) {
-        final Vector3D sum = other.add(new Vector3D(x, y, z));
-        final Vector3D modulo = sum.modulo(Constants.OFFSETS_PER_BLOCK_VEC);
+    public PositionRef add(final Vector3L other) {
+        final Vector3L sum = other.add(new Vector3L(x, y, z));
+        final Vector3L modulo = sum.modulo(Constants.OFFSETS_PER_BLOCK_VEC);
         return blockRef.add(sum.divide(Constants.OFFSETS_PER_BLOCK_VEC))
-                .position((int) modulo.getX(), (int) modulo.getY(), (int) modulo.getZ());
+                .position(modulo.getX().intValue(), modulo.getY().intValue(), modulo.getZ().intValue());
     }
 
     @Override
-    public Vector3D subtract(final PositionRef other) {
+    public Vector3L subtract(final PositionRef other) {
         return blockRef.subtract(other.blockRef)
                 .scale(Constants.OFFSETS_PER_BLOCK_VEC)
-                .add(new Vector3D(x - other.x, y - other.y, z - other.z));
+                .add(new Vector3L(x - other.x, y - other.y, z - other.z));
     }
 
     @Override
@@ -162,17 +162,17 @@ public class PositionRef implements OffsetRef<PositionRef, Vector3D, BlockRef, P
     }
 
     @Override
-    public Vector3D offsetTo(final OffsetBasis<?> basis) {
+    public Vector3L offsetTo(final ContainerBase<?> basis) {
         if(basis.equals(this))
-            return Vector3D.IDENTITY;
+            return Vector3L.IDENTITY;
         if(basis instanceof PositionRef)
             return subtract((PositionRef) basis);
         if(basis instanceof PositionLookRef)
             return subtract(((PositionLookRef) basis).getPositionRef());
-        if(OffsetBasis.CONTAINING_COMPARATOR.compare(getClass(), basis.getClass()) < 0)
+        if(ContainerBase.CONTAINING_COMPARATOR.compare(getClass(), basis.getClass()) < 0)
             throw new IllegalArgumentException("Bad OffsetBasis: " + basis);
         return getParent().offsetTo(basis).scale(Constants.OFFSETS_PER_BLOCK_VEC)
-                .add(new Vector3D(x, y, z));
+                .add(new Vector3L(x, y, z));
     }
 
     @Override

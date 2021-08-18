@@ -7,10 +7,10 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
-public interface XYZCoordinates<Self extends XYZCoordinates<Self>> extends BaseXZCoordinates<Self, Vector3D> {
+public interface XYZCoordinates<Self extends XYZCoordinates<Self>> extends BaseXZCoordinates<Self, Vector3L> {
     @Override
     default Self add(final long val) {
-        return add(new Vector3D(val, val, val));
+        return add(new Vector3L(val, val, val));
     }
 
     @Contract(pure = true)
@@ -48,11 +48,11 @@ public interface XYZCoordinates<Self extends XYZCoordinates<Self>> extends BaseX
                 if(current == null)
                     current = start;
                 else if(compareByX.compare(current, end) < 0)
-                    current = current.add(Vector3D.UNIT_X);
+                    current = current.add(Vector3L.UNIT_X);
                 else if(compareByZ.compare(current, end) < 0)
-                    current = current.withXFrom(start).add(Vector3D.UNIT_Z);
+                    current = current.withXFrom(start).add(Vector3L.UNIT_Z);
                 else
-                    current = start.withYFrom(current).add(Vector3D.UNIT_Y);
+                    current = start.withYFrom(current).add(Vector3L.UNIT_Y);
                 return current;
             }
         };

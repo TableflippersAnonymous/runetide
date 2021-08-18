@@ -4,8 +4,8 @@ import org.jetbrains.annotations.Contract;
 
 import java.util.Comparator;
 
-public interface BaseXZCoordinates<Self extends BaseXZCoordinates<Self, VecType>, VecType extends Vector<VecType>>
-        extends Point<Self, VecType> {
+public interface BaseXZCoordinates<Self extends BaseXZCoordinates<Self, VecType>, VecType extends FixedVector<VecType>>
+        extends FixedPoint<Self, VecType> {
     @Contract(pure = true)
     default Self withXFrom(final Self other) {
         return withCoordinateFrom(other, COORDINATE_X);

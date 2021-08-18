@@ -1,7 +1,7 @@
 package com.runetide.common;
 
-import com.runetide.common.domain.geometry.Vector2D;
-import com.runetide.common.domain.geometry.Vector3D;
+import com.runetide.common.domain.geometry.Vector2L;
+import com.runetide.common.domain.geometry.Vector3L;
 
 import java.util.concurrent.TimeUnit;
 
@@ -23,15 +23,15 @@ public class Constants {
     public static final int REGIONS_PER_SECTOR_X = 1 << 20;
     public static final int REGIONS_PER_SECTOR_Z = 1 << 20;
     public static final long REGIONS_PER_SECTOR = (long) REGIONS_PER_SECTOR_X * REGIONS_PER_SECTOR_Z;
-    public static final Vector2D REGIONS_PER_SECTOR_VEC = new Vector2D(REGIONS_PER_SECTOR_X, REGIONS_PER_SECTOR_Z);
+    public static final Vector2L REGIONS_PER_SECTOR_VEC = new Vector2L(REGIONS_PER_SECTOR_X, REGIONS_PER_SECTOR_Z);
 
     public static final int CHUNKS_PER_REGION_X = 64;
     public static final int CHUNKS_PER_REGION_Z = 64;
     public static final int CHUNKS_PER_REGION = CHUNKS_PER_REGION_X * CHUNKS_PER_REGION_Z;
-    public static final Vector2D CHUNKS_PER_REGION_VEC = new Vector2D(CHUNKS_PER_REGION_X, CHUNKS_PER_REGION_Z);
+    public static final Vector2L CHUNKS_PER_REGION_VEC = new Vector2L(CHUNKS_PER_REGION_X, CHUNKS_PER_REGION_Z);
 
     public static final int CHUNK_SECTIONS_PER_CHUNK = 256;
-    public static final Vector3D CHUNK_SECTIONS_PER_CHUNK_VEC = new Vector3D(1, CHUNK_SECTIONS_PER_CHUNK, 1);
+    public static final Vector3L CHUNK_SECTIONS_PER_CHUNK_VEC = new Vector3L(1, CHUNK_SECTIONS_PER_CHUNK, 1);
 
     /* These are occasionally bit-packed into bytes.  Other locations in the source depend on these being 16 or less. */
     public static final int BLOCKS_PER_CHUNK_SECTION_X = 16;
@@ -39,13 +39,13 @@ public class Constants {
     public static final int BLOCKS_PER_CHUNK_SECTION_Z = 16;
     public static final int BLOCKS_PER_CHUNK_SECTION = BLOCKS_PER_CHUNK_SECTION_X * BLOCKS_PER_CHUNK_SECTION_Y
             * BLOCKS_PER_CHUNK_SECTION_Z;
-    public static final Vector3D BLOCKS_PER_CHUNK_SECTION_VEC = new Vector3D(BLOCKS_PER_CHUNK_SECTION_X,
+    public static final Vector3L BLOCKS_PER_CHUNK_SECTION_VEC = new Vector3L(BLOCKS_PER_CHUNK_SECTION_X,
             BLOCKS_PER_CHUNK_SECTION_Y, BLOCKS_PER_CHUNK_SECTION_Z);
 
     public static final int COLUMNS_PER_CHUNK_X = BLOCKS_PER_CHUNK_SECTION_X;
     public static final int COLUMNS_PER_CHUNK_Z = BLOCKS_PER_CHUNK_SECTION_Z;
     public static final int COLUMNS_PER_CHUNK = COLUMNS_PER_CHUNK_X * COLUMNS_PER_CHUNK_Z;
-    public static final Vector2D COLUMNS_PER_CHUNK_VEC = BLOCKS_PER_CHUNK_SECTION_VEC.toVec2D();
+    public static final Vector2L COLUMNS_PER_CHUNK_VEC = BLOCKS_PER_CHUNK_SECTION_VEC.toVec2D();
 
     public static final int BLOCKS_PER_CHUNK_Y = BLOCKS_PER_CHUNK_SECTION_Y * CHUNK_SECTIONS_PER_CHUNK;
 
@@ -60,7 +60,7 @@ public class Constants {
     public static final int VOXELS_PER_BLOCK_Y = 32;
     public static final int VOXELS_PER_BLOCK_Z = 32;
     public static final int VOXELS_PER_BLOCK = VOXELS_PER_BLOCK_X * VOXELS_PER_BLOCK_Y * VOXELS_PER_BLOCK_Z;
-    public static final Vector3D VOXELS_PER_BLOCK_VEC = new Vector3D(VOXELS_PER_BLOCK_X, VOXELS_PER_BLOCK_Y,
+    public static final Vector3L VOXELS_PER_BLOCK_VEC = new Vector3L(VOXELS_PER_BLOCK_X, VOXELS_PER_BLOCK_Y,
             VOXELS_PER_BLOCK_Z);
 
     /* An Offset is the smallest renderable resolution of an entity.  Offsets are 8-bit unsigned
@@ -71,14 +71,14 @@ public class Constants {
     public static final int OFFSETS_PER_VOXEL_Y = 8;
     public static final int OFFSETS_PER_VOXEL_Z = 8;
     public static final int OFFSETS_PER_VOXEL = OFFSETS_PER_VOXEL_X * OFFSETS_PER_VOXEL_Y * OFFSETS_PER_VOXEL_Z;
-    public static final Vector3D OFFSETS_PER_VOXEL_VEC = new Vector3D(OFFSETS_PER_VOXEL_X, OFFSETS_PER_VOXEL_Y,
+    public static final Vector3L OFFSETS_PER_VOXEL_VEC = new Vector3L(OFFSETS_PER_VOXEL_X, OFFSETS_PER_VOXEL_Y,
             OFFSETS_PER_VOXEL_Z);
 
     public static final int OFFSETS_PER_BLOCK_X = OFFSETS_PER_VOXEL_X * VOXELS_PER_BLOCK_X;
     public static final int OFFSETS_PER_BLOCK_Y = OFFSETS_PER_VOXEL_Y * VOXELS_PER_BLOCK_Y;
     public static final int OFFSETS_PER_BLOCK_Z = OFFSETS_PER_VOXEL_Z * VOXELS_PER_BLOCK_Z;
     public static final int OFFSETS_PER_BLOCK = OFFSETS_PER_VOXEL * VOXELS_PER_BLOCK;
-    public static final Vector3D OFFSETS_PER_BLOCK_VEC = OFFSETS_PER_VOXEL_VEC.scale(VOXELS_PER_BLOCK_VEC);
+    public static final Vector3L OFFSETS_PER_BLOCK_VEC = OFFSETS_PER_VOXEL_VEC.scale(VOXELS_PER_BLOCK_VEC);
 
     public static final int S3_UPLOAD_PART_SIZE = 5 * 1024 * 1024;
 
