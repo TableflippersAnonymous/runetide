@@ -103,7 +103,7 @@ public class SectorRef implements ContainerRef<SectorRef, Vector2L, WorldRef, Re
 
     @Override
     public Vector2L subtract(final SectorRef other) {
-        return new Vector2L(x - other.x, z - other.z);
+        return Vector2L.of(x - other.x, z - other.z);
     }
 
     @Override
@@ -131,7 +131,7 @@ public class SectorRef implements ContainerRef<SectorRef, Vector2L, WorldRef, Re
         if(basis instanceof SectorRef)
             return subtract((SectorRef) basis);
         if(basis instanceof WorldRef)
-            return new Vector2L(x, z);
+            return Vector2L.of(x, z);
         if(ContainerBase.CONTAINING_COMPARATOR.compare(getClass(), basis.getClass()) < 0)
             return getStart().offsetTo(basis).divide(Constants.CHUNKS_PER_REGION_VEC);
         throw new IllegalArgumentException("Bad OffsetBasis: " + basis);

@@ -115,7 +115,7 @@ public class RegionRef implements ContainerRef<RegionRef, Vector2L, SectorRef, C
 
     @Override
     public Vector2L subtract(final RegionRef other) {
-        return new Vector2L(x - other.x, z - other.z);
+        return Vector2L.of(x - other.x, z - other.z);
     }
 
     @Override
@@ -150,7 +150,7 @@ public class RegionRef implements ContainerRef<RegionRef, Vector2L, SectorRef, C
         if(ContainerBase.CONTAINING_COMPARATOR.compare(getClass(), basis.getClass()) < 0)
             return getStart().offsetTo(basis).divide(Constants.CHUNKS_PER_REGION_VEC);
         return getParent().offsetTo(basis).scale(Constants.REGIONS_PER_SECTOR_VEC)
-                .add(new Vector2L(x % Constants.REGIONS_PER_SECTOR_X, z % Constants.REGIONS_PER_SECTOR_Z));
+                .add(Vector2L.of(x % Constants.REGIONS_PER_SECTOR_X, z % Constants.REGIONS_PER_SECTOR_Z));
     }
 
     @Override

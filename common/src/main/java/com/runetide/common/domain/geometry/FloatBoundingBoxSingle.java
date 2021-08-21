@@ -9,8 +9,13 @@ public class FloatBoundingBoxSingle<PointType extends Point<PointType, VecType, 
         extends BoundingBoxSingle<FloatBoundingBoxSingle<PointType, VecType>, FloatBoundingBoxSet<PointType, VecType>,
         PointType, VecType, Double> {
 
-    public FloatBoundingBoxSingle(final PointType start, final PointType end) {
-        super(FloatBoundingBoxSingle::new, start, end);
+    public static <PointType extends Point<PointType, VecType, Double>, VecType extends Vector<VecType, Double>>
+    FloatBoundingBoxSingle<PointType, VecType> of(final PointType start, final PointType end) {
+        return new FloatBoundingBoxSingle<>(start, end);
+    }
+
+    private FloatBoundingBoxSingle(final PointType start, final PointType end) {
+        super(FloatBoundingBoxSingle::of, start, end);
     }
 
     @Override
@@ -28,7 +33,7 @@ public class FloatBoundingBoxSingle<PointType extends Point<PointType, VecType, 
 
     @Override
     public FloatBoundingBoxSingle<PointType, VecType> move(final VecType direction) {
-        return new FloatBoundingBoxSingle<>(start.add(direction), end.add(direction));
+        return of(start.add(direction), end.add(direction));
     }
 
     @Override
@@ -38,7 +43,7 @@ public class FloatBoundingBoxSingle<PointType extends Point<PointType, VecType, 
 
     @Override
     protected FloatBoundingBoxSet<PointType, VecType> toSet() {
-        return new FloatBoundingBoxSet<>(Set.of(this));
+        return FloatBoundingBoxSet.of(this);
     }
 
     @Override
@@ -47,19 +52,19 @@ public class FloatBoundingBoxSingle<PointType extends Point<PointType, VecType, 
          * end to be in the set, so certain changes to how we calculate offsets are needed.
          */
         if(!intersectsWith(other))
-            return Optional.of(new FloatBoundingBoxSet<>(Set.of(this)));
+            return Optional.of(FloatBoundingBoxSet.of(this));
         Optional<FloatBoundingBoxSet<PointType, VecType>> ret = Optional.empty();
         for(int coordinate = 0; coordinate < start.coordinateSize(); coordinate++) {
             final Comparator<PointType> coordinateComparator = start.compareByCoordinate(coordinate);
             if(coordinateComparator.compare(start, other.start) < 0) {
-                final FloatBoundingBoxSingle<PointType, VecType> bb = new FloatBoundingBoxSingle<>(start,
+                final FloatBoundingBoxSingle<PointType, VecType> bb = of(start,
                         end.withCoordinateFrom(other.start, coordinate));
-                ret = ret.map(bbs -> bbs.union(bb)).or(() -> Optional.of(new FloatBoundingBoxSet<>(Set.of(bb))));
+                ret = ret.map(bbs -> bbs.union(bb)).or(() -> Optional.of(FloatBoundingBoxSet.of(bb)));
             }
             if(coordinateComparator.compare(end, other.end) > 0) {
-                final FloatBoundingBoxSingle<PointType, VecType> bb = new FloatBoundingBoxSingle<>(
+                final FloatBoundingBoxSingle<PointType, VecType> bb = of(
                         start.withCoordinateFrom(other.end, coordinate), end);
-                ret = ret.map(bbs -> bbs.union(bb)).or(() -> Optional.of(new FloatBoundingBoxSet<>(Set.of(bb))));
+                ret = ret.map(bbs -> bbs.union(bb)).or(() -> Optional.of(FloatBoundingBoxSet.of(bb)));
             }
         }
         return ret;

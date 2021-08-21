@@ -124,7 +124,7 @@ public class PositionRef implements ContainerRef<PositionRef, Vector3L, BlockRef
 
     @Override
     public PositionRef add(final Vector3L other) {
-        final Vector3L sum = other.add(new Vector3L(x, y, z));
+        final Vector3L sum = other.add(Vector3L.of(x, y, z));
         final Vector3L modulo = sum.modulo(Constants.OFFSETS_PER_BLOCK_VEC);
         return blockRef.add(sum.divide(Constants.OFFSETS_PER_BLOCK_VEC))
                 .position(modulo.getX().intValue(), modulo.getY().intValue(), modulo.getZ().intValue());
@@ -134,7 +134,7 @@ public class PositionRef implements ContainerRef<PositionRef, Vector3L, BlockRef
     public Vector3L subtract(final PositionRef other) {
         return blockRef.subtract(other.blockRef)
                 .scale(Constants.OFFSETS_PER_BLOCK_VEC)
-                .add(new Vector3L(x - other.x, y - other.y, z - other.z));
+                .add(Vector3L.of(x - other.x, y - other.y, z - other.z));
     }
 
     @Override
@@ -172,7 +172,7 @@ public class PositionRef implements ContainerRef<PositionRef, Vector3L, BlockRef
         if(ContainerBase.CONTAINING_COMPARATOR.compare(getClass(), basis.getClass()) < 0)
             throw new IllegalArgumentException("Bad OffsetBasis: " + basis);
         return getParent().offsetTo(basis).scale(Constants.OFFSETS_PER_BLOCK_VEC)
-                .add(new Vector3L(x, y, z));
+                .add(Vector3L.of(x, y, z));
     }
 
     @Override

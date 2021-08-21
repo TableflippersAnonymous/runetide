@@ -7,10 +7,12 @@ import java.util.List;
 import java.util.Objects;
 
 public class Vector3L implements FixedVector<Vector3L>, Vector3<Vector3L, Long>, XYZCoordinates<Vector3L> {
-    public static final Vector3L IDENTITY = new Vector3L(0, 0, 0);
-    public static final Vector3L UNIT_X = new Vector3L(1, 0, 0);
-    public static final Vector3L UNIT_Y = new Vector3L(0, 1, 0);
-    public static final Vector3L UNIT_Z = new Vector3L(0, 0, 1);
+    private static final Vector3L[][][] CACHE = new Vector3L[200][200][200];
+
+    public static final Vector3L IDENTITY = of(0, 0, 0);
+    public static final Vector3L UNIT_X = of(1, 0, 0);
+    public static final Vector3L UNIT_Y = of(0, 1, 0);
+    public static final Vector3L UNIT_Z = of(0, 0, 1);
     public static final Vector3L UNIT_NEG_X = UNIT_X.negate();
     public static final Vector3L UNIT_NEG_Y = UNIT_Y.negate();
     public static final Vector3L UNIT_NEG_Z = UNIT_Z.negate();
@@ -22,7 +24,17 @@ public class Vector3L implements FixedVector<Vector3L>, Vector3<Vector3L, Long>,
     private final long y;
     private final long z;
 
-    public Vector3L(final long x, final long y, final long z) {
+    public static Vector3L of(final long x, final long y, final long z) {
+        final int cacheOffset = CACHE.length / 2;
+        if(x < -cacheOffset || x >= cacheOffset || y < -cacheOffset || y >= cacheOffset
+                || z < -cacheOffset || z >= cacheOffset)
+            return new Vector3L(x, y, z);
+        if(CACHE[(int) x + cacheOffset][(int) y + cacheOffset][(int) z + cacheOffset] == null)
+            CACHE[(int) x + cacheOffset][(int) y + cacheOffset][(int) z + cacheOffset] = new Vector3L(x, y, z);
+        return CACHE[(int) x + cacheOffset][(int) y + cacheOffset][(int) z + cacheOffset];
+    }
+
+    private Vector3L(final long x, final long y, final long z) {
         this.x = x;
         this.y = y;
         this.z = z;
@@ -55,12 +67,12 @@ public class Vector3L implements FixedVector<Vector3L>, Vector3<Vector3L, Long>,
 
     @Override
     public Vector3L divide(final Vector3L vec) {
-        return new Vector3L(x / vec.x, y / vec.y, z / vec.z);
+        return of(x / vec.x, y / vec.y, z / vec.z);
     }
 
     @Override
     public Vector3L modulo(final Vector3L vec) {
-        return new Vector3L(x % vec.x, y % vec.y, z % vec.z);
+        return of(x % vec.x, y % vec.y, z % vec.z);
     }
 
     @Override
@@ -80,22 +92,22 @@ public class Vector3L implements FixedVector<Vector3L>, Vector3<Vector3L, Long>,
 
     @Override
     public Vector3L scale(final Vector3L vec) {
-        return new Vector3L(x * vec.x, y * vec.y, z * vec.z);
+        return of(x * vec.x, y * vec.y, z * vec.z);
     }
 
     @Override
     public Vector3L cross(final Vector3L vec) {
-        return new Vector3L(y * vec.z - z * vec.y, z * vec.x - x * vec.z, x * vec.y - y * vec.x);
+        return of(y * vec.z - z * vec.y, z * vec.x - x * vec.z, x * vec.y - y * vec.x);
     }
 
     @Override
     public Vector3L add(final Vector3L vec) {
-        return new Vector3L(x + vec.x, y + vec.y, z + vec.z);
+        return of(x + vec.x, y + vec.y, z + vec.z);
     }
 
     @Override
     public Vector3L negate() {
-        return new Vector3L(-x, -y, -z);
+        return of(-x, -y, -z);
     }
 
     @Override
@@ -110,12 +122,12 @@ public class Vector3L implements FixedVector<Vector3L>, Vector3<Vector3L, Long>,
 
     @Override
     public Vector3L withCoordinateFrom(final Vector3L other, final int coordinate) {
-        return new Vector3L(coordinate == COORDINATE_X ? other.x : x, coordinate == COORDINATE_Y ? other.y : y,
+        return of(coordinate == COORDINATE_X ? other.x : x, coordinate == COORDINATE_Y ? other.y : y,
                 coordinate == COORDINATE_Z ? other.z : z);
     }
 
     public Vector2L toVec2D() {
-        return new Vector2L(x, z);
+        return Vector2L.of(x, z);
     }
 
     @Override

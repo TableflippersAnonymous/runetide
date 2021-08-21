@@ -7,9 +7,11 @@ import java.util.List;
 import java.util.Objects;
 
 public class Vector2L implements FixedVector<Vector2L>, Vector2<Vector2L, Long>, XZCoordinates<Vector2L> {
-    public static final Vector2L IDENTITY = new Vector2L(0, 0);
-    public static final Vector2L UNIT_X = new Vector2L(1, 0);
-    public static final Vector2L UNIT_Z = new Vector2L(0, 1);
+    private static final Vector2L[][] CACHE = new Vector2L[200][200];
+
+    public static final Vector2L IDENTITY = of(0, 0);
+    public static final Vector2L UNIT_X = of(1, 0);
+    public static final Vector2L UNIT_Z = of(0, 1);
     public static final Vector2L UNIT_NEG_X = UNIT_X.negate();
     public static final Vector2L UNIT_NEG_Z = UNIT_Z.negate();
     public static final List<Vector2L> AXIS = ImmutableList.of(UNIT_X, UNIT_Z);
@@ -19,7 +21,20 @@ public class Vector2L implements FixedVector<Vector2L>, Vector2<Vector2L, Long>,
     protected final long x;
     protected final long z;
 
-    public Vector2L(final long x, final long z) {
+    /* Vector2L (and other geometry objects are immutable once constructed.  This means we can cache them and re-use
+     * them without worry about someone mutating them.  To facilitate this, the Vector2L constructor is private, with
+     * the static .of() method being used to obtain a vector.
+     */
+    public static Vector2L of(final long x, final long z) {
+        final int cacheOffset = CACHE.length / 2;
+        if(x < -cacheOffset || x >= cacheOffset || z < -cacheOffset || z >= cacheOffset)
+            return new Vector2L(x, z);
+        if(CACHE[(int) x + cacheOffset][(int) z + cacheOffset] == null)
+            CACHE[(int) x + cacheOffset][(int) z + cacheOffset] = new Vector2L(x, z);
+        return CACHE[(int) x + cacheOffset][(int) z + cacheOffset];
+    }
+
+    private Vector2L(final long x, final long z) {
         this.x = x;
         this.z = z;
     }
@@ -47,16 +62,16 @@ public class Vector2L implements FixedVector<Vector2L>, Vector2<Vector2L, Long>,
 
     @Override
     public Vector2L divide(final Vector2L vec) {
-        return new Vector2L(x / vec.x, z / vec.z);
+        return of(x / vec.x, z / vec.z);
     }
 
     public Vector2L divide(final Vector3L vec) {
-        return new Vector2L(x / vec.getX(), z / vec.getZ());
+        return of(x / vec.getX(), z / vec.getZ());
     }
 
     @Override
     public Vector2L modulo(final Vector2L vec) {
-        return new Vector2L(x % vec.x, z % vec.z);
+        return of(x % vec.x, z % vec.z);
     }
 
     @Override
@@ -75,12 +90,12 @@ public class Vector2L implements FixedVector<Vector2L>, Vector2<Vector2L, Long>,
     }
 
     public Vector2L modulo(final Vector3L vec) {
-        return new Vector2L(x % vec.getX(), z % vec.getZ());
+        return of(x % vec.getX(), z % vec.getZ());
     }
 
     @Override
     public Vector2L scale(final Vector2L vec) {
-        return new Vector2L(x * vec.x, z * vec.z);
+        return of(x * vec.x, z * vec.z);
     }
 
     @Override
@@ -93,17 +108,17 @@ public class Vector2L implements FixedVector<Vector2L>, Vector2<Vector2L, Long>,
     }
 
     public Vector2L scale(final Vector3L vec) {
-        return new Vector2L(x * vec.getX(), z * vec.getZ());
+        return of(x * vec.getX(), z * vec.getZ());
     }
 
     @Override
     public Vector2L add(final Vector2L vec) {
-        return new Vector2L(x + vec.x, z + vec.z);
+        return of(x + vec.x, z + vec.z);
     }
 
     @Override
     public Vector2L subtract(final Vector2L other) {
-        return new Vector2L(x - other.x, z - other.z);
+        return of(x - other.x, z - other.z);
     }
 
     @Override
@@ -113,20 +128,20 @@ public class Vector2L implements FixedVector<Vector2L>, Vector2<Vector2L, Long>,
 
     @Override
     public Vector2L withCoordinateFrom(final Vector2L other, final int coordinate) {
-        return new Vector2L(coordinate == COORDINATE_X ? other.x : x, coordinate == COORDINATE_Z ? other.z : z);
+        return of(coordinate == COORDINATE_X ? other.x : x, coordinate == COORDINATE_Z ? other.z : z);
     }
 
     public Vector3L add(final Vector3L vec) {
-        return new Vector3L(x + vec.getX(), vec.getY(), z + vec.getZ());
+        return Vector3L.of(x + vec.getX(), vec.getY(), z + vec.getZ());
     }
 
     public Vector3L toVec3D(final long y) {
-        return new Vector3L(x, y, z);
+        return Vector3L.of(x, y, z);
     }
 
     @Override
     public Vector2L negate() {
-        return new Vector2L(-x, -z);
+        return of(-x, -z);
     }
 
     @Override

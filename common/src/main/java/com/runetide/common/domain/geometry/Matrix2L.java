@@ -3,12 +3,16 @@ package com.runetide.common.domain.geometry;
 import java.util.Objects;
 
 public class Matrix2L implements SquareMatrix<Matrix2L, Vector2L, Long> {
-    public static final Matrix2L IDENTITY = new Matrix2L(new Vector2L(1, 0), new Vector2L(0, 1));
+    public static final Matrix2L IDENTITY = of(Vector2L.of(1, 0), Vector2L.of(0, 1));
 
     private final Vector2L columnA;
     private final Vector2L columnB;
 
-    public Matrix2L(final Vector2L columnA, final Vector2L columnB) {
+    public static Matrix2L of(final Vector2L columnA, final Vector2L columnB) {
+        return new Matrix2L(columnA, columnB);
+    }
+
+    private Matrix2L(final Vector2L columnA, final Vector2L columnB) {
         this.columnA = Objects.requireNonNull(columnA);
         this.columnB = Objects.requireNonNull(columnB);
     }
@@ -20,28 +24,28 @@ public class Matrix2L implements SquareMatrix<Matrix2L, Vector2L, Long> {
 
     @Override
     public Matrix2L add(final Matrix2L other) {
-        return new Matrix2L(columnA.add(other.columnA), columnB.add(other.columnB));
+        return of(columnA.add(other.columnA), columnB.add(other.columnB));
     }
 
     @Override
     public Matrix2L multiply(final Matrix2L other) {
-        return new Matrix2L(multiply(other.columnA), multiply(other.columnB));
+        return of(multiply(other.columnA), multiply(other.columnB));
     }
 
     @Override
     public Matrix2L multiply(final Long scalar) {
-        final Vector2L scaleVec = new Vector2L(scalar, scalar);
-        return new Matrix2L(columnA.scale(scaleVec), columnB.scale(scaleVec));
+        final Vector2L scaleVec = Vector2L.of(scalar, scalar);
+        return of(columnA.scale(scaleVec), columnB.scale(scaleVec));
     }
 
     @Override
     public Matrix2L transpose() {
-        return new Matrix2L(new Vector2L(columnA.getX(), columnB.getX()), new Vector2L(columnA.getZ(), columnB.getZ()));
+        return of(Vector2L.of(columnA.getX(), columnB.getX()), Vector2L.of(columnA.getZ(), columnB.getZ()));
     }
 
     @Override
     public Matrix2L rotateRight() {
-        return new Matrix2L(columnB, columnA);
+        return of(columnB, columnA);
     }
 
     @Override
@@ -52,23 +56,23 @@ public class Matrix2L implements SquareMatrix<Matrix2L, Vector2L, Long> {
 
     @Override
     public Matrix2L negate() {
-        return new Matrix2L(columnA.negate(), columnB.negate());
+        return of(columnA.negate(), columnB.negate());
     }
 
     @Override
     public Vector2L multiply(final Vector2L other) {
         final Matrix2L transposed = transpose();
-        return new Vector2L(other.dot(transposed.columnA), other.dot(transposed.columnB));
+        return Vector2L.of(other.dot(transposed.columnA), other.dot(transposed.columnB));
     }
 
     @Override
     public Vector2L diagonalVector() {
-        return new Vector2L(columnA.getX(), columnB.getZ());
+        return Vector2L.of(columnA.getX(), columnB.getZ());
     }
 
     @Override
     public Vector2L antidiagonalVector() {
-        return new Vector2L(columnB.getX(), columnA.getZ());
+        return Vector2L.of(columnB.getX(), columnA.getZ());
     }
 
     @Override
@@ -78,7 +82,7 @@ public class Matrix2L implements SquareMatrix<Matrix2L, Vector2L, Long> {
 
     @Override
     public Matrix2L upperTriangularize() {
-        return new Matrix2L(new Vector2L(columnA.getX(), 0), columnB);
+        return of(Vector2L.of(columnA.getX(), 0), columnB);
     }
 
     @Override
@@ -88,7 +92,7 @@ public class Matrix2L implements SquareMatrix<Matrix2L, Vector2L, Long> {
 
     @Override
     public Matrix2L lowerTriangularize() {
-        return new Matrix2L(columnA, new Vector2L(0, columnB.getZ()));
+        return of(columnA, Vector2L.of(0, columnB.getZ()));
     }
 
     @Override

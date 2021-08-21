@@ -109,7 +109,7 @@ public class ChunkSectionRef implements ContainerRef<ChunkSectionRef, Vector3L, 
 
     @Override
     public ChunkSectionRef add(final Vector3L vec) {
-        final Vector3L sum = vec.add(new Vector3L(0, y, 0));
+        final Vector3L sum = vec.add(Vector3L.of(0, y, 0));
         final Vector3L modulo = sum.modulo(Constants.CHUNK_SECTIONS_PER_CHUNK_VEC);
         return chunkRef.add(sum.divide(Constants.CHUNK_SECTIONS_PER_CHUNK_VEC).toVec2D())
                 .section(modulo.getY().intValue());
@@ -124,7 +124,7 @@ public class ChunkSectionRef implements ContainerRef<ChunkSectionRef, Vector3L, 
     public Vector3L subtract(final ChunkSectionRef other) {
         return chunkRef.subtract(other.chunkRef)
                 .scale(Constants.CHUNK_SECTIONS_PER_CHUNK_VEC)
-                .add(new Vector3L(0, y - other.y, 0));
+                .add(Vector3L.of(0, y - other.y, 0));
     }
 
     @Override

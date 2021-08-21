@@ -4,17 +4,20 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Function;
 
 public class FixedBoundingBoxSingle<PointType extends FixedPoint<PointType, VecType>, VecType extends FixedVector<VecType>>
         extends BoundingBoxSingle<FixedBoundingBoxSingle<PointType, VecType>, FixedBoundingBoxSet<PointType, VecType>,
         PointType, VecType, Long>
-        implements FixedBoundingBox<FixedBoundingBoxSingle<PointType, VecType>, PointType, VecType>,
-        IterableLocus<FixedBoundingBoxSingle<PointType, VecType>, PointType, VecType> {
+        implements FixedBoundingBox<FixedBoundingBoxSingle<PointType, VecType>, PointType, VecType> {
 
-    public FixedBoundingBoxSingle(final PointType start, final PointType end) {
-        super(FixedBoundingBoxSingle::new, start, end);
+    public static <PointType extends FixedPoint<PointType, VecType>, VecType extends FixedVector<VecType>>
+    FixedBoundingBoxSingle<PointType, VecType> of(final PointType start, final PointType end) {
+        return new FixedBoundingBoxSingle<>(start, end);
+    }
+
+    private FixedBoundingBoxSingle(final PointType start, final PointType end) {
+        super(FixedBoundingBoxSingle::of, start, end);
     }
 
     @Override
@@ -49,7 +52,7 @@ public class FixedBoundingBoxSingle<PointType extends FixedPoint<PointType, VecT
 
     @Override
     protected FixedBoundingBoxSet<PointType, VecType> toSet() {
-        return new FixedBoundingBoxSet<>(Set.of(this));
+        return FixedBoundingBoxSet.of(this);
     }
 
     @Override
@@ -94,19 +97,19 @@ public class FixedBoundingBoxSingle<PointType extends FixedPoint<PointType, VecT
          * Note: These intersect, and will need the de-intersecting logic from union().
          */
         if(!intersectsWith(other))
-            return Optional.of(new FixedBoundingBoxSet<>(Set.of(this)));
+            return Optional.of(FixedBoundingBoxSet.of(this));
         Optional<FixedBoundingBoxSet<PointType, VecType>> ret = Optional.empty();
         for(int coordinate = 0; coordinate < start.coordinateSize(); coordinate++) {
             final Comparator<PointType> coordinateComparator = start.compareByCoordinate(coordinate);
             if(coordinateComparator.compare(start, other.start) < 0) {
-                final FixedBoundingBoxSingle<PointType, VecType> bb = new FixedBoundingBoxSingle<>(start,
+                final FixedBoundingBoxSingle<PointType, VecType> bb = of(start,
                         end.withCoordinateFrom(other.start.add(-1), coordinate));
-                ret = ret.map(bbs -> bbs.union(bb)).or(() -> Optional.of(new FixedBoundingBoxSet<>(Set.of(bb))));
+                ret = ret.map(bbs -> bbs.union(bb)).or(() -> Optional.of(FixedBoundingBoxSet.of(bb)));
             }
             if(coordinateComparator.compare(end, other.end) > 0) {
-                final FixedBoundingBoxSingle<PointType, VecType> bb = new FixedBoundingBoxSingle<>(
+                final FixedBoundingBoxSingle<PointType, VecType> bb = of(
                         start.withCoordinateFrom(other.end.add(1), coordinate), end);
-                ret = ret.map(bbs -> bbs.union(bb)).or(() -> Optional.of(new FixedBoundingBoxSet<>(Set.of(bb))));
+                ret = ret.map(bbs -> bbs.union(bb)).or(() -> Optional.of(FixedBoundingBoxSet.of(bb)));
             }
         }
         return ret;
@@ -116,7 +119,13 @@ public class FixedBoundingBoxSingle<PointType extends FixedPoint<PointType, VecT
     public <NewPointType extends FixedPoint<NewPointType, NewVecType>, NewVecType extends FixedVector<NewVecType>>
     FixedBoundingBoxSingle<NewPointType, NewVecType> map(final Function<PointType, NewPointType> startMapper,
                                                          final Function<PointType, NewPointType> endMapper) {
-        return new FixedBoundingBoxSingle<>(startMapper.apply(start), endMapper.apply(end));
+        return of(startMapper.apply(start), endMapper.apply(end));
+    }
+
+    @Override
+    public <NewPointType extends FixedPoint<NewPointType, NewVecType>, NewVecType extends FixedVector<NewVecType>>
+    FixedBoundingBoxSingle<NewPointType, NewVecType> map(final Function<PointType, NewPointType> mapper) {
+        return map(mapper, mapper);
     }
 
     @Override

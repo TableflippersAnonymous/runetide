@@ -7,10 +7,10 @@ import java.util.List;
 import java.util.Objects;
 
 public class Vector3F implements FloatVector<Vector3F>, Vector3<Vector3F, Double> {
-    public static final Vector3F IDENTITY = new Vector3F(0, 0, 0);
-    public static final Vector3F UNIT_X = new Vector3F(1, 0, 0);
-    public static final Vector3F UNIT_Y = new Vector3F(0, 1, 0);
-    public static final Vector3F UNIT_Z = new Vector3F(0, 0, 1);
+    public static final Vector3F IDENTITY = of(0, 0, 0);
+    public static final Vector3F UNIT_X = of(1, 0, 0);
+    public static final Vector3F UNIT_Y = of(0, 1, 0);
+    public static final Vector3F UNIT_Z = of(0, 0, 1);
     public static final Vector3F UNIT_NEG_X = UNIT_X.negate();
     public static final Vector3F UNIT_NEG_Y = UNIT_Y.negate();
     public static final Vector3F UNIT_NEG_Z = UNIT_Z.negate();
@@ -22,7 +22,11 @@ public class Vector3F implements FloatVector<Vector3F>, Vector3<Vector3F, Double
     private final double y;
     private final double z;
 
-    public Vector3F(final double x, final double y, final double z) {
+    public static Vector3F of(final double x, final double y, final double z) {
+        return new Vector3F(x, y, z);
+    }
+
+    private Vector3F(final double x, final double y, final double z) {
         this.x = x;
         this.y = y;
         this.z = z;
@@ -35,12 +39,12 @@ public class Vector3F implements FloatVector<Vector3F>, Vector3<Vector3F, Double
 
     @Override
     public Vector3F add(final Vector3F other) {
-        return new Vector3F(x + other.x, y + other.y, z + other.z);
+        return of(x + other.x, y + other.y, z + other.z);
     }
 
     @Override
     public Vector3F subtract(final Vector3F other) {
-        return new Vector3F(x - other.x, y - other.y, z - other.y);
+        return of(x - other.x, y - other.y, z - other.y);
     }
 
     @Override
@@ -55,28 +59,28 @@ public class Vector3F implements FloatVector<Vector3F>, Vector3<Vector3F, Double
 
     @Override
     public Vector3F withCoordinateFrom(final Vector3F other, final int coordinate) {
-        return new Vector3F(coordinate == COORDINATE_X ? other.x : x, coordinate == COORDINATE_Y ? other.y : y,
+        return of(coordinate == COORDINATE_X ? other.x : x, coordinate == COORDINATE_Y ? other.y : y,
                 coordinate == COORDINATE_Z ? other.z : z);
     }
 
     @Override
     public Vector3F negate() {
-        return new Vector3F(-x, -y, -z);
+        return of(-x, -y, -z);
     }
 
     @Override
     public Vector3F scale(final Vector3F other) {
-        return new Vector3F(x * other.x, y * other.y, z * other.z);
+        return of(x * other.x, y * other.y, z * other.z);
     }
 
     @Override
     public Vector3F divide(final Vector3F other) {
-        return new Vector3F(x / other.x, y / other.y, z / other.z);
+        return of(x / other.x, y / other.y, z / other.z);
     }
 
     @Override
     public Vector3F modulo(final Vector3F other) {
-        return new Vector3F(x % other.x, y % other.y, z % other.z);
+        return of(x % other.x, y % other.y, z % other.z);
     }
 
     @Override
@@ -111,7 +115,7 @@ public class Vector3F implements FloatVector<Vector3F>, Vector3<Vector3F, Double
 
     @Override
     public Vector3F cross(final Vector3F other) {
-        return new Vector3F(y * other.z - z * other.y, z * other.x - x * other.z, x * other.y - y * other.x);
+        return of(y * other.z - z * other.y, z * other.x - x * other.z, x * other.y - y * other.x);
     }
 
     @Override

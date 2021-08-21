@@ -65,8 +65,12 @@ public abstract class BoundingBoxSingle<BBType extends BoundingBoxSingle<BBType,
         return Optional.of(constructor.construct(other.start, end));
     }
 
-    public BBType resize(final VecType direction) {
+    public BBType grow(final VecType direction) {
         return constructor.construct(start.add(direction.negate()), end.add(direction));
+    }
+
+    public BBType shrink(final VecType direction) {
+        return grow(direction.negate());
     }
 
     @Override

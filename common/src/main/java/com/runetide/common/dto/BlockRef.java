@@ -120,7 +120,7 @@ public class BlockRef implements ContainerRef<BlockRef, Vector3L, ChunkSectionRe
 
     @Override
     public BlockRef add(final Vector3L vec) {
-        final Vector3L sum = vec.add(new Vector3L(x, y, z));
+        final Vector3L sum = vec.add(Vector3L.of(x, y, z));
         final Vector3L modulo = sum.modulo(Constants.BLOCKS_PER_CHUNK_SECTION_VEC);
         return chunkSectionRef.add(sum.divide(Constants.BLOCKS_PER_CHUNK_SECTION_VEC))
                 .block(modulo.getX().intValue(), modulo.getY().intValue(), modulo.getZ().intValue());
@@ -152,7 +152,7 @@ public class BlockRef implements ContainerRef<BlockRef, Vector3L, ChunkSectionRe
     public Vector3L subtract(final BlockRef other) {
         return chunkSectionRef.subtract(other.chunkSectionRef)
                 .scale(Constants.BLOCKS_PER_CHUNK_SECTION_VEC)
-                .add(new Vector3L(x - other.x, y - other.y, z - other.z));
+                .add(Vector3L.of(x - other.x, y - other.y, z - other.z));
     }
 
     @Override
@@ -196,7 +196,7 @@ public class BlockRef implements ContainerRef<BlockRef, Vector3L, ChunkSectionRe
         if(ContainerBase.CONTAINING_COMPARATOR.compare(getClass(), basis.getClass()) < 0)
             return getStart().offsetTo(basis).divide(Constants.OFFSETS_PER_BLOCK_VEC);
         return getParent().offsetTo(basis).scale(Constants.BLOCKS_PER_CHUNK_SECTION_VEC)
-                .add(new Vector3L(x, y, z));
+                .add(Vector3L.of(x, y, z));
     }
 
     @Override

@@ -8,7 +8,7 @@ import java.util.Objects;
 public interface XZCoordinates<Self extends XZCoordinates<Self>> extends BaseXZCoordinates<Self, Vector2L> {
     @Override
     default Self add(final long val) {
-        return add(new Vector2L(val, val));
+        return add(Vector2L.of(val, val));
     }
 
     @Override

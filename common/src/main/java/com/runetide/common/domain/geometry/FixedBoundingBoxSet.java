@@ -10,11 +10,20 @@ import java.util.stream.Collectors;
 public class FixedBoundingBoxSet<PointType extends FixedPoint<PointType, VecType>, VecType extends FixedVector<VecType>>
         extends BoundingBoxSet<FixedBoundingBoxSet<PointType, VecType>, FixedBoundingBoxSingle<PointType, VecType>,
         PointType, VecType, Long>
-        implements IterableLocus<FixedBoundingBoxSet<PointType, VecType>, PointType, VecType>,
-        FixedBoundingBox<FixedBoundingBoxSet<PointType, VecType>, PointType, VecType> {
+        implements FixedBoundingBox<FixedBoundingBoxSet<PointType, VecType>, PointType, VecType> {
 
-    public FixedBoundingBoxSet(final Set<FixedBoundingBoxSingle<PointType, VecType>> boxes) {
-        super(FixedBoundingBoxSet::new, boxes);
+    public static <PointType extends FixedPoint<PointType, VecType>, VecType extends FixedVector<VecType>>
+    FixedBoundingBoxSet<PointType, VecType> of(final FixedBoundingBoxSingle<PointType, VecType> box) {
+        return of(Set.of(box));
+    }
+
+    public static <PointType extends FixedPoint<PointType, VecType>, VecType extends FixedVector<VecType>>
+    FixedBoundingBoxSet<PointType, VecType> of(final Set<FixedBoundingBoxSingle<PointType, VecType>> boxes) {
+        return new FixedBoundingBoxSet<>(boxes);
+    }
+
+    private FixedBoundingBoxSet(final Set<FixedBoundingBoxSingle<PointType, VecType>> boxes) {
+        super(FixedBoundingBoxSet::of, boxes);
     }
 
     @Override
@@ -27,7 +36,7 @@ public class FixedBoundingBoxSet<PointType extends FixedPoint<PointType, VecType
                 .orElseThrow(IllegalStateException::new);
         final PointType end = boxes.stream().map(BoundingBoxSingle::getEnd).reduce(PointType::maxCoordinates)
                 .orElseThrow(IllegalStateException::new);
-        return new FixedBoundingBoxSingle<>(start, end);
+        return FixedBoundingBoxSingle.of(start, end);
     }
 
     @Override
@@ -39,7 +48,7 @@ public class FixedBoundingBoxSet<PointType extends FixedPoint<PointType, VecType
     public <NewPointType extends FixedPoint<NewPointType, NewVecType>, NewVecType extends FixedVector<NewVecType>>
     FixedBoundingBoxSet<NewPointType, NewVecType> map(final Function<PointType, NewPointType> startMapper,
                                                       final Function<PointType, NewPointType> endMapper) {
-        return new FixedBoundingBoxSet<>(boxes.stream().map(box -> box.map(startMapper, endMapper))
+        return of(boxes.stream().map(box -> box.map(startMapper, endMapper))
                 .collect(Collectors.toUnmodifiableSet()));
     }
 }

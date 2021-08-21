@@ -7,9 +7,9 @@ import java.util.List;
 import java.util.Objects;
 
 public class Vector2F implements FloatVector<Vector2F>, Vector2<Vector2F, Double> {
-    public static final Vector2F IDENTITY = new Vector2F(0, 0);
-    public static final Vector2F UNIT_X = new Vector2F(1, 0);
-    public static final Vector2F UNIT_Z = new Vector2F(0, 1);
+    public static final Vector2F IDENTITY = of(0, 0);
+    public static final Vector2F UNIT_X = of(1, 0);
+    public static final Vector2F UNIT_Z = of(0, 1);
     public static final Vector2F UNIT_NEG_X = UNIT_X.negate();
     public static final Vector2F UNIT_NEG_Z = UNIT_Z.negate();
     public static final List<Vector2F> AXIS = ImmutableList.of(UNIT_X, UNIT_Z);
@@ -19,7 +19,11 @@ public class Vector2F implements FloatVector<Vector2F>, Vector2<Vector2F, Double
     private final double x;
     private final double z;
 
-    public Vector2F(final double x, final double z) {
+    public static Vector2F of(final double x, final double z) {
+        return new Vector2F(x, z);
+    }
+
+    private Vector2F(final double x, final double z) {
         this.x = x;
         this.z = z;
     }
@@ -31,12 +35,12 @@ public class Vector2F implements FloatVector<Vector2F>, Vector2<Vector2F, Double
 
     @Override
     public Vector2F add(final Vector2F other) {
-        return new Vector2F(x + other.x, z + other.z);
+        return of(x + other.x, z + other.z);
     }
 
     @Override
     public Vector2F subtract(final Vector2F other) {
-        return new Vector2F(x - other.x, z - other.z);
+        return of(x - other.x, z - other.z);
     }
 
     @Override
@@ -51,27 +55,27 @@ public class Vector2F implements FloatVector<Vector2F>, Vector2<Vector2F, Double
 
     @Override
     public Vector2F withCoordinateFrom(final Vector2F other, final int coordinate) {
-        return new Vector2F(coordinate == COORDINATE_X ? other.x : x, coordinate == COORDINATE_Z ? other.z : z);
+        return of(coordinate == COORDINATE_X ? other.x : x, coordinate == COORDINATE_Z ? other.z : z);
     }
 
     @Override
     public Vector2F negate() {
-        return new Vector2F(-x, -z);
+        return of(-x, -z);
     }
 
     @Override
     public Vector2F scale(final Vector2F other) {
-        return new Vector2F(x * other.x, z * other.z);
+        return of(x * other.x, z * other.z);
     }
 
     @Override
     public Vector2F divide(final Vector2F other) {
-        return new Vector2F(x / other.x, z / other.z);
+        return of(x / other.x, z / other.z);
     }
 
     @Override
     public Vector2F modulo(final Vector2F other) {
-        return new Vector2F(x % other.x, z % other.z);
+        return of(x % other.x, z % other.z);
     }
 
     @Override

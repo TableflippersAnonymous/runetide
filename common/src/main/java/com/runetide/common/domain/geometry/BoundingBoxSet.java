@@ -56,7 +56,7 @@ public abstract class BoundingBoxSet<BBSet extends BoundingBoxSet<BBSet, BBType,
     }
 
     public BBSet union(final BBType other) {
-        return union(constructor.apply(Set.of(other)));
+        return constructor.apply(ImmutableSet.<BBType>builder().addAll(boxes).add(other).build());
     }
 
     @Override
@@ -67,12 +67,11 @@ public abstract class BoundingBoxSet<BBSet extends BoundingBoxSet<BBSet, BBType,
          *    In this case, we need to subtract out the intersection, and add the rest.
          * These can actually be combined into the same basic check, as if we are a full superset, the intersection
          * will be the whole new BoundingBox, and the subtraction will be nothing.
+         *
+         * This is actually implemented below in compactOnce()
          */
-        final Optional<BBSet> bbs = other.subtract(getSelf());
-        if(bbs.isEmpty())
-            return getSelf();
         return constructor.apply(ImmutableSet.<BBType>builder()
-                .addAll(boxes).addAll(bbs.get().boxes).build());
+                .addAll(boxes).addAll(other.boxes).build());
     }
 
     public Optional<BBSet> subtract(final BBType other) {
@@ -103,6 +102,10 @@ public abstract class BoundingBoxSet<BBSet extends BoundingBoxSet<BBSet, BBType,
     public BBSet move(final VecType direction) {
         return constructor.apply(boxes.stream().map(box -> box.move(direction))
                 .collect(Collectors.toUnmodifiableSet()));
+    }
+
+    public Set<BBType> getBoxes() {
+        return boxes.stream().collect(Collectors.toUnmodifiableSet());
     }
 
     public abstract BBType toBoundingBox();
@@ -142,6 +145,15 @@ public abstract class BoundingBoxSet<BBSet extends BoundingBoxSet<BBSet, BBType,
         final Set<BBType> compactedBoxes = new HashSet<>(boxes);
         for(final BBType box1 : boxes) {
             for(final BBType box2 : boxes) {
+                if(box1 == box2)
+                    continue;
+                /* Handle the union case.  See the union method for more details. */
+                if(box1.intersectsWith(box2)) {
+                    final Optional<BBSet> subtract = box1.subtract(box2);
+                    compactedBoxes.remove(box1);
+                    subtract.ifPresent(bbSet -> compactedBoxes.addAll(bbSet.boxes));
+                    return Optional.of(compactedBoxes);
+                }
                 /* We can only merge adjacent boxes, otherwise we get an empty optional.  So, try, and see if
                  * we could merge it. */
                 final Optional<BBType> mergedBox = box1.merge(box2);

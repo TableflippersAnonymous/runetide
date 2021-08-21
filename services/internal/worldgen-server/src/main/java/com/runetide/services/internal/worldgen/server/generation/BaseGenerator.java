@@ -11,7 +11,8 @@ public abstract class BaseGenerator<
         GenerationParent extends ContainerRef<GenerationParent, GenerationParentVecType, ?, ?, ?>,
         GenerationParentVecType extends FixedVector<GenerationParentVecType>,
         PointType extends ContainerRef<PointType, VecType, ?, ?, ?>,
-        VecType extends FixedVector<VecType>, ReturnType> {
+        VecType extends FixedVector<VecType>, ReturnType>
+        implements Generator<PointType, VecType, ReturnType> {
     private final Function<VecType, ReturnType> allocateArray;
     private final Class<GenerationParent> generationParentClass;
     private final Class<PointType> pointTypeClass;
@@ -27,13 +28,13 @@ public abstract class BaseGenerator<
     public ReturnType generate(final FixedBoundingBoxSingle<PointType, VecType> boundingBox) {
         final ReturnType ret = allocateArray.apply(boundingBox.getDimensions());
         for(final GenerationParent parent : boundingBox.map(point -> point.getOffsetBasis(generationParentClass))) {
-            final FixedBoundingBoxSingle<PointType, VecType> parentBox = parent.asBoundingBox()
-                    .map(point -> point.getOffsetBasis(pointTypeClass));
+            final FixedBoundingBoxSingle<PointType, VecType> parentBox = parent.asBoundingBox(pointTypeClass);
             final Optional<FixedBoundingBoxSingle<PointType, VecType>> intersection = boundingBox.intersect(parentBox);
             if(intersection.isPresent()) {
                 final PointType intersectionStart = intersection.get().getStart();
                 final VecType retOffset = intersectionStart.subtract(boundingBox.getStart());
-                generateValues(ret, parent, intersection.get(), retOffset, intersectionStart.offsetTo(parent));
+                generateValues(ret, parent, intersection.get(), parentBox, retOffset,
+                        intersectionStart.offsetTo(parent));
             }
         }
         return ret;
@@ -41,5 +42,6 @@ public abstract class BaseGenerator<
 
     protected abstract void generateValues(final ReturnType ret, final GenerationParent parent,
                                            final FixedBoundingBoxSingle<PointType, VecType> boundingBox,
+                                           final FixedBoundingBoxSingle<PointType, VecType> parentBox,
                                            final VecType retOffset, final VecType parentOffset);
 }

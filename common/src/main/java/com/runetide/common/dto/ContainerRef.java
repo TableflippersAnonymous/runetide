@@ -27,7 +27,7 @@ public interface ContainerRef<Self extends ContainerRef<Self, VecType, ParentTyp
 
     @Contract(pure = true)
     default FixedBoundingBoxSingle<ChildType, ChildVecType> asBoundingBox() {
-        return new FixedBoundingBoxSingle<>(getStart(), getEnd());
+        return FixedBoundingBoxSingle.of(getStart(), getEnd());
     }
 
     @Contract(pure = true)
@@ -58,5 +58,17 @@ public interface ContainerRef<Self extends ContainerRef<Self, VecType, ParentTyp
         if(ContainerBase.CONTAINING_COMPARATOR.compare(getClass(), clazz) < 0)
             return getParent().getOffsetBasis(clazz);
         return getStart().getOffsetBasis(clazz);
+    }
+
+    @Override
+    default <T extends ContainerBase<T> & FixedPoint<T, TVecType>, TVecType extends FixedVector<TVecType>>
+    FixedBoundingBoxSingle<T, TVecType> asBoundingBox(final Class<T> clazz) {
+        if(clazz.isInstance(this))
+            return FixedBoundingBoxSingle.of(clazz.cast(this), clazz.cast(this));
+        if(ContainerBase.CONTAINING_COMPARATOR.compare(getClass(), clazz) < 0)
+            return getParent().asBoundingBox(clazz);
+        final T start = getStart().asBoundingBox(clazz).getStart();
+        final T end = getEnd().asBoundingBox(clazz).getEnd();
+        return FixedBoundingBoxSingle.of(start, end);
     }
 }

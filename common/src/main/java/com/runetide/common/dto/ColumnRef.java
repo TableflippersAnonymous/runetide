@@ -105,7 +105,7 @@ public class ColumnRef implements ContainerRef<ColumnRef, Vector2L, ChunkRef, Bl
 
     @Override
     public ColumnRef add(final Vector2L vec) {
-        final Vector2L sum = vec.add(new Vector2L(x, z));
+        final Vector2L sum = vec.add(Vector2L.of(x, z));
         final Vector2L modulo = sum.modulo(Constants.BLOCKS_PER_CHUNK_SECTION_VEC);
         return chunkRef.add(sum.divide(Constants.BLOCKS_PER_CHUNK_SECTION_VEC))
                 .column(modulo.getX().intValue(), modulo.getZ().intValue());
@@ -125,7 +125,7 @@ public class ColumnRef implements ContainerRef<ColumnRef, Vector2L, ChunkRef, Bl
     public Vector2L subtract(final ColumnRef other) {
         return chunkRef.subtract(other.chunkRef)
                 .scale(Constants.COLUMNS_PER_CHUNK_VEC)
-                .add(new Vector2L(x - other.x, z - other.z));
+                .add(Vector2L.of(x - other.x, z - other.z));
     }
 
     @Override
@@ -160,7 +160,7 @@ public class ColumnRef implements ContainerRef<ColumnRef, Vector2L, ChunkRef, Bl
         if(ContainerBase.CONTAINING_COMPARATOR.compare(getClass(), basis.getClass()) <= 0)
             return getStart().offsetTo(basis).toVec2D();
         return getParent().offsetTo(basis).scale(Constants.COLUMNS_PER_CHUNK_VEC)
-                .add(new Vector2L(x, z));
+                .add(Vector2L.of(x, z));
     }
 
     @Override

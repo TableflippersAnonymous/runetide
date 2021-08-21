@@ -10,7 +10,7 @@ import java.util.Objects;
 public interface XYZCoordinates<Self extends XYZCoordinates<Self>> extends BaseXZCoordinates<Self, Vector3L> {
     @Override
     default Self add(final long val) {
-        return add(new Vector3L(val, val, val));
+        return add(Vector3L.of(val, val, val));
     }
 
     @Contract(pure = true)

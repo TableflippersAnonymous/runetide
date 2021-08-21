@@ -6,7 +6,8 @@ import java.util.function.Function;
 
 public interface FixedBoundingBox<BBType extends FixedBoundingBox<BBType, PointType, VecType>,
         PointType extends FixedPoint<PointType, VecType>, VecType extends FixedVector<VecType>>
-        extends BoundingBox<BBType, PointType, VecType, Long> {
+        extends BoundingBox<BBType, PointType, VecType, Long>,
+        IterableLocus<BBType, PointType, VecType> {
     @Contract(pure = true)
     <NewPointType extends FixedPoint<NewPointType, NewVecType>, NewVecType extends FixedVector<NewVecType>>
     FixedBoundingBox<?, NewPointType, NewVecType> map(final Function<PointType, NewPointType> startMapper,
