@@ -1,8 +1,14 @@
 package com.runetide.common.domain.geometry;
 
+import com.google.common.collect.Interner;
+import com.google.common.collect.Interners;
+
 import java.util.Objects;
 
+@SuppressWarnings("UnstableApiUsage")
 public class Matrix3L implements SquareMatrix<Matrix3L, Vector3L, Long> {
+    private static final Interner<Matrix3L> INTERNER = Interners.newWeakInterner();
+
     public static final Matrix3L IDENTITY = of(Vector3L.of(1, 0, 0), Vector3L.of(0, 1, 0),
             Vector3L.of(0, 0, 1));
 
@@ -11,7 +17,7 @@ public class Matrix3L implements SquareMatrix<Matrix3L, Vector3L, Long> {
     private final Vector3L columnC;
 
     public static Matrix3L of(final Vector3L columnA, final Vector3L columnB, final Vector3L columnC) {
-        return new Matrix3L(columnA, columnB, columnC);
+        return INTERNER.intern(new Matrix3L(columnA, columnB, columnC));
     }
 
     private Matrix3L(final Vector3L columnA, final Vector3L columnB, final Vector3L columnC) {
@@ -37,8 +43,7 @@ public class Matrix3L implements SquareMatrix<Matrix3L, Vector3L, Long> {
 
     @Override
     public Matrix3L multiply(final Long scalar) {
-        final Vector3L scaleVec = Vector3L.of(scalar, scalar, scalar);
-        return of(columnA.scale(scaleVec), columnB.scale(scaleVec), columnC.scale(scaleVec));
+        return of(columnA.scale(scalar), columnB.scale(scalar), columnC.scale(scalar));
     }
 
     @Override

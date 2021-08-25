@@ -72,7 +72,7 @@
         <module>services</module>
     </modules>
 
-    <repositories>
+    <!--repositories>
         <repository>
             <id>tblflp</id>
             <name>Tableflip Combined</name>
@@ -99,7 +99,7 @@
             <name>Tableflip Snapshots</name>
             <url>https://bin.tblflp.zone/repository/maven-tblflp-snapshots/</url>
         </snapshotRepository>
-    </distributionManagement>
+    </distributionManagement-->
 
     <dependencyManagement>
         <dependencies>

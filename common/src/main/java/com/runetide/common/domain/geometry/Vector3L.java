@@ -1,13 +1,18 @@
 package com.runetide.common.domain.geometry;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Interner;
+import com.google.common.collect.Interners;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
+@SuppressWarnings("UnstableApiUsage")
 public class Vector3L implements FixedVector<Vector3L>, Vector3<Vector3L, Long>, XYZCoordinates<Vector3L> {
     private static final Vector3L[][][] CACHE = new Vector3L[200][200][200];
+    private static final Interner<Vector3L> INTERNER = Interners.newWeakInterner();
 
     public static final Vector3L IDENTITY = of(0, 0, 0);
     public static final Vector3L UNIT_X = of(1, 0, 0);
@@ -24,13 +29,16 @@ public class Vector3L implements FixedVector<Vector3L>, Vector3<Vector3L, Long>,
     private final long y;
     private final long z;
 
+    @Nullable
+    private transient Vector3L negatedCache;
+
     public static Vector3L of(final long x, final long y, final long z) {
         final int cacheOffset = CACHE.length / 2;
         if(x < -cacheOffset || x >= cacheOffset || y < -cacheOffset || y >= cacheOffset
                 || z < -cacheOffset || z >= cacheOffset)
-            return new Vector3L(x, y, z);
+            return INTERNER.intern(new Vector3L(x, y, z));
         if(CACHE[(int) x + cacheOffset][(int) y + cacheOffset][(int) z + cacheOffset] == null)
-            CACHE[(int) x + cacheOffset][(int) y + cacheOffset][(int) z + cacheOffset] = new Vector3L(x, y, z);
+            CACHE[(int) x + cacheOffset][(int) y + cacheOffset][(int) z + cacheOffset] = INTERNER.intern(new Vector3L(x, y, z));
         return CACHE[(int) x + cacheOffset][(int) y + cacheOffset][(int) z + cacheOffset];
     }
 
@@ -71,6 +79,11 @@ public class Vector3L implements FixedVector<Vector3L>, Vector3<Vector3L, Long>,
     }
 
     @Override
+    public Vector3L divide(final Long scalar) {
+        return of(x / scalar, y / scalar, z / scalar);
+    }
+
+    @Override
     public Vector3L modulo(final Vector3L vec) {
         return of(x % vec.x, y % vec.y, z % vec.z);
     }
@@ -96,8 +109,23 @@ public class Vector3L implements FixedVector<Vector3L>, Vector3<Vector3L, Long>,
     }
 
     @Override
+    public Vector3L scale(final Long scalar) {
+        return of(x * scalar, y * scalar, z * scalar);
+    }
+
+    @Override
     public Vector3L cross(final Vector3L vec) {
         return of(y * vec.z - z * vec.y, z * vec.x - x * vec.z, x * vec.y - y * vec.x);
+    }
+
+    @Override
+    public Vector3F toFloat() {
+        return Vector3F.of(x, y, z);
+    }
+
+    @Override
+    public Vector3L toFixed() {
+        return this;
     }
 
     @Override
@@ -107,7 +135,11 @@ public class Vector3L implements FixedVector<Vector3L>, Vector3<Vector3L, Long>,
 
     @Override
     public Vector3L negate() {
-        return of(-x, -y, -z);
+        if(negatedCache == null) {
+            negatedCache = of(-x, -y, -z);
+            negatedCache.negatedCache = this;
+        }
+        return negatedCache;
     }
 
     @Override

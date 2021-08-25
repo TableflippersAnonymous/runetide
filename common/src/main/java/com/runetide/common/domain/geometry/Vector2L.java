@@ -1,13 +1,18 @@
 package com.runetide.common.domain.geometry;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Interner;
+import com.google.common.collect.Interners;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
+@SuppressWarnings("UnstableApiUsage")
 public class Vector2L implements FixedVector<Vector2L>, Vector2<Vector2L, Long>, XZCoordinates<Vector2L> {
     private static final Vector2L[][] CACHE = new Vector2L[200][200];
+    private static final Interner<Vector2L> INTERNER = Interners.newWeakInterner();
 
     public static final Vector2L IDENTITY = of(0, 0);
     public static final Vector2L UNIT_X = of(1, 0);
@@ -18,8 +23,11 @@ public class Vector2L implements FixedVector<Vector2L>, Vector2<Vector2L, Long>,
     public static final List<Comparator<Vector2L>> COMPARATORS = ImmutableList.of(Comparator.comparing(Vector2L::getX),
             Comparator.comparing(Vector2L::getZ));
 
-    protected final long x;
-    protected final long z;
+    private final long x;
+    private final long z;
+
+    @Nullable
+    private transient Vector2L negatedCache = null;
 
     /* Vector2L (and other geometry objects are immutable once constructed.  This means we can cache them and re-use
      * them without worry about someone mutating them.  To facilitate this, the Vector2L constructor is private, with
@@ -28,9 +36,9 @@ public class Vector2L implements FixedVector<Vector2L>, Vector2<Vector2L, Long>,
     public static Vector2L of(final long x, final long z) {
         final int cacheOffset = CACHE.length / 2;
         if(x < -cacheOffset || x >= cacheOffset || z < -cacheOffset || z >= cacheOffset)
-            return new Vector2L(x, z);
+            return INTERNER.intern(new Vector2L(x, z));
         if(CACHE[(int) x + cacheOffset][(int) z + cacheOffset] == null)
-            CACHE[(int) x + cacheOffset][(int) z + cacheOffset] = new Vector2L(x, z);
+            CACHE[(int) x + cacheOffset][(int) z + cacheOffset] = INTERNER.intern(new Vector2L(x, z));
         return CACHE[(int) x + cacheOffset][(int) z + cacheOffset];
     }
 
@@ -45,6 +53,16 @@ public class Vector2L implements FixedVector<Vector2L>, Vector2<Vector2L, Long>,
 
     public Long getZ() {
         return z;
+    }
+
+    @Override
+    public Vector2F toFloat() {
+        return Vector2F.of(x, z);
+    }
+
+    @Override
+    public Vector2L toFixed() {
+        return this;
     }
 
     @Override
@@ -63,6 +81,11 @@ public class Vector2L implements FixedVector<Vector2L>, Vector2<Vector2L, Long>,
     @Override
     public Vector2L divide(final Vector2L vec) {
         return of(x / vec.x, z / vec.z);
+    }
+
+    @Override
+    public Vector2L divide(final Long scalar) {
+        return of(x / scalar, z / scalar);
     }
 
     public Vector2L divide(final Vector3L vec) {
@@ -96,6 +119,11 @@ public class Vector2L implements FixedVector<Vector2L>, Vector2<Vector2L, Long>,
     @Override
     public Vector2L scale(final Vector2L vec) {
         return of(x * vec.x, z * vec.z);
+    }
+
+    @Override
+    public Vector2L scale(final Long scalar) {
+        return of(x * scalar, z * scalar);
     }
 
     @Override
@@ -141,7 +169,11 @@ public class Vector2L implements FixedVector<Vector2L>, Vector2<Vector2L, Long>,
 
     @Override
     public Vector2L negate() {
-        return of(-x, -z);
+        if(negatedCache == null) {
+            negatedCache = of(-x, -z);
+            negatedCache.negatedCache = this;
+        }
+        return negatedCache;
     }
 
     @Override

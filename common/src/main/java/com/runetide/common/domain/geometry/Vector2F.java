@@ -1,12 +1,18 @@
 package com.runetide.common.domain.geometry;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Interner;
+import com.google.common.collect.Interners;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
+@SuppressWarnings("UnstableApiUsage")
 public class Vector2F implements FloatVector<Vector2F>, Vector2<Vector2F, Double> {
+    private static final Interner<Vector2F> INTERNER = Interners.newWeakInterner();
+
     public static final Vector2F IDENTITY = of(0, 0);
     public static final Vector2F UNIT_X = of(1, 0);
     public static final Vector2F UNIT_Z = of(0, 1);
@@ -19,8 +25,11 @@ public class Vector2F implements FloatVector<Vector2F>, Vector2<Vector2F, Double
     private final double x;
     private final double z;
 
+    @Nullable
+    private transient Vector2F negatedCache;
+
     public static Vector2F of(final double x, final double z) {
-        return new Vector2F(x, z);
+        return INTERNER.intern(new Vector2F(x, z));
     }
 
     private Vector2F(final double x, final double z) {
@@ -60,7 +69,11 @@ public class Vector2F implements FloatVector<Vector2F>, Vector2<Vector2F, Double
 
     @Override
     public Vector2F negate() {
-        return of(-x, -z);
+        if(negatedCache == null) {
+            negatedCache = of(-x, -z);
+            negatedCache.negatedCache = this;
+        }
+        return negatedCache;
     }
 
     @Override
@@ -69,8 +82,18 @@ public class Vector2F implements FloatVector<Vector2F>, Vector2<Vector2F, Double
     }
 
     @Override
+    public Vector2F scale(final Double scalar) {
+        return of(x * scalar, z * scalar);
+    }
+
+    @Override
     public Vector2F divide(final Vector2F other) {
         return of(x / other.x, z / other.z);
+    }
+
+    @Override
+    public Vector2F divide(final Double scalar) {
+        return of(x / scalar, z / scalar);
     }
 
     @Override
@@ -110,6 +133,16 @@ public class Vector2F implements FloatVector<Vector2F>, Vector2<Vector2F, Double
     @Override
     public Double getZ() {
         return z;
+    }
+
+    @Override
+    public Vector2F toFloat() {
+        return this;
+    }
+
+    @Override
+    public Vector2L toFixed() {
+        return Vector2L.of((long) x, (long) z);
     }
 
     @Override

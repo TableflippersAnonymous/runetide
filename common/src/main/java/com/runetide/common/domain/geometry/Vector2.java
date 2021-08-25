@@ -8,4 +8,14 @@ public interface Vector2<Self extends Vector2<Self, NumberType>, NumberType exte
     NumberType getX();
     @Contract(pure = true)
     NumberType getZ();
+    @Override
+    Vector2F toFloat();
+    @Override
+    Vector2L toFixed();
+
+    @Override
+    default Vector2F normalize() {
+        final Vector2F fVec = toFloat();
+        return fVec.divide(fVec.length());
+    }
 }

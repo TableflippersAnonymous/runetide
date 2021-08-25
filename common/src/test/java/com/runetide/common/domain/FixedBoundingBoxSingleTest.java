@@ -1,5 +1,6 @@
 package com.runetide.common.domain;
 
+import com.runetide.common.domain.geometry.Direction3;
 import com.runetide.common.domain.geometry.FixedBoundingBoxSet;
 import com.runetide.common.domain.geometry.FixedBoundingBoxSingle;
 import com.runetide.common.domain.geometry.BoundingBoxSet;
@@ -24,8 +25,8 @@ public class FixedBoundingBoxSingleTest {
 
     @Test
     public void testUnion() {
-        final FixedBoundingBoxSingle<Vector2L, Vector2L> add = FixedBoundingBoxSingle.of(Vector2L.of(2, 2), Vector2L.of(6, 6));
-        final FixedBoundingBoxSet<Vector2L, Vector2L> bbs = sut2.union(add);
+        final var add = FixedBoundingBoxSingle.of(Vector2L.of(2, 2), Vector2L.of(6, 6));
+        final var bbs = sut2.union(add);
         System.out.println(sut2 + " union " + add);
         System.out.println("= " + bbs);
         Assert.assertTrue(bbs.contains(Vector2L.of(0, 0)));
@@ -37,8 +38,8 @@ public class FixedBoundingBoxSingleTest {
 
     @Test
     public void testSubtract() {
-        final FixedBoundingBoxSingle<Vector2L, Vector2L> sub1 = FixedBoundingBoxSingle.of(Vector2L.of(2, 2), Vector2L.of(3, 3));
-        final Optional<FixedBoundingBoxSet<Vector2L, Vector2L>> bbs1 = sut2.subtract(sub1);
+        final var sub1 = FixedBoundingBoxSingle.of(Vector2L.of(2, 2), Vector2L.of(3, 3));
+        final var bbs1 = sut2.subtract(sub1);
         System.out.println(sut2 + " - " + sub1);
         System.out.println("= " + bbs1);
         Assert.assertTrue(bbs1.isPresent());
@@ -46,8 +47,8 @@ public class FixedBoundingBoxSingleTest {
         Assert.assertFalse(bbs1.get().contains(Vector2L.of(3, 3)));
         Assert.assertTrue(bbs1.get().contains(Vector2L.of(5, 5)));
 
-        final FixedBoundingBoxSingle<Vector2L, Vector2L> sub2 = FixedBoundingBoxSingle.of(Vector2L.of(2, -1), Vector2L.of(3, 6));
-        final Optional<FixedBoundingBoxSet<Vector2L, Vector2L>> bbs2 = sut2.subtract(sub2);
+        final var sub2 = FixedBoundingBoxSingle.of(Vector2L.of(2, -1), Vector2L.of(3, 6));
+        final var bbs2 = sut2.subtract(sub2);
         System.out.println(sut2 + " - " + sub2);
         System.out.println("= " + bbs2);
         Assert.assertTrue(bbs2.isPresent());
@@ -55,8 +56,8 @@ public class FixedBoundingBoxSingleTest {
         Assert.assertFalse(bbs2.get().contains(Vector2L.of(3, 3)));
         Assert.assertTrue(bbs2.get().contains(Vector2L.of(5, 5)));
 
-        final FixedBoundingBoxSingle<Vector2L, Vector2L> sub3 = FixedBoundingBoxSingle.of(Vector2L.of(6, 6), Vector2L.of(7, 7));
-        final Optional<FixedBoundingBoxSet<Vector2L, Vector2L>> bbs3 = sut2.subtract(sub3);
+        final var sub3 = FixedBoundingBoxSingle.of(Vector2L.of(6, 6), Vector2L.of(7, 7));
+        final var bbs3 = sut2.subtract(sub3);
         System.out.println(sut2 + " - " + sub3);
         System.out.println("= " + bbs3);
         Assert.assertTrue(bbs3.isPresent());
@@ -64,9 +65,22 @@ public class FixedBoundingBoxSingleTest {
         Assert.assertTrue(bbs3.get().contains(Vector2L.of(3, 3)));
         Assert.assertTrue(bbs3.get().contains(Vector2L.of(5, 5)));
 
-        final Optional<FixedBoundingBoxSet<Vector2L, Vector2L>> bbs4 = sut2.subtract(sut2);
+        final var bbs4 = sut2.subtract(sut2);
         System.out.println(sut2 + " - " + sut2);
         System.out.println("= " + bbs4);
         Assert.assertTrue(bbs4.isEmpty());
+    }
+
+    @Test
+    public void testExpandContract() {
+        final var expanded = sut3.expand(Direction3.NORTH_WEST.scale(5L));
+        System.out.println(sut3 + " expand " + Direction3.NORTH_EAST.asVectorL());
+        System.out.println("= " + expanded);
+        Assert.assertEquals(expanded, FixedBoundingBoxSingle.of(Vector3L.of(-5, 0, 0), Vector3L.of(5, 5, 10)));
+
+        final var contracted = expanded.contract(Direction3.NORTH_WEST.scale(5L));
+        System.out.println(expanded + " contract " + Direction3.NORTH_EAST.asVectorL());
+        System.out.println("= " + contracted);
+        Assert.assertEquals(contracted, sut3);
     }
 }

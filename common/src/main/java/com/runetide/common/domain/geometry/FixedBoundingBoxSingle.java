@@ -1,19 +1,24 @@
 package com.runetide.common.domain.geometry;
 
+import com.google.common.collect.Interner;
+import com.google.common.collect.Interners;
+
 import java.util.Comparator;
 import java.util.Iterator;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 
+@SuppressWarnings("UnstableApiUsage")
 public class FixedBoundingBoxSingle<PointType extends FixedPoint<PointType, VecType>, VecType extends FixedVector<VecType>>
         extends BoundingBoxSingle<FixedBoundingBoxSingle<PointType, VecType>, FixedBoundingBoxSet<PointType, VecType>,
         PointType, VecType, Long>
         implements FixedBoundingBox<FixedBoundingBoxSingle<PointType, VecType>, PointType, VecType> {
+    private static final Interner<FixedBoundingBoxSingle<?, ?>> INTERNER = Interners.newWeakInterner();
 
     public static <PointType extends FixedPoint<PointType, VecType>, VecType extends FixedVector<VecType>>
     FixedBoundingBoxSingle<PointType, VecType> of(final PointType start, final PointType end) {
-        return new FixedBoundingBoxSingle<>(start, end);
+        //noinspection unchecked
+        return (FixedBoundingBoxSingle<PointType, VecType>) INTERNER.intern(new FixedBoundingBoxSingle<>(start, end));
     }
 
     private FixedBoundingBoxSingle(final PointType start, final PointType end) {
@@ -126,19 +131,6 @@ public class FixedBoundingBoxSingle<PointType extends FixedPoint<PointType, VecT
     public <NewPointType extends FixedPoint<NewPointType, NewVecType>, NewVecType extends FixedVector<NewVecType>>
     FixedBoundingBoxSingle<NewPointType, NewVecType> map(final Function<PointType, NewPointType> mapper) {
         return map(mapper, mapper);
-    }
-
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        final FixedBoundingBoxSingle<?, ?> that = (FixedBoundingBoxSingle<?, ?>) o;
-        return Objects.equals(start, that.start) && Objects.equals(end, that.end);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(start, end);
     }
 
     @Override

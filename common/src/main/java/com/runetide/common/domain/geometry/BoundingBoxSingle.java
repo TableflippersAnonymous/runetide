@@ -1,5 +1,6 @@
 package com.runetide.common.domain.geometry;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalInt;
 
@@ -65,12 +66,21 @@ public abstract class BoundingBoxSingle<BBType extends BoundingBoxSingle<BBType,
         return Optional.of(constructor.construct(other.start, end));
     }
 
-    public BBType grow(final VecType direction) {
+    public BBType outset(final VecType direction) {
         return constructor.construct(start.add(direction.negate()), end.add(direction));
     }
 
-    public BBType shrink(final VecType direction) {
-        return grow(direction.negate());
+    public BBType inset(final VecType direction) {
+        return outset(direction.negate());
+    }
+
+    public BBType expand(final VecType direction) {
+        return constructor.construct(start.add(direction).minCoordinates(start), end.add(direction).maxCoordinates(end));
+    }
+
+    public BBType contract(final VecType direction) {
+        return constructor.construct(start.add(direction.negate()).maxCoordinates(start),
+                end.add(direction.negate()).minCoordinates(end));
     }
 
     @Override
@@ -91,5 +101,18 @@ public abstract class BoundingBoxSingle<BBType extends BoundingBoxSingle<BBType,
     @Override
     public BBType move(final VecType direction) {
         return constructor.construct(start.add(direction), end.add(direction));
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        final BoundingBoxSingle<?, ?, ?, ?, ?> that = (BoundingBoxSingle<?, ?, ?, ?, ?>) o;
+        return start.equals(that.start) && end.equals(that.end);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(start, end);
     }
 }

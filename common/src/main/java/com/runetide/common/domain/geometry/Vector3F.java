@@ -1,12 +1,18 @@
 package com.runetide.common.domain.geometry;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Interner;
+import com.google.common.collect.Interners;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
+@SuppressWarnings("UnstableApiUsage")
 public class Vector3F implements FloatVector<Vector3F>, Vector3<Vector3F, Double> {
+    private static final Interner<Vector3F> INTERNER = Interners.newWeakInterner();
+
     public static final Vector3F IDENTITY = of(0, 0, 0);
     public static final Vector3F UNIT_X = of(1, 0, 0);
     public static final Vector3F UNIT_Y = of(0, 1, 0);
@@ -22,8 +28,11 @@ public class Vector3F implements FloatVector<Vector3F>, Vector3<Vector3F, Double
     private final double y;
     private final double z;
 
+    @Nullable
+    private transient Vector3F negatedCache;
+
     public static Vector3F of(final double x, final double y, final double z) {
-        return new Vector3F(x, y, z);
+        return INTERNER.intern(new Vector3F(x, y, z));
     }
 
     private Vector3F(final double x, final double y, final double z) {
@@ -65,7 +74,11 @@ public class Vector3F implements FloatVector<Vector3F>, Vector3<Vector3F, Double
 
     @Override
     public Vector3F negate() {
-        return of(-x, -y, -z);
+        if(negatedCache == null) {
+            negatedCache = of(-x, -y, -z);
+            negatedCache.negatedCache = this;
+        }
+        return negatedCache;
     }
 
     @Override
@@ -74,8 +87,18 @@ public class Vector3F implements FloatVector<Vector3F>, Vector3<Vector3F, Double
     }
 
     @Override
+    public Vector3F scale(final Double scalar) {
+        return of(x * scalar, y * scalar, z * scalar);
+    }
+
+    @Override
     public Vector3F divide(final Vector3F other) {
         return of(x / other.x, y / other.y, z / other.z);
+    }
+
+    @Override
+    public Vector3F divide(final Double scalar) {
+        return of(x / scalar, y / scalar, z / scalar);
     }
 
     @Override
@@ -116,6 +139,16 @@ public class Vector3F implements FloatVector<Vector3F>, Vector3<Vector3F, Double
     @Override
     public Vector3F cross(final Vector3F other) {
         return of(y * other.z - z * other.y, z * other.x - x * other.z, x * other.y - y * other.x);
+    }
+
+    @Override
+    public Vector3F toFloat() {
+        return this;
+    }
+
+    @Override
+    public Vector3L toFixed() {
+        return Vector3L.of((long) x, (long) y, (long) z);
     }
 
     @Override

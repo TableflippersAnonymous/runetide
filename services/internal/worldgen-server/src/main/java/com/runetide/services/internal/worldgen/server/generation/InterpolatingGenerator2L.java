@@ -6,7 +6,6 @@ import com.runetide.common.domain.geometry.Vector2L;
 import com.runetide.common.dto.ContainerRef;
 import org.apache.commons.math3.analysis.interpolation.UnivariateInterpolator;
 
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class InterpolatingGenerator2L<GenerationParent extends ContainerRef<GenerationParent, Vector2L, ?, ?, ?>,
@@ -37,40 +36,69 @@ public class InterpolatingGenerator2L<GenerationParent extends ContainerRef<Gene
                                   final FixedBoundingBoxSingle<PointType, Vector2L> boundingBox,
                                   final FixedBoundingBoxSingle<PointType, Vector2L> parentBox,
                                   final Vector2L retOffset, final Vector2L parentOffset) {
-        /* Generate the boundingBox */
+        /* Generate within the boundingBox */
         final int[][] generated = generator.generate(boundingBox);
         final int retOffsetX = retOffset.getX().intValue();
         final int retOffsetZ = retOffset.getZ().intValue();
         for(int x = 0; x < generated.length; x++)
             System.arraycopy(generated[x], 0, ret[x + retOffsetX], retOffsetZ, generated[x].length);
 
-        /* Check if we need to interpolate at all. */
-        final FixedBoundingBoxSingle<PointType, Vector2L> nonInterpolateBox = parentBox
-                .shrink(interpolateBorder);
-        final Optional<FixedBoundingBoxSet<PointType, Vector2L>> borderBox = parentBox
-                .grow(interpolateBorder)
-                .subtract(nonInterpolateBox);
+        /* Check if we need to interpolate at all.
+         *
+         * +----------------------------+<-- borderBox (does not include parentBox.shrink(interpolateBorder) below)
+         * |      interpolateBorder     |
+         * |   +--------------------+<--|--- parentBox
+         * |   |  interpolateBorder |   |
+         * |   |   +------------+<--|---|--- parentBox.shrink(interpolateBorder)
+         * |   |   |////////////|   |   |
+         * |   |   |////////////|   |   |
+         * |   |   |////////////|   |   |
+         * |   |   |////////////|   |   |
+         * |   |   +------------+   |   |
+         * |   |                    |   |
+         * |   +--------------------+   |
+         * |                            |
+         * +----------------------------+
+         *
+         * parentBox is the BB containing all of the points in the GenerationParent.
+         * borderBox is the BB containing just the interpolateBorder on the outside and on the inside of parentBox.
+         *
+         * We need to interpolate only if borderBox intersects with boundingBox (our generation area).
+         */
+        final var borderBox = parentBox.outset(interpolateBorder)
+                .subtract(parentBox.inset(interpolateBorder));
         if(borderBox.isEmpty() || !borderBox.get().intersectsWith(boundingBox))
             return;
 
         /* If we got here, we need to interpolate.  Specifically, borderBox is the parts we need to interpolate over
-         * and nonInterpolateBox is the part that can be taken from the generator verbatim.
+         * and generationBox is the part that can be taken from the generator verbatim.
+         *
+         * totalInterpolatableArea is like borderBox, but expanded to include interpolateDistance.  This represents
+         *     what we care about for interpolation.
+         * generationParents is the BB containing all of the GenerationParents in the totalInterpolatableArea.
+         * generationArea is the generatable areas (not within interpolateBorder from the edges) for each
+         *     GenerationParent in generationParents, intersected with boundingBox.  This is what we need to generate.
          */
-        final FixedBoundingBoxSet<PointType, Vector2L> totalInterpolatableArea = borderBox.get()
-                .map(point -> point.add(interpolateDistance.negate()), point -> point.add(interpolateDistance));
-        final FixedBoundingBoxSingle<GenerationParent, Vector2L> generationParents = totalInterpolatableArea
+        final var totalInterpolatableArea = borderBox.get()
+                .map(start -> start.add(interpolateDistance.negate()), end -> end.add(interpolateDistance));
+        final var generationParents = totalInterpolatableArea
                 .toBoundingBox().map(point -> point.getOffsetBasis(generationParentClass));
-        final FixedBoundingBoxSet<PointType, Vector2L> generationArea = FixedBoundingBoxSet.of(generationParents
+        final var generationArea = FixedBoundingBoxSet.of(generationParents
                 .stream()
                 .map(p -> p.asBoundingBox(pointTypeClass)
-                        .shrink(interpolateBorder))
-                .collect(Collectors.toUnmodifiableSet()));
+                        .inset(interpolateBorder))
+                .collect(Collectors.toUnmodifiableSet()))
+                .intersect(boundingBox.outset(interpolateBorder.scale(2L).add(interpolateDistance)));
 
-        //TODO: We need to generate points for these points:
-        generationArea.intersect(boundingBox.grow(interpolateBorder).grow(interpolateBorder)
-                .grow(interpolateDistance));
+        // No interpolation necessary.
+        if(generationArea.isEmpty())
+            return;
 
-        //TODO: We need to then interpolate between those points and nonInterpolateBox, filling in any points in
+        for(final FixedBoundingBoxSingle<PointType, Vector2L> box : generationArea.get().getBoxes()) {
+
+        }
+
+        //TODO: We need to then interpolate between those points and generationBox, filling in any points in
         //      borderBox.intersect(boundingBox)
     }
 

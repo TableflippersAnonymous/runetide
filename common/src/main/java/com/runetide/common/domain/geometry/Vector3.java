@@ -15,6 +15,17 @@ public interface Vector3<Self extends Vector3<Self, NumberType>, NumberType exte
     Self cross(final Self other);
 
     @Override
+    Vector3F toFloat();
+    @Override
+    Vector3L toFixed();
+
+    @Override
+    default Vector3F normalize() {
+        final Vector3F fVec = toFloat();
+        return fVec.divide(fVec.length());
+    }
+
+    @Override
     default NumberType crossSquareLength(final Self other) {
         return cross(other).squareLength();
     }

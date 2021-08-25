@@ -1,17 +1,23 @@
 package com.runetide.common.domain.geometry;
 
+import com.google.common.collect.Interner;
+import com.google.common.collect.Interners;
+
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.Set;
 
+@SuppressWarnings("UnstableApiUsage")
 public class FloatBoundingBoxSingle<PointType extends Point<PointType, VecType, Double>,
         VecType extends Vector<VecType, Double>>
         extends BoundingBoxSingle<FloatBoundingBoxSingle<PointType, VecType>, FloatBoundingBoxSet<PointType, VecType>,
         PointType, VecType, Double> {
+    private static final Interner<FloatBoundingBoxSingle<?, ?>> INTERNER = Interners.newWeakInterner();
 
     public static <PointType extends Point<PointType, VecType, Double>, VecType extends Vector<VecType, Double>>
     FloatBoundingBoxSingle<PointType, VecType> of(final PointType start, final PointType end) {
-        return new FloatBoundingBoxSingle<>(start, end);
+        //noinspection unchecked
+        return (FloatBoundingBoxSingle<PointType, VecType>) INTERNER.intern(new FloatBoundingBoxSingle<>(start, end));
     }
 
     private FloatBoundingBoxSingle(final PointType start, final PointType end) {

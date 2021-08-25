@@ -1,5 +1,7 @@
 package com.runetide.common.domain.geometry;
 
+import com.google.common.collect.Interner;
+import com.google.common.collect.Interners;
 import com.google.common.collect.Iterators;
 
 import java.util.Iterator;
@@ -7,10 +9,12 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("UnstableApiUsage")
 public class FixedBoundingBoxSet<PointType extends FixedPoint<PointType, VecType>, VecType extends FixedVector<VecType>>
         extends BoundingBoxSet<FixedBoundingBoxSet<PointType, VecType>, FixedBoundingBoxSingle<PointType, VecType>,
         PointType, VecType, Long>
         implements FixedBoundingBox<FixedBoundingBoxSet<PointType, VecType>, PointType, VecType> {
+    private static final Interner<FixedBoundingBoxSet<?, ?>> INTERNER = Interners.newWeakInterner();
 
     public static <PointType extends FixedPoint<PointType, VecType>, VecType extends FixedVector<VecType>>
     FixedBoundingBoxSet<PointType, VecType> of(final FixedBoundingBoxSingle<PointType, VecType> box) {
@@ -19,7 +23,8 @@ public class FixedBoundingBoxSet<PointType extends FixedPoint<PointType, VecType
 
     public static <PointType extends FixedPoint<PointType, VecType>, VecType extends FixedVector<VecType>>
     FixedBoundingBoxSet<PointType, VecType> of(final Set<FixedBoundingBoxSingle<PointType, VecType>> boxes) {
-        return new FixedBoundingBoxSet<>(boxes);
+        //noinspection unchecked
+        return (FixedBoundingBoxSet<PointType, VecType>) INTERNER.intern(new FixedBoundingBoxSet<>(boxes));
     }
 
     private FixedBoundingBoxSet(final Set<FixedBoundingBoxSingle<PointType, VecType>> boxes) {

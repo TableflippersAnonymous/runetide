@@ -12,7 +12,11 @@ public interface Vector<Self extends Vector<Self, NumberType>, NumberType extend
     @Contract(pure = true)
     Self scale(final Self other);
     @Contract(pure = true)
+    Self scale(final NumberType scalar);
+    @Contract(pure = true)
     Self divide(final Self other);
+    @Contract(pure = true)
+    Self divide(final NumberType scalar);
     @Contract(pure = true)
     Self modulo(final Self other);
     @Contract(pure = true)
@@ -25,6 +29,10 @@ public interface Vector<Self extends Vector<Self, NumberType>, NumberType extend
     OptionalInt getAlignedAxis();
     @Contract(pure = true)
     NumberType crossSquareLength(final Self other);
+    @Contract(pure = true)
+    FloatVector<?> toFloat();
+    @Contract(pure = true)
+    FixedVector<?> toFixed();
 
     @Contract(pure = true)
     default NumberType dot(final Self other) {
@@ -44,6 +52,12 @@ public interface Vector<Self extends Vector<Self, NumberType>, NumberType extend
     @Contract(pure = true)
     default Self transform(final SquareMatrix<?, Self, NumberType> transform) {
         return transform.multiply(getSelf());
+    }
+
+    @Contract(pure = true)
+    default FloatVector<?> normalize() {
+        final FloatVector<?> fVec = toFloat();
+        return fVec.divide(fVec.length());
     }
 
     @Override

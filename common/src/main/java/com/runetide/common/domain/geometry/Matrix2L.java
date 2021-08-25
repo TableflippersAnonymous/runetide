@@ -1,15 +1,21 @@
 package com.runetide.common.domain.geometry;
 
+import com.google.common.collect.Interner;
+import com.google.common.collect.Interners;
+
 import java.util.Objects;
 
+@SuppressWarnings("UnstableApiUsage")
 public class Matrix2L implements SquareMatrix<Matrix2L, Vector2L, Long> {
+    private static final Interner<Matrix2L> INTERNER = Interners.newWeakInterner();
+
     public static final Matrix2L IDENTITY = of(Vector2L.of(1, 0), Vector2L.of(0, 1));
 
     private final Vector2L columnA;
     private final Vector2L columnB;
 
     public static Matrix2L of(final Vector2L columnA, final Vector2L columnB) {
-        return new Matrix2L(columnA, columnB);
+        return INTERNER.intern(new Matrix2L(columnA, columnB));
     }
 
     private Matrix2L(final Vector2L columnA, final Vector2L columnB) {
@@ -34,8 +40,7 @@ public class Matrix2L implements SquareMatrix<Matrix2L, Vector2L, Long> {
 
     @Override
     public Matrix2L multiply(final Long scalar) {
-        final Vector2L scaleVec = Vector2L.of(scalar, scalar);
-        return of(columnA.scale(scaleVec), columnB.scale(scaleVec));
+        return of(columnA.scale(scalar), columnB.scale(scalar));
     }
 
     @Override
