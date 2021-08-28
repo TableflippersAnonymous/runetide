@@ -1,5 +1,8 @@
 package com.runetide.common.domain.geometry;
 
+import com.runetide.common.domain.geometry.vector.Vector2F;
+import com.runetide.common.domain.geometry.vector.Vector2L;
+
 import java.util.Arrays;
 import java.util.Comparator;
 

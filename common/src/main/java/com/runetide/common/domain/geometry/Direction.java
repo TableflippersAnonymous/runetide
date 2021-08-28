@@ -1,5 +1,10 @@
 package com.runetide.common.domain.geometry;
 
+import com.runetide.common.domain.geometry.matrix.SquareMatrix;
+import com.runetide.common.domain.geometry.vector.FixedVector;
+import com.runetide.common.domain.geometry.vector.FloatVector;
+import com.runetide.common.domain.geometry.vector.Vector;
+
 import java.util.Comparator;
 import java.util.List;
 import java.util.OptionalInt;

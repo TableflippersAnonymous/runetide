@@ -1,8 +1,8 @@
 package com.runetide.common.dto;
 
-import com.runetide.common.domain.geometry.FixedBoundingBoxSingle;
-import com.runetide.common.domain.geometry.FixedVector;
-import com.runetide.common.domain.geometry.FixedPoint;
+import com.runetide.common.domain.geometry.locus.FixedBoundingBoxSingle;
+import com.runetide.common.domain.geometry.vector.FixedVector;
+import com.runetide.common.domain.geometry.point.FixedPoint;
 import org.jetbrains.annotations.Contract;
 
 import javax.annotation.Nonnull;

@@ -1,4 +1,7 @@
-package com.runetide.common.domain.geometry;
+package com.runetide.common.domain.geometry.locus;
+
+import com.runetide.common.domain.geometry.point.Point;
+import com.runetide.common.domain.geometry.vector.Vector;
 
 import java.util.Objects;
 import java.util.Optional;

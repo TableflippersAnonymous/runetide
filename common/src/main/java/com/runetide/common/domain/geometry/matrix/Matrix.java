@@ -1,4 +1,4 @@
-package com.runetide.common.domain.geometry;
+package com.runetide.common.domain.geometry.matrix;
 
 import org.jetbrains.annotations.Contract;
 

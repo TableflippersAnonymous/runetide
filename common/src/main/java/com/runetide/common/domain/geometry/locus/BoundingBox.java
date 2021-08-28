@@ -1,9 +1,10 @@
-package com.runetide.common.domain.geometry;
+package com.runetide.common.domain.geometry.locus;
 
+import com.runetide.common.domain.geometry.point.Point;
+import com.runetide.common.domain.geometry.vector.Vector;
 import org.jetbrains.annotations.Contract;
 
 import java.util.Optional;
-import java.util.function.Function;
 
 public interface BoundingBox<BBType extends BoundingBox<BBType, PointType, VecType, NumberType>,
         PointType extends Point<PointType, VecType, NumberType>, VecType extends Vector<VecType, NumberType>,

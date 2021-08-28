@@ -3,9 +3,9 @@ package com.runetide.common.dto;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.runetide.common.Constants;
-import com.runetide.common.domain.geometry.Vector2L;
-import com.runetide.common.domain.geometry.Vector3L;
-import com.runetide.common.domain.geometry.XZCoordinates;
+import com.runetide.common.domain.geometry.vector.Vector2L;
+import com.runetide.common.domain.geometry.vector.Vector3L;
+import com.runetide.common.domain.geometry.point.XZCoordinates;
 
 import java.io.DataInputStream;
 import java.io.DataOutput;

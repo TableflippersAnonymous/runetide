@@ -1,8 +1,9 @@
-package com.runetide.common.domain.geometry;
+package com.runetide.common.domain.geometry.vector;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Interner;
 import com.google.common.collect.Interners;
+import com.runetide.common.domain.geometry.point.XZCoordinates;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Comparator;

@@ -1,5 +1,6 @@
-package com.runetide.common.domain.geometry;
+package com.runetide.common.domain.geometry.matrix;
 
+import com.runetide.common.domain.geometry.vector.Vector;
 import org.jetbrains.annotations.Contract;
 
 public interface SquareMatrix<MatrixType extends SquareMatrix<MatrixType, VecType, NumberType>,

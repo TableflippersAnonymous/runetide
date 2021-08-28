@@ -1,5 +1,8 @@
 package com.runetide.common.domain.geometry;
 
+import com.runetide.common.domain.geometry.vector.Vector3F;
+import com.runetide.common.domain.geometry.vector.Vector3L;
+
 public enum Face implements Direction<Vector3L, Vector3F> {
     NORTH(Vector3L.of(0, 0, 1)),
     EAST(Vector3L.of(1, 0, 0)),

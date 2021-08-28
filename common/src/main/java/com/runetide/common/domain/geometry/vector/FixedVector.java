@@ -1,4 +1,6 @@
-package com.runetide.common.domain.geometry;
+package com.runetide.common.domain.geometry.vector;
+
+import com.runetide.common.domain.geometry.point.FixedPoint;
 
 import java.util.List;
 import java.util.OptionalInt;

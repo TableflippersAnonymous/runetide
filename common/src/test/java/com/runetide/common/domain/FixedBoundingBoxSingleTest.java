@@ -1,15 +1,11 @@
 package com.runetide.common.domain;
 
 import com.runetide.common.domain.geometry.Direction3;
-import com.runetide.common.domain.geometry.FixedBoundingBoxSet;
-import com.runetide.common.domain.geometry.FixedBoundingBoxSingle;
-import com.runetide.common.domain.geometry.BoundingBoxSet;
-import com.runetide.common.domain.geometry.Vector2L;
-import com.runetide.common.domain.geometry.Vector3L;
+import com.runetide.common.domain.geometry.locus.FixedBoundingBoxSingle;
+import com.runetide.common.domain.geometry.vector.Vector2L;
+import com.runetide.common.domain.geometry.vector.Vector3L;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-
-import java.util.Optional;
 
 public class FixedBoundingBoxSingleTest {
     private final Vector3L vec1 = Vector3L.of(0, 0, 0);
@@ -82,5 +78,10 @@ public class FixedBoundingBoxSingleTest {
         System.out.println(expanded + " contract " + Direction3.NORTH_EAST.asVectorL());
         System.out.println("= " + contracted);
         Assert.assertEquals(contracted, sut3);
+
+        final var outset = sut3.outset(Vector3L.of(1, 1, 1));
+        System.out.println(sut3 + " outset " + Vector3L.of(1, 1, 1));
+        System.out.println("= " + outset);
+        Assert.assertEquals(outset, FixedBoundingBoxSingle.of(Vector3L.of(-1, -1, -1), Vector3L.of(6, 6, 6)));
     }
 }

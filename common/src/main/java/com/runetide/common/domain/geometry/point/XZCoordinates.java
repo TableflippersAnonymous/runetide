@@ -1,4 +1,6 @@
-package com.runetide.common.domain.geometry;
+package com.runetide.common.domain.geometry.point;
+
+import com.runetide.common.domain.geometry.vector.Vector2L;
 
 import java.util.Comparator;
 import java.util.Iterator;

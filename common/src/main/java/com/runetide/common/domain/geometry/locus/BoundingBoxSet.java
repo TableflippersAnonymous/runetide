@@ -1,7 +1,9 @@
-package com.runetide.common.domain.geometry;
+package com.runetide.common.domain.geometry.locus;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
+import com.runetide.common.domain.geometry.point.Point;
+import com.runetide.common.domain.geometry.vector.Vector;
 
 import java.util.HashSet;
 import java.util.Objects;

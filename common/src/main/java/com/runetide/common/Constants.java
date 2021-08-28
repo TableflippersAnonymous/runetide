@@ -1,7 +1,7 @@
 package com.runetide.common;
 
-import com.runetide.common.domain.geometry.Vector2L;
-import com.runetide.common.domain.geometry.Vector3L;
+import com.runetide.common.domain.geometry.vector.Vector2L;
+import com.runetide.common.domain.geometry.vector.Vector3L;
 
 import java.util.concurrent.TimeUnit;
 

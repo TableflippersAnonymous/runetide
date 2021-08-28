@@ -1,5 +1,6 @@
-package com.runetide.common.domain.geometry;
+package com.runetide.common.domain.geometry.point;
 
+import com.runetide.common.domain.geometry.vector.Vector;
 import org.jetbrains.annotations.Contract;
 
 import java.util.Comparator;

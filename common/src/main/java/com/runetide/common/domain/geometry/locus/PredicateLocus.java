@@ -1,4 +1,6 @@
-package com.runetide.common.domain.geometry;
+package com.runetide.common.domain.geometry.locus;
+
+import com.runetide.common.domain.geometry.point.Point;
 
 import java.util.function.Predicate;
 

@@ -1,7 +1,7 @@
 package com.runetide.services.internal.worldgen.server.generation;
 
-import com.runetide.common.domain.geometry.FixedBoundingBoxSingle;
-import com.runetide.common.domain.geometry.Vector2L;
+import com.runetide.common.domain.geometry.locus.FixedBoundingBoxSingle;
+import com.runetide.common.domain.geometry.vector.Vector2L;
 import com.runetide.common.dto.ContainerRef;
 import com.runetide.services.internal.worldgen.server.vendor.OpenSimplex2S;
 

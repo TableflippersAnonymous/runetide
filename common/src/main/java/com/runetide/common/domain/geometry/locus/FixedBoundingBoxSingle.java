@@ -1,7 +1,9 @@
-package com.runetide.common.domain.geometry;
+package com.runetide.common.domain.geometry.locus;
 
 import com.google.common.collect.Interner;
 import com.google.common.collect.Interners;
+import com.runetide.common.domain.geometry.point.FixedPoint;
+import com.runetide.common.domain.geometry.vector.FixedVector;
 
 import java.util.Comparator;
 import java.util.Iterator;

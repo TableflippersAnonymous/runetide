@@ -1,7 +1,8 @@
-package com.runetide.common.domain.geometry;
+package com.runetide.common.domain.geometry.matrix;
 
 import com.google.common.collect.Interner;
 import com.google.common.collect.Interners;
+import com.runetide.common.domain.geometry.vector.Vector2L;
 
 import java.util.Objects;
 

@@ -1,5 +1,7 @@
-package com.runetide.common.domain.geometry;
+package com.runetide.common.domain.geometry.vector;
 
+import com.runetide.common.domain.geometry.point.Point;
+import com.runetide.common.domain.geometry.matrix.SquareMatrix;
 import org.jetbrains.annotations.Contract;
 
 import java.util.List;

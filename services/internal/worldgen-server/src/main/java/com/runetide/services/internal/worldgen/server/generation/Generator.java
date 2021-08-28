@@ -1,7 +1,7 @@
 package com.runetide.services.internal.worldgen.server.generation;
 
-import com.runetide.common.domain.geometry.FixedBoundingBoxSingle;
-import com.runetide.common.domain.geometry.FixedVector;
+import com.runetide.common.domain.geometry.locus.FixedBoundingBoxSingle;
+import com.runetide.common.domain.geometry.vector.FixedVector;
 import com.runetide.common.dto.ContainerRef;
 
 public interface Generator<PointType extends ContainerRef<PointType, VecType, ?, ?, ?>,

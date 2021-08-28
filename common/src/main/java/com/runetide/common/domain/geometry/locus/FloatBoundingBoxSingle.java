@@ -1,11 +1,12 @@
-package com.runetide.common.domain.geometry;
+package com.runetide.common.domain.geometry.locus;
 
 import com.google.common.collect.Interner;
 import com.google.common.collect.Interners;
+import com.runetide.common.domain.geometry.point.Point;
+import com.runetide.common.domain.geometry.vector.Vector;
 
 import java.util.Comparator;
 import java.util.Optional;
-import java.util.Set;
 
 @SuppressWarnings("UnstableApiUsage")
 public class FloatBoundingBoxSingle<PointType extends Point<PointType, VecType, Double>,

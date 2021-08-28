@@ -1,4 +1,4 @@
-package com.runetide.common.domain.geometry;
+package com.runetide.common.domain.geometry.vector;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Interner;
