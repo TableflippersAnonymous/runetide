@@ -1,5 +1,6 @@
 package com.runetide.common.dto;
 
+import com.runetide.common.domain.geometry.locus.BoundingBox;
 import com.runetide.common.domain.geometry.locus.FixedBoundingBoxSingle;
 import com.runetide.common.domain.geometry.vector.FixedVector;
 import com.runetide.common.domain.geometry.point.FixedPoint;
@@ -27,7 +28,7 @@ public interface ContainerRef<Self extends ContainerRef<Self, VecType, ParentTyp
 
     @Contract(pure = true)
     default FixedBoundingBoxSingle<ChildType, ChildVecType> asBoundingBox() {
-        return FixedBoundingBoxSingle.of(getStart(), getEnd());
+        return BoundingBox.of(getStart(), getEnd());
     }
 
     @Contract(pure = true)
@@ -55,7 +56,7 @@ public interface ContainerRef<Self extends ContainerRef<Self, VecType, ParentTyp
     default <T extends ContainerBase<T>> T getOffsetBasis(final Class<T> clazz) {
         if(clazz.isInstance(this))
             return clazz.cast(this);
-        if(ContainerBase.CONTAINING_COMPARATOR.compare(getClass(), clazz) < 0)
+        if(ContainerBase.CONTAINING_COMPARATOR.compare(clazz, getClass()) < 0)
             return getParent().getOffsetBasis(clazz);
         return getStart().getOffsetBasis(clazz);
     }
@@ -64,11 +65,11 @@ public interface ContainerRef<Self extends ContainerRef<Self, VecType, ParentTyp
     default <T extends ContainerBase<T> & FixedPoint<T, TVecType>, TVecType extends FixedVector<TVecType>>
     FixedBoundingBoxSingle<T, TVecType> asBoundingBox(final Class<T> clazz) {
         if(clazz.isInstance(this))
-            return FixedBoundingBoxSingle.of(clazz.cast(this), clazz.cast(this));
-        if(ContainerBase.CONTAINING_COMPARATOR.compare(getClass(), clazz) < 0)
+            return BoundingBox.of(clazz.cast(this), clazz.cast(this));
+        if(ContainerBase.CONTAINING_COMPARATOR.compare(clazz, getClass()) < 0)
             return getParent().asBoundingBox(clazz);
         final T start = getStart().asBoundingBox(clazz).getStart();
         final T end = getEnd().asBoundingBox(clazz).getEnd();
-        return FixedBoundingBoxSingle.of(start, end);
+        return BoundingBox.of(start, end);
     }
 }

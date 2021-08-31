@@ -1,15 +1,16 @@
 package com.runetide.common.domain.geometry;
 
+import com.runetide.common.domain.geometry.vector.Vector;
 import com.runetide.common.domain.geometry.vector.Vector3F;
 import com.runetide.common.domain.geometry.vector.Vector3L;
 
 public enum Face implements Direction<Vector3L, Vector3F> {
-    NORTH(Vector3L.of(0, 0, 1)),
-    EAST(Vector3L.of(1, 0, 0)),
-    SOUTH(Vector3L.of(0, 0, -1)),
-    WEST(Vector3L.of(-1, 0, 0)),
-    UP(Vector3L.of(0, 1, 0)),
-    DOWN(Vector3L.of(0, -1, 0));
+    NORTH(Vector.of(0, 0, 1)),
+    EAST(Vector.of(1, 0, 0)),
+    SOUTH(Vector.of(0, 0, -1)),
+    WEST(Vector.of(-1, 0, 0)),
+    UP(Vector.of(0, 1, 0)),
+    DOWN(Vector.of(0, -1, 0));
 
     private final Vector3L vecL;
     private final Vector3F vecF;

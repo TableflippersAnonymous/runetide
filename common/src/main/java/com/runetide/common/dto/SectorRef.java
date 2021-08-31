@@ -3,6 +3,7 @@ package com.runetide.common.dto;
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.runetide.common.Constants;
+import com.runetide.common.domain.geometry.vector.Vector;
 import com.runetide.common.domain.geometry.vector.Vector2L;
 import com.runetide.common.domain.geometry.point.XZCoordinates;
 
@@ -103,7 +104,7 @@ public class SectorRef implements ContainerRef<SectorRef, Vector2L, WorldRef, Re
 
     @Override
     public Vector2L subtract(final SectorRef other) {
-        return Vector2L.of(x - other.x, z - other.z);
+        return Vector.of(x - other.x, z - other.z);
     }
 
     @Override
@@ -131,7 +132,7 @@ public class SectorRef implements ContainerRef<SectorRef, Vector2L, WorldRef, Re
         if(basis instanceof SectorRef)
             return subtract((SectorRef) basis);
         if(basis instanceof WorldRef)
-            return Vector2L.of(x, z);
+            return Vector.of(x, z);
         if(ContainerBase.CONTAINING_COMPARATOR.compare(getClass(), basis.getClass()) < 0)
             return getStart().offsetTo(basis).divide(Constants.CHUNKS_PER_REGION_VEC);
         throw new IllegalArgumentException("Bad OffsetBasis: " + basis);

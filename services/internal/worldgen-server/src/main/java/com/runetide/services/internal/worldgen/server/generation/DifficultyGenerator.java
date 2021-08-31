@@ -18,5 +18,6 @@ public class DifficultyGenerator {
         generator.generate2(
                 new OpenSimplex2S.GenerateContext2D(OpenSimplex2S.LatticeOrientation2D.Standard, .01, .01, ampl),
                 buf, 8880, 200);
+        return 0;
     }
 }

@@ -14,4 +14,9 @@ public interface IterableLocus<LocusType extends IterableLocus<LocusType, PointT
     default Stream<PointType> stream() {
         return StreamSupport.stream(spliterator(), false);
     }
+
+    @Contract(pure = true)
+    default int pointCount() {
+        return (int) stream().count();
+    }
 }

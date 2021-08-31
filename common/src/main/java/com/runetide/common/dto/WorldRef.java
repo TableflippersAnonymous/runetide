@@ -23,6 +23,10 @@ public class WorldRef extends UUIDRef<WorldRef> implements ContainerBase<WorldRe
         return new WorldRef(UUID.fromString(stringValue));
     }
 
+    public static WorldRef random() {
+        return new WorldRef(UUID.randomUUID());
+    }
+
     public SectorRef sector(final long x, final long z) {
         return new SectorRef(this, x, z);
     }

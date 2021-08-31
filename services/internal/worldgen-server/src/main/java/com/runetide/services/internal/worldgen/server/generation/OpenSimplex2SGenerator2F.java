@@ -1,5 +1,8 @@
 package com.runetide.services.internal.worldgen.server.generation;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.runetide.common.domain.geometry.locus.FixedBoundingBoxSingle;
 import com.runetide.common.domain.geometry.vector.Vector2L;
 import com.runetide.common.dto.ContainerRef;
@@ -10,6 +13,9 @@ import java.util.function.Function;
 public class OpenSimplex2SGenerator2F<GenerationParent extends ContainerRef<GenerationParent, Vector2L, ?, ?, ?>,
         PointType extends ContainerRef<PointType, Vector2L, ?, ?, ?>>
         extends BaseGenerator2<GenerationParent, PointType, double[]> {
+    private static final LoadingCache<Long, OpenSimplex2S> CACHE = CacheBuilder.newBuilder().maximumSize(100000)
+            .build(CacheLoader.from(OpenSimplex2S::new));
+
     private final Function<GenerationParent, Long> seedProvider;
     private final OpenSimplex2S.GenerateContext2D context;
 
@@ -27,11 +33,13 @@ public class OpenSimplex2SGenerator2F<GenerationParent extends ContainerRef<Gene
                                   final FixedBoundingBoxSingle<PointType, Vector2L> boundingBox,
                                   final FixedBoundingBoxSingle<PointType, Vector2L> _parentBox,
                                   final Vector2L retOffset, final Vector2L parentOffset) {
-        final OpenSimplex2S openSimplex2S = new OpenSimplex2S(seedProvider.apply(parent));
+        final OpenSimplex2S openSimplex2S = CACHE.getUnchecked(seedProvider.apply(parent));
         final Vector2L dimensions = boundingBox.getDimensions();
         /* generate2 orders ret in ret[y][x], so we swap the coordinates of X and Z to get ret[x][z]. */
-        openSimplex2S.generate2(context, ret, parentOffset.getZ().intValue(), parentOffset.getX().intValue(),
-                dimensions.getZ().intValue(), dimensions.getX().intValue(),
-                retOffset.getZ().intValue(), retOffset.getX().intValue());
+        final double[][] buf = new double[dimensions.getX().intValue()][dimensions.getZ().intValue()];
+        openSimplex2S.generate2(context, buf, parentOffset.getZ().intValue(), parentOffset.getX().intValue());
+        for(int x = 0; x < buf.length; x++)
+            System.arraycopy(buf[x], 0, ret[x + retOffset.getX().intValue()], retOffset.getZ().intValue(),
+                    buf[x].length);
     }
 }

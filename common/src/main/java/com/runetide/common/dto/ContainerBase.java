@@ -1,5 +1,6 @@
 package com.runetide.common.dto;
 
+import com.runetide.common.domain.geometry.locus.BoundingBox;
 import com.runetide.common.domain.geometry.locus.FixedBoundingBoxSingle;
 import com.runetide.common.domain.geometry.point.FixedPoint;
 import com.runetide.common.domain.geometry.vector.FixedVector;
@@ -35,7 +36,7 @@ public interface ContainerBase<Self extends ContainerBase<Self>> extends Ref<Sel
     default <T extends ContainerBase<T> & FixedPoint<T, VecType>, VecType extends FixedVector<VecType>>
     FixedBoundingBoxSingle<T, VecType> asBoundingBox(final Class<T> clazz) {
         if(clazz.isInstance(this))
-            return FixedBoundingBoxSingle.of(clazz.cast(this), clazz.cast(this));
+            return BoundingBox.of(clazz.cast(this), clazz.cast(this));
         throw new IllegalArgumentException("Invalid OffsetBasis: " + clazz);
     }
 }

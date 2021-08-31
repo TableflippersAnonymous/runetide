@@ -3,6 +3,7 @@ package com.runetide.common.dto;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.runetide.common.Constants;
+import com.runetide.common.domain.geometry.vector.Vector;
 import com.runetide.common.domain.geometry.vector.Vector2L;
 import com.runetide.common.domain.geometry.vector.Vector3L;
 import com.runetide.common.domain.geometry.point.XZCoordinates;
@@ -105,7 +106,7 @@ public class ColumnRef implements ContainerRef<ColumnRef, Vector2L, ChunkRef, Bl
 
     @Override
     public ColumnRef add(final Vector2L vec) {
-        final Vector2L sum = vec.add(Vector2L.of(x, z));
+        final Vector2L sum = vec.add(Vector.of(x, z));
         final Vector2L modulo = sum.modulo(Constants.BLOCKS_PER_CHUNK_SECTION_VEC);
         return chunkRef.add(sum.divide(Constants.BLOCKS_PER_CHUNK_SECTION_VEC))
                 .column(modulo.getX().intValue(), modulo.getZ().intValue());
@@ -125,7 +126,7 @@ public class ColumnRef implements ContainerRef<ColumnRef, Vector2L, ChunkRef, Bl
     public Vector2L subtract(final ColumnRef other) {
         return chunkRef.subtract(other.chunkRef)
                 .scale(Constants.COLUMNS_PER_CHUNK_VEC)
-                .add(Vector2L.of(x - other.x, z - other.z));
+                .add(Vector.of(x - other.x, z - other.z));
     }
 
     @Override
@@ -160,7 +161,7 @@ public class ColumnRef implements ContainerRef<ColumnRef, Vector2L, ChunkRef, Bl
         if(ContainerBase.CONTAINING_COMPARATOR.compare(getClass(), basis.getClass()) <= 0)
             return getStart().offsetTo(basis).toVec2D();
         return getParent().offsetTo(basis).scale(Constants.COLUMNS_PER_CHUNK_VEC)
-                .add(Vector2L.of(x, z));
+                .add(Vector.of(x, z));
     }
 
     @Override

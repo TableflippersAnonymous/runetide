@@ -7,6 +7,22 @@ import java.util.OptionalInt;
 import java.util.stream.IntStream;
 
 public interface FixedVector<Self extends FixedVector<Self>> extends Vector<Self, Long>, FixedPoint<Self, Self> {
+    static Vector2L of(final int x, final int z) {
+        return Vector2L.of(x, z);
+    }
+
+    static Vector2L of(final long x, final long z) {
+        return Vector2L.of(x, z);
+    }
+
+    static Vector3L of(final int x, final int y, final int z) {
+        return Vector3L.of(x, y, z);
+    }
+
+    static Vector3L of(final long x, final long y, final long z) {
+        return Vector3L.of(x, y, z);
+    }
+
     @Override
     default OptionalInt getAlignedAxis() {
         final List<Self> axisVectors = axisVectors();

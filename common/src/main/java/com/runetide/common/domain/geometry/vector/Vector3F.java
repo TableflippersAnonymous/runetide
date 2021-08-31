@@ -148,7 +148,7 @@ public class Vector3F implements FloatVector<Vector3F>, Vector3<Vector3F, Double
 
     @Override
     public Vector3L toFixed() {
-        return Vector3L.of((long) x, (long) y, (long) z);
+        return Vector.of((long) x, (long) y, (long) z);
     }
 
     @Override

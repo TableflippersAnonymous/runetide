@@ -4,7 +4,7 @@ import com.runetide.common.dto.RegionRef;
 import com.runetide.services.internal.worldgen.common.GeneratedRegion;
 
 public class RegionGenerator {
-    private final WorldClient worldClient;
+    /*private final WorldClient worldClient;
     private final RegionRef regionRef;
 
     public RegionGenerator(final WorldClient worldClient, final RegionRef regionRef) {
@@ -15,5 +15,5 @@ public class RegionGenerator {
 
     public GeneratedRegion generate() {
 
-    }
+    }*/
 }

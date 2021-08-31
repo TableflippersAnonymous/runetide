@@ -43,7 +43,12 @@ public class FixedBoundingBoxSet<PointType extends FixedPoint<PointType, VecType
                 .orElseThrow(IllegalStateException::new);
         final PointType end = boxes.stream().map(BoundingBoxSingle::getEnd).reduce(PointType::maxCoordinates)
                 .orElseThrow(IllegalStateException::new);
-        return FixedBoundingBoxSingle.of(start, end);
+        return BoundingBox.of(start, end);
+    }
+
+    @Override
+    public int pointCount() {
+        return boxes.stream().map(FixedBoundingBoxSingle::pointCount).mapToInt(Integer::intValue).sum();
     }
 
     @Override

@@ -58,7 +58,7 @@ public class Vector2L implements FixedVector<Vector2L>, Vector2<Vector2L, Long>,
 
     @Override
     public Vector2F toFloat() {
-        return Vector2F.of(x, z);
+        return Vector.of((double) x, (double) z);
     }
 
     @Override
@@ -81,21 +81,21 @@ public class Vector2L implements FixedVector<Vector2L>, Vector2<Vector2L, Long>,
 
     @Override
     public Vector2L divide(final Vector2L vec) {
-        return of(x / vec.x, z / vec.z);
+        return of(Math.floorDiv(x, vec.x), Math.floorDiv(z, vec.z));
     }
 
     @Override
     public Vector2L divide(final Long scalar) {
-        return of(x / scalar, z / scalar);
+        return of(Math.floorDiv(x, scalar), Math.floorDiv(z, scalar));
     }
 
     public Vector2L divide(final Vector3L vec) {
-        return of(x / vec.getX(), z / vec.getZ());
+        return of(Math.floorDiv(x, vec.getX()), Math.floorDiv(z, vec.getZ()));
     }
 
     @Override
     public Vector2L modulo(final Vector2L vec) {
-        return of(x % vec.x, z % vec.z);
+        return of(Math.floorMod(x, vec.x), Math.floorMod(z, vec.z));
     }
 
     @Override
@@ -114,7 +114,7 @@ public class Vector2L implements FixedVector<Vector2L>, Vector2<Vector2L, Long>,
     }
 
     public Vector2L modulo(final Vector3L vec) {
-        return of(x % vec.getX(), z % vec.getZ());
+        return of(Math.floorMod(x, vec.getX()), Math.floorMod(z, vec.getZ()));
     }
 
     @Override
@@ -161,11 +161,11 @@ public class Vector2L implements FixedVector<Vector2L>, Vector2<Vector2L, Long>,
     }
 
     public Vector3L add(final Vector3L vec) {
-        return Vector3L.of(x + vec.getX(), vec.getY(), z + vec.getZ());
+        return Vector.of(x + vec.getX(), vec.getY(), z + vec.getZ());
     }
 
     public Vector3L toVec3D(final long y) {
-        return Vector3L.of(x, y, z);
+        return Vector.of(x, y, z);
     }
 
     @Override

@@ -1,16 +1,18 @@
 package com.runetide.common.domain.geometry.point;
 
+import com.runetide.common.domain.geometry.vector.Vector;
 import com.runetide.common.domain.geometry.vector.Vector2L;
 
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.function.Predicate;
 
 public interface XZCoordinates<Self extends XZCoordinates<Self>> extends BaseXZCoordinates<Self, Vector2L> {
     @Override
     default Self add(final long val) {
-        return add(Vector2L.of(val, val));
+        return add(Vector.of(val, val));
     }
 
     @Override
@@ -43,5 +45,31 @@ public interface XZCoordinates<Self extends XZCoordinates<Self>> extends BaseXZC
                 return current;
             }
         };
+    }
+
+    /* Perf: Faster concrete methods */
+    @Override
+    default boolean anyCoordinateCompares(final Predicate<Integer> predicate, final Self other) {
+        final Self self = getSelf();
+        return predicate.test(getXComparator().compare(self, other))
+                || predicate.test(getZComparator().compare(self, other));
+    }
+
+    @Override
+    default boolean allCoordinatesCompare(final Predicate<Integer> predicate, final Self other) {
+        final Self self = getSelf();
+        return predicate.test(getXComparator().compare(self, other))
+                && predicate.test(getZComparator().compare(self, other));
+    }
+
+    @Override
+    default boolean isBetween(final Self start, final Self end) {
+        final Comparator<Self> xComparator = getXComparator();
+        final Comparator<Self> zComparator = getZComparator();
+        final Self self = getSelf();
+        return xComparator.compare(start, self) <= 0
+                && xComparator.compare(self, end) <= 0
+                && zComparator.compare(start, self) <= 0
+                && zComparator.compare(self, end) <= 0;
     }
 }

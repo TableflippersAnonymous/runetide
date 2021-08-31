@@ -2,6 +2,7 @@ package com.runetide.common.domain.geometry.locus;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
+import com.runetide.common.domain.geometry.point.FixedPoint;
 import com.runetide.common.domain.geometry.point.Point;
 import com.runetide.common.domain.geometry.vector.Vector;
 
@@ -31,6 +32,10 @@ public abstract class BoundingBoxSet<BBSet extends BoundingBoxSet<BBSet, BBType,
     @Override
     public boolean contains(final PointType element) {
         return boxes.stream().anyMatch(bb -> bb.contains(element));
+    }
+
+    public Optional<BBType> getContainingBox(final PointType element) {
+        return boxes.stream().filter(bb -> bb.contains(element)).findFirst();
     }
 
     public boolean intersectsWith(final BBType other) {

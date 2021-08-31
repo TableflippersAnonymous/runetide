@@ -76,17 +76,17 @@ public class Vector3L implements FixedVector<Vector3L>, Vector3<Vector3L, Long>,
 
     @Override
     public Vector3L divide(final Vector3L vec) {
-        return of(x / vec.x, y / vec.y, z / vec.z);
+        return of(Math.floorDiv(x, vec.x), Math.floorDiv(y, vec.y), Math.floorDiv(z, vec.z));
     }
 
     @Override
     public Vector3L divide(final Long scalar) {
-        return of(x / scalar, y / scalar, z / scalar);
+        return of(Math.floorDiv(x, scalar), Math.floorDiv(y, scalar), Math.floorDiv(z, scalar));
     }
 
     @Override
     public Vector3L modulo(final Vector3L vec) {
-        return of(x % vec.x, y % vec.y, z % vec.z);
+        return of(Math.floorMod(x, vec.x), Math.floorMod(y, vec.y), Math.floorMod(z, vec.z));
     }
 
     @Override
@@ -121,7 +121,7 @@ public class Vector3L implements FixedVector<Vector3L>, Vector3<Vector3L, Long>,
 
     @Override
     public Vector3F toFloat() {
-        return Vector3F.of(x, y, z);
+        return Vector.of((double) x, (double) y, (double) z);
     }
 
     @Override
@@ -160,7 +160,7 @@ public class Vector3L implements FixedVector<Vector3L>, Vector3<Vector3L, Long>,
     }
 
     public Vector2L toVec2D() {
-        return Vector2L.of(x, z);
+        return Vector.of(x, z);
     }
 
     @Override

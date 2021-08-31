@@ -4,6 +4,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.runetide.common.Constants;
+import com.runetide.common.domain.geometry.vector.Vector;
 import com.runetide.common.domain.geometry.vector.Vector2L;
 import com.runetide.common.domain.geometry.point.XZCoordinates;
 
@@ -39,7 +40,8 @@ public class RegionRef implements ContainerRef<RegionRef, Vector2L, SectorRef, C
     }
 
     public SectorRef getSectorRef() {
-        return new SectorRef(worldRef, x / Constants.REGIONS_PER_SECTOR_X, z / Constants.REGIONS_PER_SECTOR_Z);
+        return new SectorRef(worldRef, Math.floorDiv(x, Constants.REGIONS_PER_SECTOR_X),
+                Math.floorDiv(z, Constants.REGIONS_PER_SECTOR_Z));
     }
 
     public long getX() {
@@ -115,7 +117,7 @@ public class RegionRef implements ContainerRef<RegionRef, Vector2L, SectorRef, C
 
     @Override
     public Vector2L subtract(final RegionRef other) {
-        return Vector2L.of(x - other.x, z - other.z);
+        return Vector.of(x - other.x, z - other.z);
     }
 
     @Override
@@ -150,7 +152,7 @@ public class RegionRef implements ContainerRef<RegionRef, Vector2L, SectorRef, C
         if(ContainerBase.CONTAINING_COMPARATOR.compare(getClass(), basis.getClass()) < 0)
             return getStart().offsetTo(basis).divide(Constants.CHUNKS_PER_REGION_VEC);
         return getParent().offsetTo(basis).scale(Constants.REGIONS_PER_SECTOR_VEC)
-                .add(Vector2L.of(x % Constants.REGIONS_PER_SECTOR_X, z % Constants.REGIONS_PER_SECTOR_Z));
+                .add(Vector.of(x, z).modulo(Constants.REGIONS_PER_SECTOR_VEC));
     }
 
     @Override

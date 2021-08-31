@@ -7,7 +7,8 @@ import java.util.function.Function;
 
 public abstract class BaseGenerator2<GenerationParent extends ContainerRef<GenerationParent, Vector2L, ?, ?, ?>,
         PointType extends ContainerRef<PointType, Vector2L, ?, ?, ?>, ReturnArrayType>
-        extends BaseGenerator<GenerationParent, Vector2L, PointType, Vector2L, ReturnArrayType[]> {
+        extends BaseGenerator<GenerationParent, Vector2L, PointType, Vector2L, ReturnArrayType[]>
+        implements Generator2<PointType, ReturnArrayType> {
     protected BaseGenerator2(final Function<Vector2L, ReturnArrayType[]> allocateArray,
                              final Class<GenerationParent> generationParentClass,
                              final Class<PointType> pointTypeClass) {

@@ -142,7 +142,7 @@ public class Vector2F implements FloatVector<Vector2F>, Vector2<Vector2F, Double
 
     @Override
     public Vector2L toFixed() {
-        return Vector2L.of((long) x, (long) z);
+        return Vector.of((long) x, (long) z);
     }
 
     @Override

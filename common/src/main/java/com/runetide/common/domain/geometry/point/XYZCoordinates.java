@@ -1,5 +1,6 @@
 package com.runetide.common.domain.geometry.point;
 
+import com.runetide.common.domain.geometry.vector.Vector;
 import com.runetide.common.domain.geometry.vector.Vector3L;
 import org.jetbrains.annotations.Contract;
 
@@ -7,11 +8,12 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.function.Predicate;
 
 public interface XYZCoordinates<Self extends XYZCoordinates<Self>> extends BaseXZCoordinates<Self, Vector3L> {
     @Override
     default Self add(final long val) {
-        return add(Vector3L.of(val, val, val));
+        return add(Vector.of(val, val, val));
     }
 
     @Contract(pure = true)
@@ -57,5 +59,36 @@ public interface XYZCoordinates<Self extends XYZCoordinates<Self>> extends BaseX
                 return current;
             }
         };
+    }
+
+    /* Perf: Faster concrete methods */
+    @Override
+    default boolean anyCoordinateCompares(final Predicate<Integer> predicate, final Self other) {
+        final Self self = getSelf();
+        return predicate.test(getXComparator().compare(self, other))
+                || predicate.test(getYComparator().compare(self, other))
+                || predicate.test(getZComparator().compare(self, other));
+    }
+
+    @Override
+    default boolean allCoordinatesCompare(final Predicate<Integer> predicate, final Self other) {
+        final Self self = getSelf();
+        return predicate.test(getXComparator().compare(self, other))
+                && predicate.test(getYComparator().compare(self, other))
+                && predicate.test(getZComparator().compare(self, other));
+    }
+
+    @Override
+    default boolean isBetween(final Self start, final Self end) {
+        final Comparator<Self> xComparator = getXComparator();
+        final Comparator<Self> yComparator = getYComparator();
+        final Comparator<Self> zComparator = getZComparator();
+        final Self self = getSelf();
+        return xComparator.compare(start, self) <= 0
+                && xComparator.compare(self, end) <= 0
+                && yComparator.compare(start, self) <= 0
+                && yComparator.compare(self, end) <= 0
+                && zComparator.compare(start, self) <= 0
+                && zComparator.compare(self, end) <= 0;
     }
 }

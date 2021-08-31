@@ -2,6 +2,7 @@ package com.runetide.common.domain.geometry.matrix;
 
 import com.google.common.collect.Interner;
 import com.google.common.collect.Interners;
+import com.runetide.common.domain.geometry.vector.Vector;
 import com.runetide.common.domain.geometry.vector.Vector2L;
 
 import java.util.Objects;
@@ -10,7 +11,7 @@ import java.util.Objects;
 public class Matrix2L implements SquareMatrix<Matrix2L, Vector2L, Long> {
     private static final Interner<Matrix2L> INTERNER = Interners.newWeakInterner();
 
-    public static final Matrix2L IDENTITY = of(Vector2L.of(1, 0), Vector2L.of(0, 1));
+    public static final Matrix2L IDENTITY = of(Vector.of(1, 0), Vector.of(0, 1));
 
     private final Vector2L columnA;
     private final Vector2L columnB;
@@ -46,7 +47,7 @@ public class Matrix2L implements SquareMatrix<Matrix2L, Vector2L, Long> {
 
     @Override
     public Matrix2L transpose() {
-        return of(Vector2L.of(columnA.getX(), columnB.getX()), Vector2L.of(columnA.getZ(), columnB.getZ()));
+        return of(Vector.of(columnA.getX(), columnB.getX()), Vector.of(columnA.getZ(), columnB.getZ()));
     }
 
     @Override
@@ -68,17 +69,17 @@ public class Matrix2L implements SquareMatrix<Matrix2L, Vector2L, Long> {
     @Override
     public Vector2L multiply(final Vector2L other) {
         final Matrix2L transposed = transpose();
-        return Vector2L.of(other.dot(transposed.columnA), other.dot(transposed.columnB));
+        return Vector.of(other.dot(transposed.columnA), other.dot(transposed.columnB));
     }
 
     @Override
     public Vector2L diagonalVector() {
-        return Vector2L.of(columnA.getX(), columnB.getZ());
+        return Vector.of(columnA.getX(), columnB.getZ());
     }
 
     @Override
     public Vector2L antidiagonalVector() {
-        return Vector2L.of(columnB.getX(), columnA.getZ());
+        return Vector.of(columnB.getX(), columnA.getZ());
     }
 
     @Override
@@ -88,7 +89,7 @@ public class Matrix2L implements SquareMatrix<Matrix2L, Vector2L, Long> {
 
     @Override
     public Matrix2L upperTriangularize() {
-        return of(Vector2L.of(columnA.getX(), 0), columnB);
+        return of(Vector.of(columnA.getX(), 0), columnB);
     }
 
     @Override
@@ -98,7 +99,7 @@ public class Matrix2L implements SquareMatrix<Matrix2L, Vector2L, Long> {
 
     @Override
     public Matrix2L lowerTriangularize() {
-        return of(columnA, Vector2L.of(0, columnB.getZ()));
+        return of(columnA, Vector.of(0, columnB.getZ()));
     }
 
     @Override

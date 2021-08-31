@@ -9,6 +9,38 @@ import java.util.OptionalInt;
 
 public interface Vector<Self extends Vector<Self, NumberType>, NumberType extends Number>
         extends Point<Self, Self, NumberType> {
+    static Vector2L of(final int x, final int z) {
+        return Vector2L.of(x, z);
+    }
+
+    static Vector2L of(final long x, final long z) {
+        return Vector2L.of(x, z);
+    }
+
+    static Vector2F of(final float x, final float z) {
+        return Vector2F.of(x, z);
+    }
+
+    static Vector2F of(final double x, final double z) {
+        return Vector2F.of(x, z);
+    }
+
+    static Vector3L of(final int x, final int y, final int z) {
+        return Vector3L.of(x, y, z);
+    }
+
+    static Vector3L of(final long x, final long y, final long z) {
+        return Vector3L.of(x, y, z);
+    }
+
+    static Vector3F of(final float x, final float y, final float z) {
+        return Vector3F.of(x, y, z);
+    }
+
+    static Vector3F of(final double x, final double y, final double z) {
+        return Vector3F.of(x, y, z);
+    }
+
     @Contract(pure = true)
     Self negate();
     @Contract(pure = true)

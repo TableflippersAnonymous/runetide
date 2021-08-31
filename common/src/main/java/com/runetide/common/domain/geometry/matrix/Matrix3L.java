@@ -2,6 +2,7 @@ package com.runetide.common.domain.geometry.matrix;
 
 import com.google.common.collect.Interner;
 import com.google.common.collect.Interners;
+import com.runetide.common.domain.geometry.vector.Vector;
 import com.runetide.common.domain.geometry.vector.Vector3L;
 
 import java.util.Objects;
@@ -10,8 +11,8 @@ import java.util.Objects;
 public class Matrix3L implements SquareMatrix<Matrix3L, Vector3L, Long> {
     private static final Interner<Matrix3L> INTERNER = Interners.newWeakInterner();
 
-    public static final Matrix3L IDENTITY = of(Vector3L.of(1, 0, 0), Vector3L.of(0, 1, 0),
-            Vector3L.of(0, 0, 1));
+    public static final Matrix3L IDENTITY = of(Vector.of(1, 0, 0), Vector.of(0, 1, 0),
+            Vector.of(0, 0, 1));
 
     private final Vector3L columnA;
     private final Vector3L columnB;
@@ -49,9 +50,9 @@ public class Matrix3L implements SquareMatrix<Matrix3L, Vector3L, Long> {
 
     @Override
     public Matrix3L transpose() {
-        return of(Vector3L.of(columnA.getX(), columnB.getX(), columnC.getX()),
-                Vector3L.of(columnA.getY(), columnB.getY(), columnC.getY()),
-                Vector3L.of(columnA.getZ(), columnB.getZ(), columnC.getZ()));
+        return of(Vector.of(columnA.getX(), columnB.getX(), columnC.getX()),
+                Vector.of(columnA.getY(), columnB.getY(), columnC.getY()),
+                Vector.of(columnA.getZ(), columnB.getZ(), columnC.getZ()));
     }
 
     @Override
@@ -72,17 +73,17 @@ public class Matrix3L implements SquareMatrix<Matrix3L, Vector3L, Long> {
     @Override
     public Vector3L multiply(final Vector3L other) {
         final Matrix3L transposed = transpose();
-        return Vector3L.of(other.dot(transposed.columnA), other.dot(transposed.columnB), other.dot(transposed.columnC));
+        return Vector.of(other.dot(transposed.columnA), other.dot(transposed.columnB), other.dot(transposed.columnC));
     }
 
     @Override
     public Vector3L diagonalVector() {
-        return Vector3L.of(columnA.getX(), columnB.getY(), columnC.getZ());
+        return Vector.of(columnA.getX(), columnB.getY(), columnC.getZ());
     }
 
     @Override
     public Vector3L antidiagonalVector() {
-        return Vector3L.of(columnC.getX(), columnB.getY(), columnA.getZ());
+        return Vector.of(columnC.getX(), columnB.getY(), columnA.getZ());
     }
 
     @Override
@@ -92,8 +93,7 @@ public class Matrix3L implements SquareMatrix<Matrix3L, Vector3L, Long> {
 
     @Override
     public Matrix3L upperTriangularize() {
-        return of(Vector3L.of(columnA.getX(), 0, 0), Vector3L.of(columnB.getX(), columnB.getY(), 0),
-                columnC);
+        return of(Vector.of(columnA.getX(), 0, 0), Vector.of(columnB.getX(), columnB.getY(), 0), columnC);
     }
 
     @Override

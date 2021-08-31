@@ -58,6 +58,11 @@ public class FixedBoundingBoxSingle<PointType extends FixedPoint<PointType, VecT
     }
 
     @Override
+    public int pointCount() {
+        return end.subtract(start).product().intValue();
+    }
+
+    @Override
     protected FixedBoundingBoxSet<PointType, VecType> toSet() {
         return FixedBoundingBoxSet.of(this);
     }

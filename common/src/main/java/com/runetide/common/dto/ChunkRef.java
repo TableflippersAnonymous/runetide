@@ -3,6 +3,7 @@ package com.runetide.common.dto;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.runetide.common.Constants;
+import com.runetide.common.domain.geometry.vector.Vector;
 import com.runetide.common.domain.geometry.vector.Vector2L;
 import com.runetide.common.domain.geometry.vector.Vector3L;
 import com.runetide.common.domain.geometry.point.XZCoordinates;
@@ -121,7 +122,7 @@ public class ChunkRef implements ContainerRef<ChunkRef, Vector2L, RegionRef, Chu
 
     @Override
     public ChunkRef add(final Vector2L vec) {
-        final Vector2L sum = vec.add(Vector2L.of(x, z));
+        final Vector2L sum = vec.add(Vector.of(x, z));
         final Vector2L modulo = sum.modulo(Constants.CHUNKS_PER_REGION_VEC);
         return regionRef.add(sum.divide(Constants.CHUNKS_PER_REGION_VEC))
                 .chunk(modulo.getX().intValue(), modulo.getZ().intValue());
@@ -136,7 +137,7 @@ public class ChunkRef implements ContainerRef<ChunkRef, Vector2L, RegionRef, Chu
     public Vector2L subtract(final ChunkRef other) {
         return regionRef.subtract(other.regionRef)
                 .scale(Constants.CHUNKS_PER_REGION_VEC)
-                .add(Vector2L.of(x - other.x, z - other.z));
+                .add(Vector.of(x - other.x, z - other.z));
     }
 
     @Override
@@ -173,7 +174,7 @@ public class ChunkRef implements ContainerRef<ChunkRef, Vector2L, RegionRef, Chu
         if(ContainerBase.CONTAINING_COMPARATOR.compare(getClass(), basis.getClass()) < 0)
             return getStart().offsetTo(basis).divide(Constants.CHUNK_SECTIONS_PER_CHUNK_VEC).toVec2D();
         return getParent().offsetTo(basis).scale(Constants.CHUNKS_PER_REGION_VEC)
-                .add(Vector2L.of(x, z));
+                .add(Vector.of(x, z));
     }
 
     @Override

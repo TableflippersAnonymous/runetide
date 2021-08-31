@@ -7,6 +7,22 @@ import java.util.OptionalInt;
 import java.util.stream.IntStream;
 
 public interface FloatVector<Self extends FloatVector<Self>> extends Vector<Self, Double> {
+    static Vector2F of(final float x, final float z) {
+        return Vector2F.of(x, z);
+    }
+
+    static Vector2F of(final double x, final double z) {
+        return Vector2F.of(x, z);
+    }
+
+    static Vector3F of(final float x, final float y, final float z) {
+        return Vector3F.of(x, y, z);
+    }
+
+    static Vector3F of(final double x, final double y, final double z) {
+        return Vector3F.of(x, y, z);
+    }
+
     @Override
     default OptionalInt getAlignedAxis() {
         final List<Self> axisVectors = axisVectors();
