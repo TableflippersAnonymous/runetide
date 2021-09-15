@@ -3,7 +3,12 @@ package com.runetide.services.internal.worldgen.server.domain;
 import java.nio.charset.StandardCharsets;
 
 public enum SeedPurpose {
-    HEIGHT("heightmap");
+    HEIGHT("heightmap"),
+    DIFFICULTY("difficulty"),
+    ARIDITY("aridity"),
+    TEMPERATURE("temperature"),
+    ELEVATION("elevation"),
+    SLOPE("slope");
 
     private final byte[] bytes;
 

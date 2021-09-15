@@ -7,7 +7,6 @@ import com.runetide.common.domain.geometry.vector.Vector;
 import org.jetbrains.annotations.Contract;
 
 import java.util.Optional;
-import java.util.Set;
 
 public interface BoundingBox<BBType extends BoundingBox<BBType, PointType, VecType, NumberType>,
         PointType extends Point<PointType, VecType, NumberType>, VecType extends Vector<VecType, NumberType>,
@@ -16,6 +15,11 @@ public interface BoundingBox<BBType extends BoundingBox<BBType, PointType, VecTy
     static <PointType extends FixedPoint<PointType, VecType>, VecType extends FixedVector<VecType>>
     FixedBoundingBoxSingle<PointType, VecType> of(final PointType start, final PointType end) {
         return FixedBoundingBoxSingle.of(start, end);
+    }
+
+    static <PointType extends FixedPoint<PointType, VecType>, VecType extends FixedVector<VecType>>
+    FixedBoundingBoxSingle<PointType, VecType> of(final PointType point) {
+        return FixedBoundingBoxSingle.of(point, point);
     }
 
     static <PointType extends Point<PointType, VecType, Double>, VecType extends Vector<VecType, Double>>

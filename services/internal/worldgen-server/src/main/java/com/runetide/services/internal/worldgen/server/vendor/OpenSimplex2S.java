@@ -252,10 +252,11 @@ public class OpenSimplex2S {
         // - Much faster than computing the kernel equation every time.
         // You can remove these lines if you find it's the opposite for you.
         // You'll have to double the bounds again in GenerateContext2D
-        kernel = new double[scaledRadiusY * 2][/*scaledRadiusX * 2*/];
-        for (int yy = 0; yy < scaledRadiusY; yy++) {
-            kernel[2 * scaledRadiusY - yy - 1] = kernel[yy] = (double[]) context.kernel[yy].clone();
-        }
+        // RUNETIDE: Comment out this.
+        //kernel = new double[scaledRadiusY * 2][/*scaledRadiusX * 2*/];
+        //for (int yy = 0; yy < scaledRadiusY; yy++) {
+        //    kernel[2 * scaledRadiusY - yy - 1] = kernel[yy] = (double[]) context.kernel[yy].clone();
+        //}
 
         // Get started with one point/vertex.
         // For some lattices, you might need to try a handful of points in the cell,
@@ -666,7 +667,7 @@ public class OpenSimplex2S {
             this.scaledRadiusY = (int)Math.ceil(preciseScaledRadiusY + 0.25);
 
             // So will these
-            kernel = new double[scaledRadiusY/* * 2*/][];
+            kernel = new double[scaledRadiusY * 2][]; //RUNETIDE: Uncomment multiplication.
             kernelBounds = new int[scaledRadiusY * 2];
             for (int yy = 0; yy < scaledRadiusY * 2; yy++) {
 
@@ -691,7 +692,7 @@ public class OpenSimplex2S {
                             kernel[yy][xx] = 0.0;
                         }
                     }
-                } /* else kernel[yy] = kernel[2 * scaledRadiusY - yy - 1];*/
+                } else kernel[yy] = kernel[2 * scaledRadiusY - yy - 1]; //RUNETIDE: Uncomment line
             }
         }
     }

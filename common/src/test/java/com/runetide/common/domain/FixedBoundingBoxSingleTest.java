@@ -1,5 +1,7 @@
 package com.runetide.common.domain;
 
+import com.google.common.base.Joiner;
+import com.google.common.collect.Iterables;
 import com.runetide.common.domain.geometry.Direction3;
 import com.runetide.common.domain.geometry.locus.BoundingBox;
 import com.runetide.common.domain.geometry.locus.FixedBoundingBoxSingle;
@@ -8,6 +10,8 @@ import com.runetide.common.domain.geometry.vector.Vector2L;
 import com.runetide.common.domain.geometry.vector.Vector3L;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import java.util.Optional;
 
 public class FixedBoundingBoxSingleTest {
     private final Vector3L vec1 = Vector.of(0, 0, 0);
@@ -85,5 +89,27 @@ public class FixedBoundingBoxSingleTest {
         System.out.println(sut3 + " outset " + Vector.of(1, 1, 1));
         System.out.println("= " + outset);
         Assert.assertEquals(outset, BoundingBox.of(Vector.of(-1, -1, -1), Vector.of(6, 6, 6)));
+    }
+
+    @Test
+    public void testInChunksOf() {
+        final var chunks = sut3.inChunksOf(Vector.of(2, 4, 1));
+        System.out.println(sut3 + " inChunksOf " + Vector.of(2, 2, 1));
+        System.out.println("= " + Joiner.on("\n; ").join(chunks));
+        Assert.assertTrue(Iterables.contains(chunks, BoundingBox.of(Vector.of(0, 0, 0), Vector.of(1, 3, 0))));
+        Assert.assertTrue(Iterables.contains(chunks, BoundingBox.of(Vector.of(2, 0, 0), Vector.of(3, 3, 0))));
+    }
+
+    @Test
+    public void testExpandingOut() {
+        final var iterable = sut3.expandingOut(Optional.empty());
+        System.out.println(sut3 + " expandingOut");
+        System.out.println("= " + Joiner.on("\n; ").join(Iterables.limit(iterable, 50)) + "\n; ...");
+        final var iterator = iterable.iterator();
+        Assert.assertEquals(iterator.next(), sut3);
+        Assert.assertTrue(iterator.next().intersectsWith(sut3.outset(sut3.getDimensions())));
+        Assert.assertTrue(iterator.next().intersectsWith(sut3.outset(sut3.getDimensions())));
+        Assert.assertTrue(iterator.next().intersectsWith(sut3.outset(sut3.getDimensions())));
+        Assert.assertTrue(iterator.next().intersectsWith(sut3.outset(sut3.getDimensions())));
     }
 }

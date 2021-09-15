@@ -3,9 +3,7 @@ package com.runetide.common.domain.geometry.locus;
 import com.runetide.common.domain.geometry.point.Point;
 import com.runetide.common.domain.geometry.vector.Vector;
 
-import java.util.Objects;
-import java.util.Optional;
-import java.util.OptionalInt;
+import java.util.*;
 
 public abstract class BoundingBoxSingle<BBType extends BoundingBoxSingle<BBType, BBSet, PointType, VecType, NumberType>,
         BBSet extends BoundingBoxSet<BBSet, BBType, PointType, VecType, NumberType>,
@@ -84,6 +82,79 @@ public abstract class BoundingBoxSingle<BBType extends BoundingBoxSingle<BBType,
     public BBType contract(final VecType direction) {
         return constructor.construct(start.add(direction.negate()).maxCoordinates(start),
                 end.add(direction.negate()).minCoordinates(end));
+    }
+
+    public BBType adjacent(final VecType direction) {
+        return move(direction.scale(getDimensions()));
+    }
+
+    public Optional<BBSet> getAdjacents() {
+        return outset(getDimensions()).subtract(getSelf());
+    }
+
+    public Iterable<BBType> inChunksOf(final VecType maxSize) {
+        /* For FixedBoundingBoxes, this will be 1; for FloatBoundingBoxes, this will be 0 */
+        final VecType dimensionOffset = end.subtract(start).subtract(getDimensions());
+        final List<VecType> axis = maxSize.axisVectors();
+        final BBType self = getSelf();
+        return () -> new Iterator<>() {
+            private Optional<BBType> next = constructor.construct(start, start.add(maxSize).add(dimensionOffset))
+                    .intersect(self);
+
+            @Override
+            public boolean hasNext() {
+                return next.isPresent();
+            }
+
+            @Override
+            public BBType next() {
+                if(next.isEmpty())
+                    throw new NoSuchElementException();
+                final BBType ret = next.get();
+                next = calculateNext(ret);
+                return ret;
+            }
+
+            private Optional<BBType> calculateNext(final BBType current) {
+                BBType ret = current;
+                for(int coordinate = 0; coordinate < axis.size(); coordinate++) {
+                    ret = ret.adjacent(axis.get(coordinate));
+                    if(ret.intersectsWith(self))
+                        return ret.intersect(self);
+                    final PointType newStart = ret.start.withCoordinateFrom(self.start, coordinate);
+                    ret = constructor.construct(newStart, newStart.add(maxSize).add(dimensionOffset));
+                }
+                return Optional.empty();
+            }
+        };
+    }
+
+    public Iterable<BBType> expandingOut(final Optional<VecType> chunkSize) {
+        final VecType actualChunkSize = chunkSize.orElse(getDimensions());
+        final BBType self = getSelf();
+        return () -> new Iterator<>() {
+            private BBType current = self;
+            private Iterator<BBType> bbIter = current.toSet().getBoxes().iterator();
+            private Iterator<BBType> chunkIter = bbIter.next().inChunksOf(actualChunkSize).iterator();
+
+            @Override
+            public boolean hasNext() {
+                return true;
+            }
+
+            @Override
+            public BBType next() {
+                if(!chunkIter.hasNext()) {
+                    if(!bbIter.hasNext()) {
+                        final BBType prev = current;
+                        current = current.outset(actualChunkSize);
+                        bbIter = current.subtract(prev).orElseThrow().getBoxes().iterator();
+                    }
+                    chunkIter = bbIter.next().inChunksOf(actualChunkSize).iterator();
+                }
+                return chunkIter.next();
+            }
+        };
     }
 
     @Override

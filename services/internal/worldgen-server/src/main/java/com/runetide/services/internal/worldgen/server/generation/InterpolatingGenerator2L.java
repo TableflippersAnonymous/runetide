@@ -3,16 +3,12 @@ package com.runetide.services.internal.worldgen.server.generation;
 import com.runetide.common.domain.geometry.locus.FixedBoundingBoxSet;
 import com.runetide.common.domain.geometry.locus.FixedBoundingBoxSingle;
 import com.runetide.common.domain.geometry.locus.IterableLocus;
-import com.runetide.common.domain.geometry.vector.Vector;
 import com.runetide.common.domain.geometry.vector.Vector2L;
 import com.runetide.common.dto.ContainerRef;
 import org.apache.commons.math3.analysis.BivariateFunction;
 import org.apache.commons.math3.analysis.interpolation.BivariateGridInterpolator;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 
@@ -104,34 +100,35 @@ public class InterpolatingGenerator2L<GenerationParent extends ContainerRef<Gene
             return;
 
         //TODO: Consider rewriting this to handle one box in borderBox at a time, rather than attempting to crunch
-        //      them all at once.  This should be faster, and will solve the need for the .getContainingBox call below.
+        //      them all at once.  This should be faster.
         final SortedSet<Long> generationXSet = new TreeSet<>();
         final SortedSet<Long> generationZSet = new TreeSet<>();
-        final Map<FixedBoundingBoxSingle<PointType, Vector2L>, long[][]> generatedMap = new HashMap<>();
         for (final FixedBoundingBoxSingle<PointType, Vector2L> box : generationArea.get().getBoxes()) {
-            final var offset = box.getStart().subtract(boundingBox.getStart());
+            final Vector2L offset = box.getStart().subtract(boundingBox.getStart());
             final Vector2L dimensions = box.getDimensions();
             generationXSet.addAll(LongStream.range(offset.getX(), dimensions.getX() + offset.getX())
                     .boxed().collect(Collectors.toSet()));
             generationZSet.addAll(LongStream.range(offset.getZ(), dimensions.getZ() + offset.getZ())
                     .boxed().collect(Collectors.toSet()));
-            generatedMap.put(box, generator.generate(box));
         }
 
         final int[] generationX = generationXSet.stream().mapToInt(Long::intValue).toArray();
         final int[] generationZ = generationZSet.stream().mapToInt(Long::intValue).toArray();
         final double[][] generationValue = new double[generationX.length][generationZ.length];
-        for (int x = 0; x < generationX.length; x++) {
-            for (int z = 0; z < generationZ.length; z++) {
-                final var box = generationArea.get()
-                        .getContainingBox(boundingBox.getStart().add(Vector.of(generationX[x], generationZ[z])));
-                if (box.isEmpty())
-                    throw new IllegalStateException();
-                final var offset = box.get().getStart().subtract(boundingBox.getStart());
-                final long[][] data = generatedMap.get(box.get());
-                final int xEffective = generationX[x] - offset.getX().intValue();
-                final int zEffective = generationZ[z] - offset.getZ().intValue();
-                generationValue[x][z] = data[xEffective][zEffective];
+        for (final FixedBoundingBoxSingle<PointType, Vector2L> box : generationArea.get().getBoxes()) {
+            final Vector2L offset = box.getStart().subtract(boundingBox.getStart());
+            final Vector2L dimensions = box.getDimensions();
+            final long[][] data = generator.generate(box);
+            final int xStart = Arrays.binarySearch(generationX, offset.getX().intValue());
+            final int xEnd = Arrays.binarySearch(generationX, offset.add(dimensions).add(-1).getX().intValue());
+            final int zStart = Arrays.binarySearch(generationZ, offset.getZ().intValue());
+            final int zEnd = Arrays.binarySearch(generationZ, offset.add(dimensions).add(-1).getZ().intValue());
+            for (int x = xStart; x <= xEnd; x++) {
+                for (int z = zStart; z <= zEnd; z++) {
+                    final int xEffective = generationX[x] - offset.getX().intValue();
+                    final int zEffective = generationZ[z] - offset.getZ().intValue();
+                    generationValue[x][z] = data[xEffective][zEffective];
+                }
             }
         }
 

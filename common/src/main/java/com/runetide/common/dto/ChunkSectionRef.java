@@ -3,6 +3,10 @@ package com.runetide.common.dto;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.runetide.common.Constants;
+import com.runetide.common.domain.geometry.locus.BoundingBox;
+import com.runetide.common.domain.geometry.locus.FixedBoundingBoxSingle;
+import com.runetide.common.domain.geometry.point.FixedPoint;
+import com.runetide.common.domain.geometry.vector.FixedVector;
 import com.runetide.common.domain.geometry.vector.Vector3L;
 import com.runetide.common.domain.geometry.point.XYZCoordinates;
 
@@ -166,5 +170,19 @@ public class ChunkSectionRef implements ContainerRef<ChunkSectionRef, Vector3L, 
     @Override
     public ChunkRef getParent() {
         return chunkRef;
+    }
+
+    @Override
+    public <T extends ContainerBase<T> & FixedPoint<T, TVecType>, TVecType extends FixedVector<TVecType>>
+    FixedBoundingBoxSingle<T, TVecType> asBoundingBox(final Class<T> clazz) {
+        if(clazz.isInstance(this))
+            return BoundingBox.of(clazz.cast(this), clazz.cast(this));
+        if(ContainerBase.CONTAINING_COMPARATOR.compare(clazz, getClass()) < 0)
+            return getParent().asBoundingBox(clazz);
+        if(clazz.equals(ColumnRef.class))
+            return BoundingBox.of(clazz.cast(getStart().column()), clazz.cast(getEnd().column()));
+        final T start = getStart().asBoundingBox(clazz).getStart();
+        final T end = getEnd().asBoundingBox(clazz).getEnd();
+        return BoundingBox.of(start, end);
     }
 }
