@@ -6,10 +6,7 @@ import com.runetide.common.domain.geometry.point.FixedPoint;
 import com.runetide.common.domain.geometry.point.Point;
 import com.runetide.common.domain.geometry.vector.Vector;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -136,42 +133,25 @@ public abstract class BoundingBoxSet<BBSet extends BoundingBoxSet<BBSet, BBType,
     }
 
     private Set<BBType> compact(final Set<BBType> inputBoxes) {
-        /* The idea behind this method is to go over boxes and see if any of them can be joined into a larger unified
-         * bounding box.
-         */
-        Set<BBType> boxes = inputBoxes;
-        for(;;) {
-            final Optional<Set<BBType>> compacted = compactOnce(boxes);
-            if(compacted.isEmpty())
-                return boxes;
-            boxes = compacted.get();
-        }
-    }
-
-    private Optional<Set<BBType>> compactOnce(final Set<BBType> boxes) {
-        final Set<BBType> compactedBoxes = new HashSet<>(boxes);
-        for(final BBType box1 : boxes) {
-            for(final BBType box2 : boxes) {
-                if(box1 == box2)
-                    continue;
-                /* Handle the union case.  See the union method for more details. */
+        final Queue<BBType> notProcessed = new ArrayDeque<>(inputBoxes);
+        final Set<BBType> processed = new HashSet<>();
+        BBType box1;
+        nextBox: while((box1 = notProcessed.poll()) != null) {
+            for(final Iterator<BBType> it = processed.iterator(); it.hasNext();) {
+                final BBType box2 = it.next();
                 if(box1.intersectsWith(box2)) {
-                    final Optional<BBSet> subtract = box1.subtract(box2);
-                    compactedBoxes.remove(box1);
-                    subtract.ifPresent(bbSet -> compactedBoxes.addAll(bbSet.boxes));
-                    return Optional.of(compactedBoxes);
+                    box1.subtract(box2).ifPresent(bbSet -> notProcessed.addAll(bbSet.boxes));
+                    continue nextBox;
                 }
-                /* We can only merge adjacent boxes, otherwise we get an empty optional.  So, try, and see if
-                 * we could merge it. */
                 final Optional<BBType> mergedBox = box1.merge(box2);
-                if(mergedBox.isEmpty())
-                    continue;
-                compactedBoxes.add(mergedBox.get());
-                compactedBoxes.remove(box1);
-                compactedBoxes.remove(box2);
-                return Optional.of(compactedBoxes);
+                if(mergedBox.isPresent()) {
+                    notProcessed.add(mergedBox.get());
+                    it.remove();
+                    continue nextBox;
+                }
             }
+            processed.add(box1);
         }
-        return Optional.empty();
+        return processed;
     }
 }

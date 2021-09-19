@@ -99,8 +99,6 @@ public class InterpolatingGenerator2L<GenerationParent extends ContainerRef<Gene
         if(generationArea.isEmpty())
             return;
 
-        //TODO: Consider rewriting this to handle one box in borderBox at a time, rather than attempting to crunch
-        //      them all at once.  This should be faster.
         final SortedSet<Long> generationXSet = new TreeSet<>();
         final SortedSet<Long> generationZSet = new TreeSet<>();
         for (final FixedBoundingBoxSingle<PointType, Vector2L> box : generationArea.get().getBoxes()) {

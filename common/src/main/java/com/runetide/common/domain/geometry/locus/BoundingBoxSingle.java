@@ -62,9 +62,11 @@ public abstract class BoundingBoxSingle<BBType extends BoundingBoxSingle<BBType,
     }
 
     public Optional<BBType> merge(final BBType other) {
-        if(!canMerge(other))
-            return Optional.empty();
-        return Optional.of(constructor.construct(other.start, end));
+        if(canMerge(other))
+            return Optional.of(constructor.construct(other.start, end));
+        if(other.canMerge(getSelf()))
+            return Optional.of(constructor.construct(start, other.end));
+        return Optional.empty();
     }
 
     public BBType outset(final VecType direction) {

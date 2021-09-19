@@ -9,10 +9,11 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.OptionalInt;
 
 @SuppressWarnings("UnstableApiUsage")
 public class Vector3L implements FixedVector<Vector3L>, Vector3<Vector3L, Long>, XYZCoordinates<Vector3L> {
-    private static final Vector3L[][][] CACHE = new Vector3L[200][200][200];
+    private static final Vector3L[][][] CACHE = new Vector3L[256][256][256];
     private static final Interner<Vector3L> INTERNER = Interners.newWeakInterner();
 
     public static final Vector3L IDENTITY = of(0, 0, 0);
@@ -32,6 +33,7 @@ public class Vector3L implements FixedVector<Vector3L>, Vector3<Vector3L, Long>,
 
     @Nullable
     private transient Vector3L negatedCache;
+    private final OptionalInt alignedAxis;
 
     public static Vector3L of(final long x, final long y, final long z) {
         final int cacheOffset = CACHE.length / 2;
@@ -47,6 +49,14 @@ public class Vector3L implements FixedVector<Vector3L>, Vector3<Vector3L, Long>,
         this.x = x;
         this.y = y;
         this.z = z;
+        if(x != 0 && y == 0 && z == 0)
+            this.alignedAxis = OptionalInt.of(COORDINATE_X);
+        else if(x == 0 && y != 0 && z == 0)
+            this.alignedAxis = OptionalInt.of(COORDINATE_Y);
+        else if(x == 0 && y == 0 && z != 0)
+            this.alignedAxis = OptionalInt.of(COORDINATE_Z);
+        else
+            this.alignedAxis = OptionalInt.empty();
     }
 
     public Long getX() {
@@ -157,6 +167,11 @@ public class Vector3L implements FixedVector<Vector3L>, Vector3<Vector3L, Long>,
     public Vector3L withCoordinateFrom(final Vector3L other, final int coordinate) {
         return of(coordinate == COORDINATE_X ? other.x : x, coordinate == COORDINATE_Y ? other.y : y,
                 coordinate == COORDINATE_Z ? other.z : z);
+    }
+
+    @Override
+    public OptionalInt getAlignedAxis() {
+        return alignedAxis;
     }
 
     public Vector2L toVec2D() {

@@ -167,6 +167,11 @@ public class ChunkRef implements ContainerRef<ChunkRef, Vector2L, RegionRef, Chu
         return section(Constants.CHUNK_SECTIONS_PER_CHUNK - 1);
     }
 
+    public FixedBoundingBoxSingle<ColumnRef, Vector2L> asColumnBoundingBox() {
+        return BoundingBox.of(column(0, 0),
+                column(Constants.COLUMNS_PER_CHUNK_X - 1, Constants.COLUMNS_PER_CHUNK_Z - 1));
+    }
+
     @Override
     public Vector2L offsetTo(final ContainerBase<?> basis) {
         if(basis.equals(this))

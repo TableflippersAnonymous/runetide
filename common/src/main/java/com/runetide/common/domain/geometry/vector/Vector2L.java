@@ -9,10 +9,11 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.OptionalInt;
 
 @SuppressWarnings("UnstableApiUsage")
 public class Vector2L implements FixedVector<Vector2L>, Vector2<Vector2L, Long>, XZCoordinates<Vector2L> {
-    private static final Vector2L[][] CACHE = new Vector2L[200][200];
+    private static final Vector2L[][] CACHE = new Vector2L[1024][1024];
     private static final Interner<Vector2L> INTERNER = Interners.newWeakInterner();
 
     public static final Vector2L IDENTITY = of(0, 0);
@@ -29,6 +30,7 @@ public class Vector2L implements FixedVector<Vector2L>, Vector2<Vector2L, Long>,
 
     @Nullable
     private transient Vector2L negatedCache = null;
+    private final OptionalInt alignedAxis;
 
     /* Vector2L (and other geometry objects are immutable once constructed.  This means we can cache them and re-use
      * them without worry about someone mutating them.  To facilitate this, the Vector2L constructor is private, with
@@ -46,6 +48,12 @@ public class Vector2L implements FixedVector<Vector2L>, Vector2<Vector2L, Long>,
     private Vector2L(final long x, final long z) {
         this.x = x;
         this.z = z;
+        if(x == 0 && z != 0)
+            this.alignedAxis = OptionalInt.of(COORDINATE_Z);
+        else if(z == 0 && x != 0)
+            this.alignedAxis = OptionalInt.of(COORDINATE_X);
+        else
+            this.alignedAxis = OptionalInt.empty();
     }
 
     public Long getX() {
@@ -175,6 +183,11 @@ public class Vector2L implements FixedVector<Vector2L>, Vector2<Vector2L, Long>,
             negatedCache.negatedCache = this;
         }
         return negatedCache;
+    }
+
+    @Override
+    public OptionalInt getAlignedAxis() {
+        return alignedAxis;
     }
 
     @Override

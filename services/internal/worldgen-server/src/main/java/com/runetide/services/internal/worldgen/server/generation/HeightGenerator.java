@@ -11,6 +11,9 @@ import com.runetide.common.dto.SectorRef;
 import com.runetide.services.internal.worldgen.server.domain.SeedPurpose;
 import com.runetide.services.internal.worldgen.server.domain.WorldSeed;
 import org.apache.commons.math3.analysis.interpolation.BicubicInterpolator;
+import org.apache.commons.math3.analysis.interpolation.PiecewiseBicubicSplineInterpolator;
+
+import java.util.Optional;
 
 public class HeightGenerator extends DelegatingGenerator2<ColumnRef, long[]> {
     private static class Impl extends BaseGenerator2<ChunkRef, ColumnRef, long[]> {
@@ -24,6 +27,49 @@ public class HeightGenerator extends DelegatingGenerator2<ColumnRef, long[]> {
             slopeGenerator = new SlopeGenerator(worldSeed);
             terrainHeightGenerator = new OpenSimplex2SGenerator2L<>(SectorRef.class, ColumnRef.class,
                     worldSeed.sector(SeedPurpose.HEIGHT), 0.001, -128 * 8, 128 * 8);
+        }
+
+        @Override
+        public long[][] generate(final FixedBoundingBoxSingle<ColumnRef, Vector2L> boundingBox) {
+            final Vector2L dimensions = boundingBox.getDimensions();
+            final long[][] ret = new long[dimensions.getX().intValue()][dimensions.getZ().intValue()];
+            final FixedBoundingBoxSingle<ChunkRef, Vector2L> chunkBB = boundingBox.map(ColumnRef::getChunkRef);
+            final FixedBoundingBoxSingle<RegionRef, Vector2L> regionBB = chunkBB.map(ChunkRef::getRegionRef);
+            final long[][] elevation = elevationGenerator.generate(regionBB);
+            final double[][] slope = slopeGenerator.generate(chunkBB);
+            final long[][] heights = terrainHeightGenerator.generate(boundingBox);
+            for(final RegionRef region : regionBB) {
+                final Optional<FixedBoundingBoxSingle<ChunkRef, Vector2L>> chunksInRegion
+                        = chunkBB.intersect(region.asBoundingBox());
+                if(chunksInRegion.isEmpty())
+                    continue;
+                final Vector2L regionOffset = region.subtract(regionBB.getStart());
+                final int xOffsetRegion = regionOffset.getX().intValue();
+                final int zOffsetRegion = regionOffset.getZ().intValue();
+                for(final ChunkRef chunk : chunksInRegion.get()) {
+                    final Optional<FixedBoundingBoxSingle<ColumnRef, Vector2L>> columnsInChunk
+                            = boundingBox.intersect(chunk.asColumnBoundingBox());
+                    if(columnsInChunk.isEmpty())
+                        continue;
+                    final Vector2L chunkOffset = chunk.subtract(chunkBB.getStart());
+                    final int xOffsetChunk = chunkOffset.getX().intValue();
+                    final int zOffsetChunk = chunkOffset.getZ().intValue();
+                    final Vector2L columnOffset = chunk.column(0, 0).subtract(boundingBox.getStart());
+                    final int xOffset = columnOffset.getX().intValue();
+                    final int zOffset = columnOffset.getZ().intValue();
+                    final int xStart = columnsInChunk.get().getStart().getX();
+                    final int xEnd = columnsInChunk.get().getEnd().getX();
+                    final int zStart = columnsInChunk.get().getStart().getZ();
+                    final int zEnd = columnsInChunk.get().getEnd().getZ();
+                    for(int x = xStart; x < xEnd; x++) {
+                        for(int z = zStart; z < zEnd; z++) {
+                            ret[xOffset + x][zOffset + z] = elevation[xOffsetRegion][zOffsetRegion]
+                                    + (long) (slope[xOffsetChunk][zOffsetChunk] * heights[xOffset + x][zOffset + z]) / 8;
+                        }
+                    }
+                }
+            }
+            return ret;
         }
 
         @Override
@@ -46,8 +92,8 @@ public class HeightGenerator extends DelegatingGenerator2<ColumnRef, long[]> {
     }
 
     public HeightGenerator(final WorldSeed worldSeed) {
-        super(new InterpolatingGenerator2L<>(RegionRef.class, ColumnRef.class, new BicubicInterpolator(),
-                new InterpolatingGenerator2L<>(ChunkRef.class, ColumnRef.class, new BicubicInterpolator(),
+        super(new InterpolatingGenerator2L<>(RegionRef.class, ColumnRef.class, new PiecewiseBicubicSplineInterpolator(),
+                new InterpolatingGenerator2L<>(ChunkRef.class, ColumnRef.class, new PiecewiseBicubicSplineInterpolator(),
                         new Impl(worldSeed), Vector.of(4, 4), Vector.of(2, 2)),
                 Vector.of(16, 16), Vector.of(4, 4)));
     }
